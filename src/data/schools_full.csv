@@ -1,0 +1,4 @@
+name,type,city,state,website,admission_type,boarding,competitiveness,size,notes,id,created_date,updated_date,created_by_id,created_by,is_sample
+Phillips Exeter Academy,Selective Public/Charter,Exeter,NH,https://www.exeter.edu,Private,Yes,Highly Selective,Medium,,6930ddd84355b75a002a5bb4,2025-12-04T01:03:20.087000,2025-12-04T01:03:20.087000,6930dbddf72eff4b8aed9b4f,sixersjeet@gmail.com,False
+Phillips Academy Andover,Selective Public/Charter,Andover,MA,https://www.andover.edu,Private,Yes,Highly Selective,Medium,,6930ddd84355b75a002a5bb5,2025-12-04T01:03:20.087000,2025-12-04T01:03:20.087000,6930dbddf72eff4b8aed9b4f,sixersjeet@gmail.com,False
+Nardin Academy,Private,Buffalo,NY,https://www.nardin.org,Private,No,Selective,Medium,Catholic/All-girls,END,2025-12-08T21:23:54.160947,2025-12-08T21:23:54.160947,6930dbddf72eff4b8aed9b4f,sixersjeet@gmail.com,False
