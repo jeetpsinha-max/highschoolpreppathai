@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
 import { SchoolFilters, defaultFilters } from "@/types/school";
+import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users } from "lucide-react";
 
 export default function Schools() {
@@ -72,6 +73,7 @@ export default function Schools() {
                     <h3 className="font-display font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-2">
                       {school.name}
                     </h3>
+                    <SaveSchoolButton schoolId={school.id} />
                   </div>
                   
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">

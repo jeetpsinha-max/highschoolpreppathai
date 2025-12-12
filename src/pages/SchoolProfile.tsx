@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSchool } from "@/hooks/useSchools";
+import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { 
   MapPin, 
   ExternalLink, 
@@ -136,6 +137,7 @@ export default function SchoolProfile() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-3">
+                <SaveSchoolButton schoolId={school.id} variant="full" />
                 {school.website && (
                   <a href={school.website} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" className="w-full sm:w-auto">

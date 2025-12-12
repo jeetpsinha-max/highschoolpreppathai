@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.school-generator]
 verify_jwt = false
+
+[functions.interview-coach]
+verify_jwt = false
+
+[functions.improve-chances]
+verify_jwt = false
