@@ -2,3 +2,6 @@ project_id = "tqtljccgtkuicyobjwon"
 
 [functions.school-matcher]
 verify_jwt = false
+
+[functions.school-generator]
+verify_jwt = false

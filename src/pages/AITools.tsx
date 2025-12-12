@@ -20,7 +20,7 @@ const tools = [
     description: "Describe your ideal school and we'll create a profile and find the 10 closest real matches.",
     icon: Wand2,
     color: "from-purple-500 to-pink-500",
-    available: false,
+    available: true,
   },
   {
     id: "interview",
