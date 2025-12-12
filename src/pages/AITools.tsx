@@ -28,7 +28,7 @@ const tools = [
     description: "Practice with AI-generated questions, get feedback on clarity and confidence, and track your progress.",
     icon: MessageSquare,
     color: "from-blue-500 to-cyan-500",
-    available: false,
+    available: true,
   },
   {
     id: "improve",
@@ -36,7 +36,7 @@ const tools = [
     description: "Get strategic insights for any school: what they value, recommended activities, and preparation timelines.",
     icon: TrendingUp,
     color: "from-emerald-500 to-green-500",
-    available: false,
+    available: true,
   },
   {
     id: "ssat",

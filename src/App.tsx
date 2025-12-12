@@ -11,6 +11,8 @@ import SchoolProfile from "./pages/SchoolProfile";
 import AITools from "./pages/AITools";
 import SchoolMatcher from "./pages/SchoolMatcher";
 import SchoolGenerator from "./pages/SchoolGenerator";
+import InterviewCoach from "./pages/InterviewCoach";
+import ImproveChances from "./pages/ImproveChances";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/ai-tools" element={<AITools />} />
             <Route path="/ai-tools/school-matcher" element={<SchoolMatcher />} />
             <Route path="/ai-tools/school-generator" element={<SchoolGenerator />} />
+            <Route path="/ai-tools/interview" element={<InterviewCoach />} />
+            <Route path="/ai-tools/improve" element={<ImproveChances />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
