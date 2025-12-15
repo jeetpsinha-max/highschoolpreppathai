@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Menu, X, Search, Sparkles, User, LogOut } from "lucide-react";
+import { GraduationCap, Menu, X, Search, Sparkles, User, LogOut, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { href: "/schools", label: "Find Schools", icon: Search },
@@ -14,8 +15,32 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isParent, setIsParent] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      checkUserRole();
+    } else {
+      setIsParent(false);
+    }
+  }, [user]);
+
+  const checkUserRole = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'parent')
+      .maybeSingle();
+    
+    setIsParent(!!data);
+  };
+
+  const dashboardLink = isParent ? '/parent-dashboard' : '/dashboard';
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur-md">
@@ -53,10 +78,10 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
-                <Link to="/dashboard">
+                <Link to={dashboardLink}>
                   <Button variant="ghost" size="sm" className="gap-2">
-                    <User className="h-4 w-4" />
-                    Dashboard
+                    {isParent ? <Users className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                    {isParent ? 'Parent Dashboard' : 'Dashboard'}
                   </Button>
                 </Link>
                 <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
@@ -111,8 +136,10 @@ export function Navbar() {
               <div className="pt-4 mt-2 border-t flex flex-col gap-2">
                 {user ? (
                   <>
-                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full">Dashboard</Button>
+                    <Link to={dashboardLink} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        {isParent ? 'Parent Dashboard' : 'Dashboard'}
+                      </Button>
                     </Link>
                     <Button variant="ghost" onClick={() => { signOut(); setMobileMenuOpen(false); }}>
                       Sign Out

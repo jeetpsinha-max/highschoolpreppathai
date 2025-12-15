@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { GraduationCap, Mail, Lock, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,8 +22,28 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate("/dashboard");
-  }, [user, navigate]);
+    if (user) {
+      // Check user role and redirect accordingly
+      checkUserRoleAndRedirect();
+    }
+  }, [user]);
+
+  const checkUserRoleAndRedirect = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'parent')
+      .maybeSingle();
+    
+    if (data) {
+      navigate('/parent-dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,9 +61,8 @@ export default function Auth() {
         const { error } = await signIn(email, password);
         if (error) {
           toast.error(error.message);
-        } else {
-          navigate("/dashboard");
         }
+        // Navigation handled by useEffect
       }
     } finally {
       setLoading(false);
