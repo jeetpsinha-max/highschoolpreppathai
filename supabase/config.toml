@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.improve-chances]
 verify_jwt = false
+
+[functions.ssat-practice]
+verify_jwt = false
+
+[functions.application-assistant]
+verify_jwt = false

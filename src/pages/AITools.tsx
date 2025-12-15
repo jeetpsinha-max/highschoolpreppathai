@@ -44,15 +44,15 @@ const tools = [
     description: "AI-generated practice questions with explanations. Track scores and identify areas for improvement.",
     icon: Brain,
     color: "from-orange-500 to-amber-500",
-    available: false,
+    available: true,
   },
   {
-    id: "application",
+    id: "assistant",
     title: "Application Assistant",
     description: "Essay brainstorming, draft improvement, activity lists, resumes, and email templates.",
     icon: FileText,
     color: "from-indigo-500 to-violet-500",
-    available: false,
+    available: true,
   },
 ];
 
