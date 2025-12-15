@@ -5,8 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Target, Mic, FileText, BookOpen, ExternalLink, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { 
+  Heart, Target, Mic, FileText, BookOpen, ExternalLink, Trash2, 
+  Plus, Calendar, CheckCircle2, Edit2, ClipboardList
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEssays } from "@/hooks/useEssays";
+import { useChecklist } from "@/hooks/useChecklist";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
@@ -57,6 +67,19 @@ const Dashboard = () => {
   const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([]);
   const [ssatPractice, setSSATPractice] = useState<SSATPractice[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Essay management
+  const { essays, createEssay, updateEssay, deleteEssay } = useEssays();
+  const [newEssayTitle, setNewEssayTitle] = useState("");
+  const [newEssayPrompt, setNewEssayPrompt] = useState("");
+  const [editingEssay, setEditingEssay] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+
+  // Checklist management
+  const { items: checklistItems, addItem, toggleComplete, deleteItem, getUpcomingDeadlines, getOverdueTasks } = useChecklist();
+  const [newTaskSchool, setNewTaskSchool] = useState("");
+  const [newTaskName, setNewTaskName] = useState("");
+  const [newTaskDate, setNewTaskDate] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -120,6 +143,27 @@ const Dashboard = () => {
     }
   };
 
+  const handleCreateEssay = async () => {
+    if (!newEssayTitle) return;
+    await createEssay(newEssayTitle, newEssayPrompt);
+    setNewEssayTitle("");
+    setNewEssayPrompt("");
+  };
+
+  const handleSaveEssayContent = async (id: string) => {
+    await updateEssay(id, { content: editContent });
+    setEditingEssay(null);
+    setEditContent("");
+  };
+
+  const handleAddChecklistItem = async () => {
+    if (!newTaskSchool || !newTaskName) return;
+    await addItem(newTaskSchool, newTaskName, newTaskDate || undefined);
+    setNewTaskSchool("");
+    setNewTaskName("");
+    setNewTaskDate("");
+  };
+
   const getAverageSSATScore = () => {
     const withScores = ssatPractice.filter(p => p.score !== null);
     if (withScores.length === 0) return null;
@@ -131,6 +175,9 @@ const Dashboard = () => {
     if (withScores.length === 0) return null;
     return Math.round(withScores.reduce((acc, s) => acc + (s.score || 0), 0) / withScores.length);
   };
+
+  const upcomingDeadlines = getUpcomingDeadlines(7);
+  const overdueTasks = getOverdueTasks();
 
   if (authLoading || loading) {
     return (
@@ -150,8 +197,34 @@ const Dashboard = () => {
           <p className="text-muted-foreground">Track your application progress and preparation</p>
         </div>
 
+        {/* Deadline Alerts */}
+        {(overdueTasks.length > 0 || upcomingDeadlines.length > 0) && (
+          <div className="mb-6 space-y-3">
+            {overdueTasks.length > 0 && (
+              <Card className="border-destructive/50 bg-destructive/5">
+                <CardContent className="py-3">
+                  <div className="flex items-center gap-2 text-destructive">
+                    <Calendar className="h-4 w-4" />
+                    <span className="font-medium">{overdueTasks.length} overdue task{overdueTasks.length > 1 ? 's' : ''}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {upcomingDeadlines.length > 0 && (
+              <Card className="border-yellow-500/50 bg-yellow-500/5">
+                <CardContent className="py-3">
+                  <div className="flex items-center gap-2 text-yellow-700">
+                    <Calendar className="h-4 w-4" />
+                    <span className="font-medium">{upcomingDeadlines.length} deadline{upcomingDeadlines.length > 1 ? 's' : ''} this week</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -159,6 +232,30 @@ const Dashboard = () => {
                 <div>
                   <p className="text-2xl font-bold">{savedSchools.length}</p>
                   <p className="text-sm text-muted-foreground">Saved Schools</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <FileText className="h-8 w-8 text-blue-500" />
+                <div>
+                  <p className="text-2xl font-bold">{essays.length}</p>
+                  <p className="text-sm text-muted-foreground">Essays</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <ClipboardList className="h-8 w-8 text-green-500" />
+                <div>
+                  <p className="text-2xl font-bold">
+                    {checklistItems.filter(i => i.completed).length}/{checklistItems.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Tasks</p>
                 </div>
               </div>
             </CardContent>
@@ -177,7 +274,7 @@ const Dashboard = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <Mic className="h-8 w-8 text-green-500" />
+                <Mic className="h-8 w-8 text-purple-500" />
                 <div>
                   <p className="text-2xl font-bold">{getAverageInterviewScore() ?? '-'}%</p>
                   <p className="text-sm text-muted-foreground">Avg Interview</p>
@@ -191,20 +288,238 @@ const Dashboard = () => {
                 <BookOpen className="h-8 w-8 text-orange-500" />
                 <div>
                   <p className="text-2xl font-bold">{getAverageSSATScore() ?? '-'}%</p>
-                  <p className="text-sm text-muted-foreground">Avg SSAT Score</p>
+                  <p className="text-sm text-muted-foreground">Avg SSAT</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="schools" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="schools">Saved Schools</TabsTrigger>
-            <TabsTrigger value="matcher">Matcher Results</TabsTrigger>
-            <TabsTrigger value="interview">Interview Practice</TabsTrigger>
-            <TabsTrigger value="ssat">SSAT Practice</TabsTrigger>
+        <Tabs defaultValue="essays" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="essays">Essays</TabsTrigger>
+            <TabsTrigger value="checklist">Checklist</TabsTrigger>
+            <TabsTrigger value="schools">Schools</TabsTrigger>
+            <TabsTrigger value="matcher">Matcher</TabsTrigger>
+            <TabsTrigger value="interview">Interview</TabsTrigger>
+            <TabsTrigger value="ssat">SSAT</TabsTrigger>
           </TabsList>
+
+          {/* Essays Tab */}
+          <TabsContent value="essays">
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Create New Essay Draft</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="essayTitle">Essay Title</Label>
+                      <Input
+                        id="essayTitle"
+                        value={newEssayTitle}
+                        onChange={(e) => setNewEssayTitle(e.target.value)}
+                        placeholder="e.g., Why I Want to Attend..."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="essayPrompt">Prompt (optional)</Label>
+                      <Input
+                        id="essayPrompt"
+                        value={newEssayPrompt}
+                        onChange={(e) => setNewEssayPrompt(e.target.value)}
+                        placeholder="Enter the essay prompt..."
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleCreateEssay} disabled={!newEssayTitle}>
+                    <Plus className="h-4 w-4 mr-2" /> Create Draft
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {essays.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground mb-4">No essay drafts yet</p>
+                    <Button onClick={() => navigate('/ai-tools/application-assistant')}>
+                      Get Help from AI Assistant
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {essays.map((essay) => (
+                    <Card key={essay.id}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-start justify-between">
+                          <CardTitle className="text-lg">{essay.title}</CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={essay.status === 'final' ? 'default' : 'secondary'}>
+                              {essay.status}
+                            </Badge>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => deleteEssay(essay.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </div>
+                        </div>
+                        {essay.prompt && (
+                          <CardDescription className="line-clamp-2">{essay.prompt}</CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Updated {new Date(essay.updated_at).toLocaleDateString()}
+                        </p>
+                        {editingEssay === essay.id ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              placeholder="Write your essay content..."
+                              rows={6}
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleSaveEssayContent(essay.id)}>
+                                Save
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingEssay(null)}>
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            {essay.content ? (
+                              <p className="text-sm line-clamp-3 mb-3">{essay.content}</p>
+                            ) : (
+                              <p className="text-sm text-muted-foreground italic mb-3">No content yet</p>
+                            )}
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setEditingEssay(essay.id);
+                                setEditContent(essay.content || '');
+                              }}
+                            >
+                              <Edit2 className="h-4 w-4 mr-2" /> Edit
+                            </Button>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Checklist Tab */}
+          <TabsContent value="checklist">
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Add Task</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="taskSchool">School Name</Label>
+                      <Input
+                        id="taskSchool"
+                        value={newTaskSchool}
+                        onChange={(e) => setNewTaskSchool(e.target.value)}
+                        placeholder="e.g., Phillips Academy"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="taskName">Task</Label>
+                      <Input
+                        id="taskName"
+                        value={newTaskName}
+                        onChange={(e) => setNewTaskName(e.target.value)}
+                        placeholder="e.g., Submit application"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="taskDate">Due Date (optional)</Label>
+                      <Input
+                        id="taskDate"
+                        type="date"
+                        value={newTaskDate}
+                        onChange={(e) => setNewTaskDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleAddChecklistItem} disabled={!newTaskSchool || !newTaskName}>
+                    <Plus className="h-4 w-4 mr-2" /> Add Task
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {checklistItems.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">No tasks yet. Add your first task above!</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="space-y-3">
+                      {checklistItems.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`flex items-center justify-between p-3 rounded-lg border ${
+                            item.completed ? 'bg-muted/50' : ''
+                          } ${!item.completed && item.due_date && new Date(item.due_date) < new Date() ? 'border-destructive/50' : ''}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Checkbox
+                              checked={item.completed}
+                              onCheckedChange={(checked) => toggleComplete(item.id, !!checked)}
+                            />
+                            <div>
+                              <p className={item.completed ? 'line-through text-muted-foreground' : ''}>
+                                {item.task_name}
+                              </p>
+                              <p className="text-sm text-muted-foreground">{item.school_name}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {item.due_date && (
+                              <Badge 
+                                variant={item.completed ? 'secondary' : 
+                                  new Date(item.due_date) < new Date() ? 'destructive' : 'outline'}
+                              >
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {new Date(item.due_date).toLocaleDateString()}
+                              </Badge>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => deleteItem(item.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
 
           <TabsContent value="schools">
             {savedSchools.length === 0 ? (

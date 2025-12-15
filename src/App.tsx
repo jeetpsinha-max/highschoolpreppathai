@@ -15,6 +15,7 @@ import InterviewCoach from "./pages/InterviewCoach";
 import ImproveChances from "./pages/ImproveChances";
 import SSATPractice from "./pages/SSATPractice";
 import Dashboard from "./pages/Dashboard";
+import ParentDashboard from "./pages/ParentDashboard";
 import ApplicationAssistant from "./pages/ApplicationAssistant";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/parent-dashboard" element={<ParentDashboard />} />
             <Route path="/schools" element={<Schools />} />
             <Route path="/schools/:id" element={<SchoolProfile />} />
             <Route path="/ai-tools" element={<AITools />} />
