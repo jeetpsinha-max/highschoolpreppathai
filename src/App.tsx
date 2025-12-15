@@ -13,6 +13,9 @@ import SchoolMatcher from "./pages/SchoolMatcher";
 import SchoolGenerator from "./pages/SchoolGenerator";
 import InterviewCoach from "./pages/InterviewCoach";
 import ImproveChances from "./pages/ImproveChances";
+import SSATPractice from "./pages/SSATPractice";
+import Dashboard from "./pages/Dashboard";
+import ApplicationAssistant from "./pages/ApplicationAssistant";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/schools" element={<Schools />} />
             <Route path="/schools/:id" element={<SchoolProfile />} />
             <Route path="/ai-tools" element={<AITools />} />
@@ -34,6 +38,8 @@ const App = () => (
             <Route path="/ai-tools/school-generator" element={<SchoolGenerator />} />
             <Route path="/ai-tools/interview" element={<InterviewCoach />} />
             <Route path="/ai-tools/improve" element={<ImproveChances />} />
+            <Route path="/ai-tools/ssat" element={<SSATPractice />} />
+            <Route path="/ai-tools/assistant" element={<ApplicationAssistant />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
