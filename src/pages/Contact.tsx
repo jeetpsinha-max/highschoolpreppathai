@@ -7,15 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { 
-  Mail, 
-  MessageSquare, 
-  Send,
-  MapPin,
-  Clock,
-  Loader2
-} from "lucide-react";
-
+import { Mail, MessageSquare, Send, MapPin, Clock, Loader2 } from "lucide-react";
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,25 +16,28 @@ export default function Contact() {
     subject: "",
     message: ""
   });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     toast.success("Message sent! We'll get back to you within 24 hours.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setFormData({
+      name: "",
+      email: "",
+      subject: "",
+      message: ""
+    });
     setIsSubmitting(false);
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       <div className="container mx-auto px-4 py-12">
@@ -70,7 +65,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Email Us</h3>
-                  <p className="text-sm text-muted-foreground">support@preppath.com</p>
+                  <p className="text-sm text-muted-foreground">Jeetpsinha@gmail.com</p>
                 </div>
               </CardContent>
             </Card>
@@ -94,7 +89,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Location</h3>
-                  <p className="text-sm text-muted-foreground">San Francisco, CA</p>
+                  <p className="text-sm text-muted-foreground">New Jersey</p>
                 </div>
               </CardContent>
             </Card>
@@ -110,71 +105,32 @@ export default function Contact() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Your Name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      placeholder="John Smith"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
+                    <Input id="name" name="name" placeholder="John Smith" value={formData.name} onChange={handleChange} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
+                    <Input id="email" name="email" type="email" placeholder="john@example.com" value={formData.email} onChange={handleChange} required />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
-                  <Input
-                    id="subject"
-                    name="subject"
-                    placeholder="How can we help?"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                  />
+                  <Input id="subject" name="subject" placeholder="How can we help?" value={formData.subject} onChange={handleChange} required />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    placeholder="Tell us more about your question or feedback..."
-                    rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                  />
+                  <Textarea id="message" name="message" placeholder="Tell us more about your question or feedback..." rows={5} value={formData.message} onChange={handleChange} required />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  className="w-full md:w-auto"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
+                <Button type="submit" variant="hero" className="w-full md:w-auto" disabled={isSubmitting}>
+                  {isSubmitting ? <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Sending...
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <Send className="h-4 w-4 mr-2" />
                       Send Message
-                    </>
-                  )}
+                    </>}
                 </Button>
               </form>
             </CardContent>
@@ -194,6 +150,5 @@ export default function Contact() {
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 }
