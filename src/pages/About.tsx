@@ -1,18 +1,9 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  GraduationCap, 
-  Target, 
-  Users, 
-  Sparkles,
-  CheckCircle,
-  Heart
-} from "lucide-react";
-
+import { GraduationCap, Target, Users, Sparkles, CheckCircle, Heart } from "lucide-react";
 export default function About() {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       <div className="container mx-auto px-4 py-12">
@@ -26,10 +17,7 @@ export default function About() {
             Empowering Students to Reach Their{" "}
             <span className="text-secondary">Dream Schools</span>
           </h1>
-          <p className="text-lg text-muted-foreground">
-            PrepPath is an AI-powered platform designed to help students and families 
-            navigate the competitive world of private high school admissions with confidence.
-          </p>
+          <p className="text-lg text-muted-foreground">Highschool PrepPath is an AI-powered platform made by a high school Sophomore to help students and families navigate the competitive world of private high school admissions with confidence and ease.</p>
         </div>
 
         {/* Mission Section */}
@@ -117,25 +105,15 @@ export default function About() {
               Why Choose PrepPath?
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              {[
-                "Personalized school recommendations based on your unique profile",
-                "AI interview coach that provides real-time feedback",
-                "SSAT practice with adaptive difficulty and explanations",
-                "Application checklist with deadline tracking",
-                "Essay brainstorming and improvement tools",
-                "Parent dashboard for family collaboration",
-              ].map((item, index) => (
-                <div key={index} className="flex items-start gap-3">
+              {["Personalized school recommendations based on your unique profile", "AI interview coach that provides real-time feedback", "SSAT practice with adaptive difficulty and explanations", "Application checklist with deadline tracking", "Essay brainstorming and improvement tools", "Parent dashboard for family collaboration"].map((item, index) => <div key={index} className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
                   <span className="text-foreground">{item}</span>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </div>
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 }
