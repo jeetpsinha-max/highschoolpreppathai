@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Heart, Target, Mic, FileText, BookOpen, ExternalLink, Trash2, 
-  Plus, Calendar, CheckCircle2, Edit2, ClipboardList
+  Plus, Calendar, CheckCircle2, Edit2, ClipboardList, Scale, File
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEssays } from "@/hooks/useEssays";
@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { DocumentUpload } from "@/components/DocumentUpload";
 
 interface SavedSchool {
   id: string;
@@ -296,9 +297,10 @@ const Dashboard = () => {
         </div>
 
         <Tabs defaultValue="essays" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="essays">Essays</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="schools">Schools</TabsTrigger>
             <TabsTrigger value="matcher">Matcher</TabsTrigger>
             <TabsTrigger value="interview">Interview</TabsTrigger>
@@ -521,6 +523,11 @@ const Dashboard = () => {
             </div>
           </TabsContent>
 
+          {/* Documents Tab */}
+          <TabsContent value="documents">
+            <DocumentUpload />
+          </TabsContent>
+
           <TabsContent value="schools">
             {savedSchools.length === 0 ? (
               <Card>
@@ -531,38 +538,48 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {savedSchools.map((saved) => (
-                  <Card key={saved.id}>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg">{saved.schools?.name}</CardTitle>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => removeSavedSchool(saved.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </div>
-                      <CardDescription>
-                        {saved.schools?.city}, {saved.schools?.state}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline">{saved.schools?.competitiveness}</Badge>
-                        <Button 
-                          variant="link" 
-                          size="sm"
-                          onClick={() => navigate(`/schools/${saved.school_id}`)}
-                        >
-                          View <ExternalLink className="ml-1 h-3 w-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <Link to="/schools/compare">
+                    <Button variant="outline" size="sm">
+                      <Scale className="h-4 w-4 mr-2" />
+                      Compare Schools
+                    </Button>
+                  </Link>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {savedSchools.map((saved) => (
+                    <Card key={saved.id}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-start justify-between">
+                          <CardTitle className="text-lg">{saved.schools?.name}</CardTitle>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => removeSavedSchool(saved.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                        <CardDescription>
+                          {saved.schools?.city}, {saved.schools?.state}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline">{saved.schools?.competitiveness}</Badge>
+                          <Button 
+                            variant="link" 
+                            size="sm"
+                            onClick={() => navigate(`/schools/${saved.school_id}`)}
+                          >
+                            View <ExternalLink className="ml-1 h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
           </TabsContent>

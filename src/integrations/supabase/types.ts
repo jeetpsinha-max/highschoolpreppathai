@@ -61,6 +61,47 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          file_path: string
+          file_size: number | null
+          id: string
+          name: string
+          school_id: string | null
+          type: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          file_path: string
+          file_size?: number | null
+          id?: string
+          name: string
+          school_id?: string | null
+          type: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          name?: string
+          school_id?: string | null
+          type?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       essays: {
         Row: {
           ai_feedback: Json | null

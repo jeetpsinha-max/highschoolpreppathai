@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Schools from "./pages/Schools";
 import SchoolProfile from "./pages/SchoolProfile";
+import SchoolComparison from "./pages/SchoolComparison";
 import AITools from "./pages/AITools";
 import SchoolMatcher from "./pages/SchoolMatcher";
 import SchoolGenerator from "./pages/SchoolGenerator";
@@ -17,6 +18,8 @@ import SSATPractice from "./pages/SSATPractice";
 import Dashboard from "./pages/Dashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import ApplicationAssistant from "./pages/ApplicationAssistant";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +38,7 @@ const App = () => (
             <Route path="/parent-dashboard" element={<ParentDashboard />} />
             <Route path="/schools" element={<Schools />} />
             <Route path="/schools/:id" element={<SchoolProfile />} />
+            <Route path="/schools/compare" element={<SchoolComparison />} />
             <Route path="/ai-tools" element={<AITools />} />
             <Route path="/ai-tools/school-matcher" element={<SchoolMatcher />} />
             <Route path="/ai-tools/school-generator" element={<SchoolGenerator />} />
@@ -42,6 +46,8 @@ const App = () => (
             <Route path="/ai-tools/improve" element={<ImproveChances />} />
             <Route path="/ai-tools/ssat" element={<SSATPractice />} />
             <Route path="/ai-tools/assistant" element={<ApplicationAssistant />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
