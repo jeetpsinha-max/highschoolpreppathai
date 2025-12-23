@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import { GraduationCap, Mail, MapPin, Phone } from "lucide-react";
-
 export function Footer() {
-  return (
-    <footer className="bg-primary text-primary-foreground">
+  return <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -82,17 +80,10 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 <a href="mailto:hello@preppath.com" className="hover:text-secondary transition-colors">
-                  hello@preppath.com
-                </a>
+              </a>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                <span>(555) 123-4567</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-0.5" />
-                <span>123 Education Lane<br />Boston, MA 02101</span>
-              </li>
+              
+              
             </ul>
           </div>
         </div>
@@ -109,6 +100,5 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 }
