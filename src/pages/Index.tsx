@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SchoolTicker } from "@/components/SchoolTicker";
 import { 
   GraduationCap, Search, Sparkles, MessageSquare, 
   FileText, Target, Brain, ArrowRight, CheckCircle 
@@ -61,6 +62,9 @@ export default function Index() {
         <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       </section>
+
+      {/* School Ticker */}
+      <SchoolTicker />
 
       {/* Features Grid */}
       <section className="py-20 bg-background">

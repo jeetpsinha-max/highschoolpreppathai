@@ -20,6 +20,7 @@ import ParentDashboard from "./pages/ParentDashboard";
 import ApplicationAssistant from "./pages/ApplicationAssistant";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import BetaForSchools from "./pages/BetaForSchools";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/ai-tools/assistant" element={<ApplicationAssistant />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/beta" element={<BetaForSchools />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
