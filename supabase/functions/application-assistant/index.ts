@@ -79,7 +79,20 @@ Provide:
 4. Key dates to remember
 5. Questions parents might want to ask
 
-Keep it informative but not overwhelming.`
+Keep it informative but not overwhelming.`,
+
+      chat: `You are a helpful essay feedback assistant for a student applying to private schools${schoolName ? `, specifically ${schoolName}` : ''}.
+
+The student is asking a question about their essay or application materials:
+"${content}"
+
+Provide a helpful, encouraging response that:
+1. Directly answers their question
+2. Gives specific, actionable advice
+3. Maintains a supportive, mentoring tone
+4. Is appropriate for middle/high school students
+
+Keep your response conversational but informative.`
     };
 
     const systemPrompt = `You are an expert private school admissions counselor helping students with their applications. 

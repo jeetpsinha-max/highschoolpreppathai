@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,11 +6,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lightbulb, FileEdit, ListChecks, Mail, Users } from "lucide-react";
+import { ArrowLeft, Lightbulb, FileEdit, ListChecks, Mail, Users, MessageCircle, Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 const ApplicationAssistant = () => {
   const navigate = useNavigate();
@@ -18,7 +24,13 @@ const ApplicationAssistant = () => {
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("brainstorm");
+  const [activeTab, setActiveTab] = useState("chat");
+
+  // Chat state
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Form states
   const [schoolName, setSchoolName] = useState("");
@@ -29,12 +41,17 @@ const ApplicationAssistant = () => {
   const [parentSummary, setParentSummary] = useState("");
 
   const assistantTypes = [
+    { id: 'chat', name: 'AI Assistant', icon: MessageCircle, description: 'Ask questions about your essay' },
     { id: 'brainstorm', name: 'Essay Brainstorm', icon: Lightbulb, description: 'Generate creative essay ideas' },
     { id: 'improve', name: 'Draft Improvement', icon: FileEdit, description: 'Enhance your essay draft' },
     { id: 'activities', name: 'Activity List', icon: ListChecks, description: 'Organize your activities' },
     { id: 'email', name: 'Email Templates', icon: Mail, description: 'Professional inquiry emails' },
     { id: 'parent_summary', name: 'Parent Summary', icon: Users, description: 'Progress summary for parents' },
   ];
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
 
   const getContentForType = (type: string): string => {
     switch (type) {
@@ -65,6 +82,38 @@ const ApplicationAssistant = () => {
       case 'activities': setActivities(value); break;
       case 'email': setEmailContext(value); break;
       case 'parent_summary': setParentSummary(value); break;
+    }
+  };
+
+  const handleChatSubmit = async () => {
+    if (!chatInput.trim()) return;
+
+    const userMessage: ChatMessage = { role: "user", content: chatInput };
+    setChatMessages((prev) => [...prev, userMessage]);
+    setChatInput("");
+    setChatLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("application-assistant", {
+        body: {
+          type: "chat",
+          content: chatInput,
+          schoolName: schoolName.trim() || undefined,
+        },
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: ChatMessage = { role: "assistant", content: data.result };
+      setChatMessages((prev) => [...prev, assistantMessage]);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to get response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -137,7 +186,7 @@ const ApplicationAssistant = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-5 h-auto">
+            <TabsList className="grid grid-cols-6 h-auto">
               {assistantTypes.map((type) => (
                 <TabsTrigger 
                   key={type.id} 
@@ -145,12 +194,90 @@ const ApplicationAssistant = () => {
                   className="flex flex-col items-center gap-1 py-3"
                 >
                   <type.icon className="h-5 w-5" />
-                  <span className="text-xs">{type.name}</span>
+                  <span className="text-xs hidden sm:block">{type.name.split(' ')[0]}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {assistantTypes.map((type) => (
+            {/* Chat Tab */}
+            <TabsContent value="chat">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                    AI Essay Assistant
+                  </CardTitle>
+                  <CardDescription>
+                    Ask any questions about your essay and get instant, helpful feedback
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col h-[400px]">
+                    <ScrollArea className="flex-1 pr-4 mb-4">
+                      {chatMessages.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">
+                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p className="mb-2">Start a conversation with your essay assistant!</p>
+                          <p className="text-sm">Try asking:</p>
+                          <ul className="text-sm mt-2 space-y-1">
+                            <li>&quot;How can I make my introduction more engaging?&quot;</li>
+                            <li>&quot;Is my essay too long?&quot;</li>
+                            <li>&quot;How do I show my personality in my essay?&quot;</li>
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {chatMessages.map((message, index) => (
+                            <div
+                              key={index}
+                              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                            >
+                              <div
+                                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                                  message.role === "user"
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted"
+                                }`}
+                              >
+                                <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {chatLoading && (
+                            <div className="flex justify-start">
+                              <div className="bg-muted rounded-lg px-4 py-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              </div>
+                            </div>
+                          )}
+                          <div ref={chatEndRef} />
+                        </div>
+                      )}
+                    </ScrollArea>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Ask a question about your essay..."
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleChatSubmit();
+                          }
+                        }}
+                        disabled={chatLoading}
+                      />
+                      <Button onClick={handleChatSubmit} disabled={chatLoading || !chatInput.trim()}>
+                        {chatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Other Tool Tabs */}
+            {assistantTypes.slice(1).map((type) => (
               <TabsContent key={type.id} value={type.id}>
                 <Card>
                   <CardHeader>
@@ -175,7 +302,7 @@ const ApplicationAssistant = () => {
                     >
                       {loading ? (
                         <>
-                          <span className="animate-spin mr-2">⏳</span>
+                          <Loader2 className="animate-spin mr-2 h-4 w-4" />
                           Processing...
                         </>
                       ) : (
@@ -187,22 +314,22 @@ const ApplicationAssistant = () => {
                     </Button>
                   </CardContent>
                 </Card>
+
+                {result && activeTab === type.id && (
+                  <Card className="mt-6">
+                    <CardHeader>
+                      <CardTitle>AI Suggestions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="prose prose-sm max-w-none dark:prose-invert">
+                        <div className="whitespace-pre-wrap">{result}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
             ))}
           </Tabs>
-
-          {result && (
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>AI Suggestions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <div className="whitespace-pre-wrap">{result}</div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </main>
 
