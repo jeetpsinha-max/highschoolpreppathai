@@ -10,9 +10,9 @@ import {
 
 const features = [
   { icon: Search, title: "School Finder", description: "Search and filter 350+ top schools", link: "/schools" },
-  { icon: Target, title: "AI Matcher", description: "Get personalized school recommendations", link: "/ai-tools/matcher" },
+  { icon: Target, title: "AI Matcher", description: "Get personalized school recommendations", link: "/ai-tools/school-matcher" },
   { icon: MessageSquare, title: "Interview Coach", description: "Practice with AI-powered feedback", link: "/ai-tools/interview" },
-  { icon: FileText, title: "Application Assistant", description: "Essays, resumes, and more", link: "/ai-tools/application" },
+  { icon: FileText, title: "Application Assistant", description: "Essays, resumes, and more", link: "/ai-tools/assistant" },
   { icon: Brain, title: "SSAT Practice", description: "AI-generated practice tests", link: "/ai-tools/ssat" },
   { icon: Sparkles, title: "Improve Your Chances", description: "Strategic admission insights", link: "/ai-tools/improve" },
 ];
@@ -41,7 +41,7 @@ export default function Index() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-200">
-              <Link to="/ai-tools/matcher">
+              <Link to="/ai-tools/school-matcher">
                 <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto">
                   <Target className="h-5 w-5" />
                   Try School Matcher
