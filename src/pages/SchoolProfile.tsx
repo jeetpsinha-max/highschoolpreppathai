@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSchool } from "@/hooks/useSchools";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
+import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { 
   MapPin, 
   ExternalLink, 
@@ -347,6 +348,9 @@ export default function SchoolProfile() {
       </main>
       
       <Footer />
+
+      {/* Ask Admissions Chat Widget */}
+      <AskAdmissionsChat school={school} />
     </div>
   );
 }
