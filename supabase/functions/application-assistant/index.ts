@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, content, schoolName } = await req.json();
+    const { type, content, schoolName, essayDraft } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -83,14 +83,20 @@ Keep it informative but not overwhelming.`,
 
       chat: `You are a helpful essay feedback assistant for a student applying to private schools${schoolName ? `, specifically ${schoolName}` : ''}.
 
-The student is asking a question about their essay or application materials:
+${essayDraft ? `The student's current essay draft:
+"""
+${essayDraft}
+"""
+
+` : ''}The student is asking:
 "${content}"
 
 Provide a helpful, encouraging response that:
 1. Directly answers their question
-2. Gives specific, actionable advice
-3. Maintains a supportive, mentoring tone
-4. Is appropriate for middle/high school students
+2. References specific parts of their essay when relevant
+3. Gives specific, actionable advice
+4. Maintains a supportive, mentoring tone
+5. Is appropriate for middle/high school students
 
 Keep your response conversational but informative.`
     };
