@@ -24,7 +24,7 @@ const ApplicationAssistant = () => {
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("chat");
+  const [activeTab, setActiveTab] = useState("improve");
 
   // Chat state
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -41,9 +41,8 @@ const ApplicationAssistant = () => {
   const [parentSummary, setParentSummary] = useState("");
 
   const assistantTypes = [
-    { id: 'chat', name: 'AI Assistant', icon: MessageCircle, description: 'Ask questions about your essay' },
     { id: 'brainstorm', name: 'Essay Brainstorm', icon: Lightbulb, description: 'Generate creative essay ideas' },
-    { id: 'improve', name: 'Draft Improvement', icon: FileEdit, description: 'Enhance your essay draft' },
+    { id: 'improve', name: 'Draft Improvement', icon: FileEdit, description: 'Enhance your essay draft with AI chat' },
     { id: 'activities', name: 'Activity List', icon: ListChecks, description: 'Organize your activities' },
     { id: 'email', name: 'Email Templates', icon: Mail, description: 'Professional inquiry emails' },
     { id: 'parent_summary', name: 'Parent Summary', icon: Users, description: 'Progress summary for parents' },
@@ -98,6 +97,7 @@ const ApplicationAssistant = () => {
         body: {
           type: "chat",
           content: chatInput,
+          essayDraft: essayDraft.trim() || undefined,
           schoolName: schoolName.trim() || undefined,
         },
       });
@@ -186,7 +186,7 @@ const ApplicationAssistant = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-6 h-auto">
+            <TabsList className="grid grid-cols-5 h-auto">
               {assistantTypes.map((type) => (
                 <TabsTrigger 
                   key={type.id} 
@@ -199,85 +199,132 @@ const ApplicationAssistant = () => {
               ))}
             </TabsList>
 
-            {/* Chat Tab */}
-            <TabsContent value="chat">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageCircle className="h-5 w-5 text-primary" />
-                    AI Essay Assistant
-                  </CardTitle>
-                  <CardDescription>
-                    Ask any questions about your essay and get instant, helpful feedback
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col h-[400px]">
-                    <ScrollArea className="flex-1 pr-4 mb-4">
-                      {chatMessages.length === 0 ? (
-                        <div className="text-center text-muted-foreground py-8">
-                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                          <p className="mb-2">Start a conversation with your essay assistant!</p>
-                          <p className="text-sm">Try asking:</p>
-                          <ul className="text-sm mt-2 space-y-1">
-                            <li>&quot;How can I make my introduction more engaging?&quot;</li>
-                            <li>&quot;Is my essay too long?&quot;</li>
-                            <li>&quot;How do I show my personality in my essay?&quot;</li>
-                          </ul>
-                        </div>
+            {/* Draft Improvement with AI Chat */}
+            <TabsContent value="improve">
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Draft Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileEdit className="h-5 w-5 text-primary" />
+                      Your Essay Draft
+                    </CardTitle>
+                    <CardDescription>Paste or write your essay draft here</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Textarea
+                      placeholder="Paste your essay draft here..."
+                      value={essayDraft}
+                      onChange={(e) => setEssayDraft(e.target.value)}
+                      rows={12}
+                      className="resize-none"
+                    />
+                    <Button 
+                      onClick={handleSubmit} 
+                      disabled={loading}
+                      className="w-full"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                          Processing...
+                        </>
                       ) : (
-                        <div className="space-y-4">
-                          {chatMessages.map((message, index) => (
-                            <div
-                              key={index}
-                              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                            >
-                              <div
-                                className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                                  message.role === "user"
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted"
-                                }`}
-                              >
-                                <p className="whitespace-pre-wrap text-sm">{message.content}</p>
-                              </div>
-                            </div>
-                          ))}
-                          {chatLoading && (
-                            <div className="flex justify-start">
-                              <div className="bg-muted rounded-lg px-4 py-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              </div>
-                            </div>
-                          )}
-                          <div ref={chatEndRef} />
-                        </div>
+                        <>
+                          <FileEdit className="mr-2 h-4 w-4" />
+                          Get Improvement Suggestions
+                        </>
                       )}
-                    </ScrollArea>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Ask a question about your essay..."
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            handleChatSubmit();
-                          }
-                        }}
-                        disabled={chatLoading}
-                      />
-                      <Button onClick={handleChatSubmit} disabled={chatLoading || !chatInput.trim()}>
-                        {chatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                      </Button>
+                    </Button>
+                    {result && activeTab === "improve" && (
+                      <div className="mt-4 p-4 bg-muted rounded-lg">
+                        <h4 className="font-semibold mb-2">AI Suggestions</h4>
+                        <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap text-sm">
+                          {result}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* AI Chat Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      AI Assistant
+                    </CardTitle>
+                    <CardDescription>
+                      Ask questions about your essay - the AI can see your draft
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col h-[400px]">
+                      <ScrollArea className="flex-1 pr-4 mb-4">
+                        {chatMessages.length === 0 ? (
+                          <div className="text-center text-muted-foreground py-8">
+                            <MessageCircle className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                            <p className="mb-2 text-sm">Ask questions about your essay!</p>
+                            <ul className="text-xs mt-2 space-y-1">
+                              <li>"How can I make my intro stronger?"</li>
+                              <li>"Is my essay too long?"</li>
+                              <li>"How do I show more personality?"</li>
+                            </ul>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {chatMessages.map((message, index) => (
+                              <div
+                                key={index}
+                                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                              >
+                                <div
+                                  className={`max-w-[85%] rounded-lg px-3 py-2 ${
+                                    message.role === "user"
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted"
+                                  }`}
+                                >
+                                  <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                                </div>
+                              </div>
+                            ))}
+                            {chatLoading && (
+                              <div className="flex justify-start">
+                                <div className="bg-muted rounded-lg px-3 py-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                              </div>
+                            )}
+                            <div ref={chatEndRef} />
+                          </div>
+                        )}
+                      </ScrollArea>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Ask about your essay..."
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleChatSubmit();
+                            }
+                          }}
+                          disabled={chatLoading}
+                        />
+                        <Button onClick={handleChatSubmit} disabled={chatLoading || !chatInput.trim()} size="icon">
+                          {chatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* Other Tool Tabs */}
-            {assistantTypes.slice(1).map((type) => (
+            {assistantTypes.filter(t => t.id !== 'improve').map((type) => (
               <TabsContent key={type.id} value={type.id}>
                 <Card>
                   <CardHeader>
