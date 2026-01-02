@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.application-assistant]
 verify_jwt = false
+
+[functions.ask-admissions]
+verify_jwt = false
