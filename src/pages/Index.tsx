@@ -180,7 +180,7 @@ export default function Index() {
             </div>
             
             <div className="text-center mt-10">
-              <Link to="/beta-for-schools">
+              <Link to="/pilot">
                 <Button variant="outline" size="lg" className="gap-2">
                   Learn More About the Pilot
                   <ArrowRight className="h-4 w-4" />
