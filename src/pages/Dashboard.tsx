@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,9 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Heart, Target, Mic, FileText, BookOpen, ExternalLink, Trash2, 
-  Plus, Calendar, CheckCircle2, Edit2, ClipboardList, Scale, File
+  Plus, Calendar, CheckCircle2, Edit2, ClipboardList, Scale, File,
+  MessageCircle, Send, Loader2, Sparkles
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEssays } from "@/hooks/useEssays";
@@ -22,6 +24,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DocumentUpload } from "@/components/DocumentUpload";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 interface SavedSchool {
   id: string;
@@ -81,6 +88,13 @@ const Dashboard = () => {
   const [newTaskSchool, setNewTaskSchool] = useState("");
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDate, setNewTaskDate] = useState("");
+
+  // AI Assistant state
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiChatMessages, setAiChatMessages] = useState<ChatMessage[]>([]);
+  const [aiChatInput, setAiChatInput] = useState("");
+  const [aiChatLoading, setAiChatLoading] = useState(false);
+  const aiChatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -164,6 +178,43 @@ const Dashboard = () => {
     setNewTaskName("");
     setNewTaskDate("");
   };
+
+  // AI Chat handler
+  const handleAIChatSubmit = async () => {
+    if (!aiChatInput.trim()) return;
+
+    const userMessage: ChatMessage = { role: "user", content: aiChatInput };
+    setAiChatMessages((prev) => [...prev, userMessage]);
+    setAiChatInput("");
+    setAiChatLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("application-assistant", {
+        body: {
+          type: "chat",
+          content: aiChatInput,
+        },
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: ChatMessage = { role: "assistant", content: data.result };
+      setAiChatMessages((prev) => [...prev, assistantMessage]);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to get response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAiChatLoading(false);
+    }
+  };
+
+  // Scroll chat to bottom
+  useEffect(() => {
+    aiChatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [aiChatMessages]);
 
   const getAverageSSATScore = () => {
     const withScores = ssatPractice.filter(p => p.score !== null);
@@ -343,12 +394,98 @@ const Dashboard = () => {
 
               {essays.length === 0 ? (
                 <Card>
-                  <CardContent className="py-12 text-center">
-                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">No essay drafts yet</p>
-                    <Button onClick={() => navigate('/ai-tools/application-assistant')}>
-                      Get Help from AI Assistant
-                    </Button>
+                  <CardContent className="py-8">
+                    {!showAIAssistant ? (
+                      <div className="text-center">
+                        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground mb-4">No essay drafts yet</p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                          <Button onClick={() => setShowAIAssistant(true)} className="gap-2">
+                            <Sparkles className="h-4 w-4" />
+                            Get Help from AI Assistant
+                          </Button>
+                          <Button variant="outline" onClick={() => navigate('/ai-tools/application-assistant')}>
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Open Full Assistant
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="max-w-2xl mx-auto">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            <h3 className="font-semibold">AI Essay Assistant</h3>
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => setShowAIAssistant(false)}>
+                            Close
+                          </Button>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Ask me anything about essays! I can help you brainstorm ideas, structure your thoughts, or improve your writing.
+                        </p>
+
+                        <ScrollArea className="h-[300px] border rounded-lg p-4 mb-4">
+                          {aiChatMessages.length === 0 ? (
+                            <div className="text-center text-muted-foreground py-8">
+                              <MessageCircle className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                              <p className="mb-3 text-sm">Try asking:</p>
+                              <ul className="text-xs space-y-2">
+                                <li className="bg-muted rounded-full px-3 py-1.5 inline-block">"Help me brainstorm essay topics"</li>
+                                <li className="bg-muted rounded-full px-3 py-1.5 inline-block">"How do I start a 'Why this school' essay?"</li>
+                                <li className="bg-muted rounded-full px-3 py-1.5 inline-block">"What makes a strong opening paragraph?"</li>
+                              </ul>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              {aiChatMessages.map((message, index) => (
+                                <div
+                                  key={index}
+                                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                                >
+                                  <div
+                                    className={`max-w-[85%] rounded-lg px-3 py-2 ${
+                                      message.role === "user"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted"
+                                    }`}
+                                  >
+                                    <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                                  </div>
+                                </div>
+                              ))}
+                              {aiChatLoading && (
+                                <div className="flex justify-start">
+                                  <div className="bg-muted rounded-lg px-3 py-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                </div>
+                              )}
+                              <div ref={aiChatEndRef} />
+                            </div>
+                          )}
+                        </ScrollArea>
+
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Ask about essays, brainstorm ideas..."
+                            value={aiChatInput}
+                            onChange={(e) => setAiChatInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                handleAIChatSubmit();
+                              }
+                            }}
+                            disabled={aiChatLoading}
+                          />
+                          <Button onClick={handleAIChatSubmit} disabled={aiChatLoading || !aiChatInput.trim()} size="icon">
+                            {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ) : (
