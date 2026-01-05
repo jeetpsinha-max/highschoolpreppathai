@@ -122,6 +122,75 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Pilot Program Section */}
+      <section className="py-20 bg-background border-t border-border">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 bg-secondary/10 px-4 py-2 rounded-full text-sm font-medium text-secondary mb-4">
+                <Sparkles className="h-4 w-4" />
+                Limited Pilot Program
+              </div>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Join Our Exclusive Pilot
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                We're partnering with select families and schools to shape the future of high school admissions.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="border-l-4 border-l-secondary">
+                <CardContent className="p-6">
+                  <h3 className="font-display font-semibold text-xl text-foreground mb-4">For Families</h3>
+                  <ul className="space-y-3">
+                    {[
+                      "Free access to all AI tools during pilot",
+                      "Personalized school matching & recommendations",
+                      "Direct feedback channel to shape features",
+                      "Priority support from our team",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-l-4 border-l-primary">
+                <CardContent className="p-6">
+                  <h3 className="font-display font-semibold text-xl text-foreground mb-4">For Schools</h3>
+                  <ul className="space-y-3">
+                    {[
+                      "Enhanced visibility to matched students",
+                      "Analytics on prospective applicant interests",
+                      "Direct integration with admissions workflow",
+                      "Co-develop features for your needs",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="text-center mt-10">
+              <Link to="/beta-for-schools">
+                <Button variant="outline" size="lg" className="gap-2">
+                  Learn More About the Pilot
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-muted">
         <div className="container mx-auto px-4">
