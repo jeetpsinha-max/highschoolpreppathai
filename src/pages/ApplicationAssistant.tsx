@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,22 +20,29 @@ interface ChatMessage {
 
 const ApplicationAssistant = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Get state passed from Dashboard
+  const passedState = location.state as { 
+    chatMessages?: ChatMessage[]; 
+    essayDraft?: string;
+  } | null;
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("improve");
 
-  // Chat state
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  // Chat state - initialize with passed messages if available
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(passedState?.chatMessages || []);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Form states
+  // Form states - initialize essay draft with passed content if available
   const [schoolName, setSchoolName] = useState("");
   const [brainstormContent, setBrainstormContent] = useState("");
-  const [essayDraft, setEssayDraft] = useState("");
+  const [essayDraft, setEssayDraft] = useState(passedState?.essayDraft || "");
   const [activities, setActivities] = useState("");
   const [emailContext, setEmailContext] = useState("");
   const [parentSummary, setParentSummary] = useState("");
