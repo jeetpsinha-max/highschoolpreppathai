@@ -404,7 +404,15 @@ const Dashboard = () => {
                             <Sparkles className="h-4 w-4" />
                             Get Help from AI Assistant
                           </Button>
-                          <Button variant="outline" onClick={() => navigate('/ai-tools/application-assistant')}>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => navigate('/ai-tools/application-assistant', { 
+                              state: { 
+                                chatMessages: aiChatMessages,
+                                essayDraft: editContent || undefined
+                              } 
+                            })}
+                          >
                             <MessageCircle className="h-4 w-4 mr-2" />
                             Open Full Assistant
                           </Button>
