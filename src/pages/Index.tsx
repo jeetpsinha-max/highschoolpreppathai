@@ -6,7 +6,8 @@ import { Footer } from "@/components/layout/Footer";
 import { SchoolTicker } from "@/components/SchoolTicker";
 import { 
   GraduationCap, Search, Sparkles, MessageSquare, 
-  FileText, Target, Brain, ArrowRight, CheckCircle 
+  FileText, Target, Brain, ArrowRight, CheckCircle,
+  Users, Star, Clock, Shield, Zap, BookOpen
 } from "lucide-react";
 
 const features = [
@@ -18,34 +19,47 @@ const features = [
   { icon: Sparkles, title: "Improve Your Chances", description: "Strategic admission insights", link: "/ai-tools/improve" },
 ];
 
+const howItWorks = [
+  { step: 1, title: "Create Your Profile", description: "Tell us about your academic interests, activities, and what you're looking for in a school.", icon: Users },
+  { step: 2, title: "Get AI-Matched Schools", description: "Our AI analyzes your profile against 350+ schools to find your best matches.", icon: Target },
+  { step: 3, title: "Prepare & Apply", description: "Use our tools to practice interviews, write essays, and track deadlines.", icon: BookOpen },
+];
+
+const testimonials = [
+  { name: "Sarah M.", role: "Student, Class of 2025", quote: "The AI matcher found schools I never would have discovered on my own. I'm now attending my dream school!", rating: 5 },
+  { name: "James L.", role: "Parent", quote: "The interview coach was invaluable. My daughter's confidence improved dramatically.", rating: 5 },
+  { name: "Emily R.", role: "Student, Class of 2024", quote: "The essay assistant helped me articulate my story in a way that truly represented me.", rating: 5 },
+];
+
 export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/50 py-20 lg:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-b from-background via-accent/30 to-background py-24 lg:py-36">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-accent px-4 py-2 rounded-full text-sm font-medium text-accent-foreground mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 bg-secondary/10 border border-secondary/20 px-4 py-2 rounded-full text-sm font-medium text-secondary mb-8 animate-fade-in">
               <Sparkles className="h-4 w-4" />
               AI-Powered School Discovery
             </div>
             
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 animate-fade-in-up">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 animate-fade-in-up leading-tight">
               Find Your Best-Fit
-              <span className="block text-secondary">High School with AI</span>
+              <span className="block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">High School with AI</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-up animation-delay-100">
-              Discover, match, and apply to the nation's top private, boarding, magnet, and selective public high schools.
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up animation-delay-100">
+              Discover, match, and apply to the nation's top private, boarding, magnet, and selective public high schools—all with AI-powered guidance.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-200">
               <Link to="/ai-tools/school-matcher">
-                <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto">
-                  <Target className="h-5 w-5" />
+                <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto group">
+                  <Target className="h-5 w-5 group-hover:scale-110 transition-transform" />
                   Try School Matcher
+                  <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link to="/schools">
@@ -55,16 +69,75 @@ export default function Index() {
                 </Button>
               </Link>
             </div>
+
+            {/* Trust Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-muted-foreground animate-fade-in-up animation-delay-300">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-secondary" />
+                <span>100% Free to Start</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-secondary" />
+                <span>Ready in Minutes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-secondary" />
+                <span>AI-Powered Matching</span>
+              </div>
+            </div>
           </div>
         </div>
         
         {/* Decorative elements */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-secondary/5 to-transparent rounded-full blur-3xl pointer-events-none" />
       </section>
 
       {/* School Ticker */}
       <SchoolTicker />
+
+      {/* How It Works Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+              How It Works
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Get matched with your ideal schools in three simple steps
+            </p>
+          </div>
+          
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8">
+              {howItWorks.map((item, index) => (
+                <div key={item.step} className="relative">
+                  <Card className="h-full text-center p-6 border-t-4 border-t-secondary hover:shadow-lg transition-shadow">
+                    <CardContent className="pt-4">
+                      <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-6">
+                        <item.icon className="h-8 w-8 text-secondary" />
+                      </div>
+                      <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-secondary-foreground text-sm font-bold mb-4">
+                        {item.step}
+                      </div>
+                      <h3 className="font-display font-semibold text-lg text-foreground mb-3">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                  {index < howItWorks.length - 1 && (
+                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                      <ArrowRight className="h-6 w-6 text-muted-foreground/40" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Features Grid */}
       <section className="py-20 bg-background">
@@ -79,7 +152,7 @@ export default function Index() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <Link key={feature.title} to={feature.link}>
                 <Card className="h-full group cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border-l-4 border-l-secondary">
                   <CardContent className="p-6">
@@ -104,7 +177,7 @@ export default function Index() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
+      <section className="py-16 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
@@ -113,8 +186,8 @@ export default function Index() {
               { value: "6", label: "AI Tools" },
               { value: "100%", label: "Free to Start" },
             ].map((stat) => (
-              <div key={stat.label}>
-                <div className="font-display text-3xl md:text-4xl font-bold text-secondary mb-2">{stat.value}</div>
+              <div key={stat.label} className="space-y-2">
+                <div className="font-display text-3xl md:text-5xl font-bold text-secondary">{stat.value}</div>
                 <div className="text-sm text-primary-foreground/80">{stat.label}</div>
               </div>
             ))}
@@ -122,8 +195,43 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+              What Families Are Saying
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Join thousands of students and parents who've found success with BoardingSchoolBuddy
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="h-full">
+                <CardContent className="p-6">
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
+                    ))}
+                  </div>
+                  <blockquote className="text-foreground mb-4 italic">
+                    "{testimonial.quote}"
+                  </blockquote>
+                  <div className="border-t pt-4">
+                    <p className="font-semibold text-foreground">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Pilot Program Section */}
-      <section className="py-20 bg-background border-t border-border">
+      <section className="py-20 bg-muted/50 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -140,7 +248,7 @@ export default function Index() {
             </div>
             
             <div className="grid md:grid-cols-2 gap-8">
-              <Card className="border-l-4 border-l-secondary">
+              <Card className="border-t-4 border-t-secondary">
                 <CardContent className="p-6">
                   <h3 className="font-display font-semibold text-xl text-foreground mb-4">For Families</h3>
                   <ul className="space-y-3">
@@ -159,7 +267,7 @@ export default function Index() {
                 </CardContent>
               </Card>
               
-              <Card className="border-l-4 border-l-primary">
+              <Card className="border-t-4 border-t-primary">
                 <CardContent className="p-6">
                   <h3 className="font-display font-semibold text-xl text-foreground mb-4">For Schools</h3>
                   <ul className="space-y-3">
@@ -192,19 +300,21 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-muted">
-        <div className="container mx-auto px-4">
+      <section className="py-24 bg-gradient-to-br from-primary via-primary to-secondary/80 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="container mx-auto px-4 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
               Ready to Find Your Path?
             </h2>
-            <p className="text-muted-foreground mb-8">
-              Join thousands of students who've discovered their perfect school match.
+            <p className="text-primary-foreground/80 text-lg mb-10">
+              Join thousands of students who've discovered their perfect school match with AI-powered guidance.
             </p>
             <Link to="/auth?mode=signup">
-              <Button variant="hero" size="xl" className="gap-2">
+              <Button size="xl" className="gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                 <GraduationCap className="h-5 w-5" />
                 Get Started Free
+                <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </div>
