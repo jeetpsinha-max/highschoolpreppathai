@@ -4,36 +4,72 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SchoolTicker } from "@/components/SchoolTicker";
-import { 
-  GraduationCap, Search, Sparkles, MessageSquare, 
-  FileText, Target, Brain, ArrowRight, CheckCircle,
-  Users, Star, Clock, Shield, Zap, BookOpen
-} from "lucide-react";
-
-const features = [
-  { icon: Search, title: "School Finder", description: "Search and filter 350+ top schools", link: "/schools" },
-  { icon: Target, title: "AI Matcher", description: "Get personalized school recommendations", link: "/ai-tools/school-matcher" },
-  { icon: MessageSquare, title: "Interview Coach", description: "Practice with AI-powered feedback", link: "/ai-tools/interview" },
-  { icon: FileText, title: "Application Assistant", description: "Essays, resumes, and more", link: "/ai-tools/assistant" },
-  { icon: Brain, title: "SSAT Practice", description: "AI-generated practice tests", link: "/ai-tools/ssat" },
-  { icon: Sparkles, title: "Improve Your Chances", description: "Strategic admission insights", link: "/ai-tools/improve" },
-];
-
-const howItWorks = [
-  { step: 1, title: "Create Your Profile", description: "Tell us about your academic interests, activities, and what you're looking for in a school.", icon: Users },
-  { step: 2, title: "Get AI-Matched Schools", description: "Our AI analyzes your profile against 350+ schools to find your best matches.", icon: Target },
-  { step: 3, title: "Prepare & Apply", description: "Use our tools to practice interviews, write essays, and track deadlines.", icon: BookOpen },
-];
-
-const testimonials = [
-  { name: "Sarah M.", role: "Student, Class of 2025", quote: "The AI matcher found schools I never would have discovered on my own. I'm now attending my dream school!", rating: 5 },
-  { name: "James L.", role: "Parent", quote: "The interview coach was invaluable. My daughter's confidence improved dramatically.", rating: 5 },
-  { name: "Emily R.", role: "Student, Class of 2024", quote: "The essay assistant helped me articulate my story in a way that truly represented me.", rating: 5 },
-];
-
+import { GraduationCap, Search, Sparkles, MessageSquare, FileText, Target, Brain, ArrowRight, CheckCircle, Users, Star, Clock, Shield, Zap, BookOpen } from "lucide-react";
+const features = [{
+  icon: Search,
+  title: "School Finder",
+  description: "Search and filter 350+ top schools",
+  link: "/schools"
+}, {
+  icon: Target,
+  title: "AI Matcher",
+  description: "Get personalized school recommendations",
+  link: "/ai-tools/school-matcher"
+}, {
+  icon: MessageSquare,
+  title: "Interview Coach",
+  description: "Practice with AI-powered feedback",
+  link: "/ai-tools/interview"
+}, {
+  icon: FileText,
+  title: "Application Assistant",
+  description: "Essays, resumes, and more",
+  link: "/ai-tools/assistant"
+}, {
+  icon: Brain,
+  title: "SSAT Practice",
+  description: "AI-generated practice tests",
+  link: "/ai-tools/ssat"
+}, {
+  icon: Sparkles,
+  title: "Improve Your Chances",
+  description: "Strategic admission insights",
+  link: "/ai-tools/improve"
+}];
+const howItWorks = [{
+  step: 1,
+  title: "Create Your Profile",
+  description: "Tell us about your academic interests, activities, and what you're looking for in a school.",
+  icon: Users
+}, {
+  step: 2,
+  title: "Get AI-Matched Schools",
+  description: "Our AI analyzes your profile against 350+ schools to find your best matches.",
+  icon: Target
+}, {
+  step: 3,
+  title: "Prepare & Apply",
+  description: "Use our tools to practice interviews, write essays, and track deadlines.",
+  icon: BookOpen
+}];
+const testimonials = [{
+  name: "Sarah M.",
+  role: "Student, Class of 2025",
+  quote: "The AI matcher found schools I never would have discovered on my own. I'm now attending my dream school!",
+  rating: 5
+}, {
+  name: "James L.",
+  role: "Parent",
+  quote: "The interview coach was invaluable. My daughter's confidence improved dramatically.",
+  rating: 5
+}, {
+  name: "Emily R.",
+  role: "Student, Class of 2024",
+  quote: "The essay assistant helped me articulate my story in a way that truly represented me.",
+  rating: 5
+}];
 export default function Index() {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
@@ -111,8 +147,7 @@ export default function Index() {
           
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
-              {howItWorks.map((item, index) => (
-                <div key={item.step} className="relative">
+              {howItWorks.map((item, index) => <div key={item.step} className="relative">
                   <Card className="h-full text-center p-6 border-t-4 border-t-secondary hover:shadow-lg transition-shadow">
                     <CardContent className="pt-4">
                       <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-6">
@@ -127,13 +162,10 @@ export default function Index() {
                       <p className="text-sm text-muted-foreground">{item.description}</p>
                     </CardContent>
                   </Card>
-                  {index < howItWorks.length - 1 && (
-                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                  {index < howItWorks.length - 1 && <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
                       <ArrowRight className="h-6 w-6 text-muted-foreground/40" />
-                    </div>
-                  )}
-                </div>
-              ))}
+                    </div>}
+                </div>)}
             </div>
           </div>
         </div>
@@ -152,8 +184,7 @@ export default function Index() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature) => (
-              <Link key={feature.title} to={feature.link}>
+            {features.map(feature => <Link key={feature.title} to={feature.link}>
                 <Card className="h-full group cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border-l-4 border-l-secondary">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
@@ -170,8 +201,7 @@ export default function Index() {
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              </Link>)}
           </div>
         </div>
       </section>
@@ -180,54 +210,29 @@ export default function Index() {
       <section className="py-16 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: "350+", label: "Schools" },
-              { value: "50", label: "States Covered" },
-              { value: "6", label: "AI Tools" },
-              { value: "100%", label: "Free to Start" },
-            ].map((stat) => (
-              <div key={stat.label} className="space-y-2">
+            {[{
+            value: "350+",
+            label: "Schools"
+          }, {
+            value: "50",
+            label: "States Covered"
+          }, {
+            value: "6",
+            label: "AI Tools"
+          }, {
+            value: "100%",
+            label: "Free to Start"
+          }].map(stat => <div key={stat.label} className="space-y-2">
                 <div className="font-display text-3xl md:text-5xl font-bold text-secondary">{stat.value}</div>
                 <div className="text-sm text-primary-foreground/80">{stat.label}</div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-              What Families Are Saying
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of students and parents who've found success with BoardingSchoolBuddy
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="h-full">
-                <CardContent className="p-6">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                    ))}
-                  </div>
-                  <blockquote className="text-foreground mb-4 italic">
-                    "{testimonial.quote}"
-                  </blockquote>
-                  <div className="border-t pt-4">
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        
       </section>
 
       {/* Pilot Program Section */}
@@ -252,17 +257,10 @@ export default function Index() {
                 <CardContent className="p-6">
                   <h3 className="font-display font-semibold text-xl text-foreground mb-4">For Families</h3>
                   <ul className="space-y-3">
-                    {[
-                      "Free access to all AI tools during pilot",
-                      "Personalized school matching & recommendations",
-                      "Direct feedback channel to shape features",
-                      "Priority support from our team",
-                    ].map((item) => (
-                      <li key={item} className="flex items-start gap-3">
+                    {["Free access to all AI tools during pilot", "Personalized school matching & recommendations", "Direct feedback channel to shape features", "Priority support from our team"].map(item => <li key={item} className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                         <span className="text-muted-foreground">{item}</span>
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
                 </CardContent>
               </Card>
@@ -271,17 +269,10 @@ export default function Index() {
                 <CardContent className="p-6">
                   <h3 className="font-display font-semibold text-xl text-foreground mb-4">For Schools</h3>
                   <ul className="space-y-3">
-                    {[
-                      "Enhanced visibility to matched students",
-                      "Analytics on prospective applicant interests",
-                      "Direct integration with admissions workflow",
-                      "Co-develop features for your needs",
-                    ].map((item) => (
-                      <li key={item} className="flex items-start gap-3">
+                    {["Enhanced visibility to matched students", "Analytics on prospective applicant interests", "Direct integration with admissions workflow", "Co-develop features for your needs"].map(item => <li key={item} className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                         <span className="text-muted-foreground">{item}</span>
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
                 </CardContent>
               </Card>
@@ -322,6 +313,5 @@ export default function Index() {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 }
