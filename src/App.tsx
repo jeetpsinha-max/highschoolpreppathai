@@ -22,6 +22,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import BetaForSchools from "./pages/BetaForSchools";
 import PilotProgram from "./pages/PilotProgram";
+import Documents from "./pages/Documents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/beta" element={<BetaForSchools />} />
             <Route path="/pilot" element={<PilotProgram />} />
+            <Route path="/documents" element={<Documents />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
