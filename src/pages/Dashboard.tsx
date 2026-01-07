@@ -406,14 +406,15 @@ const Dashboard = () => {
                           </Button>
                           <Button 
                             variant="outline" 
-                            onClick={() => navigate('/ai-tools/application-assistant', { 
+                            onClick={() => navigate('/ai-tools/assistant', { 
                               state: { 
-                                chatMessages: aiChatMessages,
-                                essayDraft: editContent || undefined
+                                chatMessages: aiChatMessages.length > 0 ? aiChatMessages : undefined,
+                                essayDraft: undefined
                               } 
                             })}
+                            className="gap-2"
                           >
-                            <MessageCircle className="h-4 w-4 mr-2" />
+                            <ExternalLink className="h-4 w-4" />
                             Open Full Assistant
                           </Button>
                         </div>
@@ -492,6 +493,22 @@ const Dashboard = () => {
                             {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                           </Button>
                         </div>
+                        
+                        {/* Open Full Assistant button - always visible when AI panel is open */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="w-full mt-3 gap-2"
+                          onClick={() => navigate('/ai-tools/assistant', { 
+                            state: { 
+                              chatMessages: aiChatMessages.length > 0 ? aiChatMessages : undefined,
+                              essayDraft: undefined
+                            } 
+                          })}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Continue in Full Assistant
+                        </Button>
                       </div>
                     )}
                   </CardContent>
