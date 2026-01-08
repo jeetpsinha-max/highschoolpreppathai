@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
-import { SchoolFilters, defaultFilters } from "@/types/school";
+import { SchoolFilters, defaultFilters, getGradeColor } from "@/types/school";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
-import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users } from "lucide-react";
+import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Trophy, BookOpen, Building2, BedDouble } from "lucide-react";
 
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
@@ -81,7 +81,7 @@ export default function Schools() {
                     <span>{school.city}, {school.state}</span>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-3">
                     {school.competitiveness && (
                       <Badge variant={getCompetitivenessColor(school.competitiveness)}>
                         {school.competitiveness}
@@ -101,6 +101,34 @@ export default function Schools() {
                     )}
                     {school.notes?.includes("girls") && <Badge variant="girls-only">Girls</Badge>}
                     {school.notes?.includes("Catholic") && <Badge variant="religious">Catholic</Badge>}
+                  </div>
+
+                  {/* Grades */}
+                  <div className="grid grid-cols-4 gap-1.5 mb-4">
+                    <div className="text-center">
+                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.academics_grade)}`}>
+                        {school.academics_grade || '-'}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">Academics</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.sports_grade)}`}>
+                        {school.sports_grade || '-'}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">Sports</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.campus_grade)}`}>
+                        {school.campus_grade || '-'}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">Campus</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.boarding ? school.dorms_grade : null)}`}>
+                        {school.boarding ? (school.dorms_grade || '-') : 'N/A'}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">Dorms</div>
+                    </div>
                   </div>
 
                   <div className="flex gap-2">
