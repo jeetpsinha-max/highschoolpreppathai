@@ -406,7 +406,7 @@ const Dashboard = () => {
                           </Button>
                           <Button 
                             variant="outline" 
-                            onClick={() => navigate('/ai-tools/application-assistant', { 
+                            onClick={() => navigate('/ai-tools/assistant', { 
                               state: { 
                                 chatMessages: aiChatMessages,
                                 essayDraft: editContent || undefined
