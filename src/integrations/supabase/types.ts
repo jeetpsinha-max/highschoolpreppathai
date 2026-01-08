@@ -317,45 +317,57 @@ export type Database = {
       }
       schools: {
         Row: {
+          academics_grade: string | null
           admission_type: string | null
           boarding: boolean | null
+          campus_grade: string | null
           city: string | null
           competitiveness: string | null
           created_at: string
+          dorms_grade: string | null
           id: string
           name: string
           notes: string | null
           size: string | null
+          sports_grade: string | null
           state: string | null
           type: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
+          academics_grade?: string | null
           admission_type?: string | null
           boarding?: boolean | null
+          campus_grade?: string | null
           city?: string | null
           competitiveness?: string | null
           created_at?: string
+          dorms_grade?: string | null
           id?: string
           name: string
           notes?: string | null
           size?: string | null
+          sports_grade?: string | null
           state?: string | null
           type?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
+          academics_grade?: string | null
           admission_type?: string | null
           boarding?: boolean | null
+          campus_grade?: string | null
           city?: string | null
           competitiveness?: string | null
           created_at?: string
+          dorms_grade?: string | null
           id?: string
           name?: string
           notes?: string | null
           size?: string | null
+          sports_grade?: string | null
           state?: string | null
           type?: string | null
           updated_at?: string

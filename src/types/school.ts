@@ -10,9 +10,24 @@ export interface School {
   competitiveness: string | null;
   size: string | null;
   notes: string | null;
+  sports_grade: string | null;
+  academics_grade: string | null;
+  campus_grade: string | null;
+  dorms_grade: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export type GradeValue = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'F' | 'N/A' | null;
+
+export const getGradeColor = (grade: string | null): string => {
+  if (!grade || grade === 'N/A') return 'bg-muted text-muted-foreground';
+  if (grade.startsWith('A')) return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
+  if (grade.startsWith('B')) return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+  if (grade.startsWith('C')) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+  if (grade.startsWith('D')) return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
+  return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+};
 
 export interface SchoolFilters {
   search: string;

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSchool } from "@/hooks/useSchools";
+import { getGradeColor } from "@/types/school";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { 
@@ -21,7 +22,10 @@ import {
   TrendingUp,
   BookOpen,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Trophy,
+  Building2,
+  BedDouble
 } from "lucide-react";
 
 export default function SchoolProfile() {
@@ -311,6 +315,54 @@ export default function SchoolProfile() {
                       </Button>
                     </a>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Grades Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">School Grades</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Academics</span>
+                    </div>
+                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.academics_grade)}`}>
+                      {school.academics_grade || '-'}
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Sports</span>
+                    </div>
+                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.sports_grade)}`}>
+                      {school.sports_grade || '-'}
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Campus</span>
+                    </div>
+                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.campus_grade)}`}>
+                      {school.campus_grade || '-'}
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <BedDouble className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Dorms</span>
+                    </div>
+                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.boarding ? school.dorms_grade : null)}`}>
+                      {school.boarding ? (school.dorms_grade || '-') : 'N/A'}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
 
