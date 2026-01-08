@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { School, SchoolFilters } from "@/types/school";
+import { School, SchoolFilters, gradeRank } from "@/types/school";
 
 export function useSchools(filters?: SchoolFilters) {
   return useQuery({
@@ -34,7 +34,31 @@ export function useSchools(filters?: SchoolFilters) {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as School[];
+      
+      // Client-side filtering for grades (since we need >= comparison)
+      let schools = data as School[];
+      
+      if (filters?.minAcademicsGrade) {
+        const minRank = gradeRank(filters.minAcademicsGrade);
+        schools = schools.filter(s => gradeRank(s.academics_grade) >= minRank);
+      }
+      
+      if (filters?.minSportsGrade) {
+        const minRank = gradeRank(filters.minSportsGrade);
+        schools = schools.filter(s => gradeRank(s.sports_grade) >= minRank);
+      }
+      
+      if (filters?.minCampusGrade) {
+        const minRank = gradeRank(filters.minCampusGrade);
+        schools = schools.filter(s => gradeRank(s.campus_grade) >= minRank);
+      }
+      
+      if (filters?.minDormsGrade) {
+        const minRank = gradeRank(filters.minDormsGrade);
+        schools = schools.filter(s => s.boarding && gradeRank(s.dorms_grade) >= minRank);
+      }
+      
+      return schools;
     },
   });
 }

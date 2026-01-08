@@ -36,6 +36,10 @@ export interface SchoolFilters {
   boarding: 'all' | 'yes' | 'no';
   types: string[];
   sizes: string[];
+  minAcademicsGrade: string;
+  minSportsGrade: string;
+  minCampusGrade: string;
+  minDormsGrade: string;
 }
 
 export const defaultFilters: SchoolFilters = {
@@ -45,6 +49,24 @@ export const defaultFilters: SchoolFilters = {
   boarding: 'all',
   types: [],
   sizes: [],
+  minAcademicsGrade: '',
+  minSportsGrade: '',
+  minCampusGrade: '',
+  minDormsGrade: '',
+};
+
+export const gradeOptions = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+
+export const gradeRank = (grade: string | null): number => {
+  if (!grade || grade === 'N/A') return -1;
+  const ranks: Record<string, number> = {
+    'A+': 13, 'A': 12, 'A-': 11,
+    'B+': 10, 'B': 9, 'B-': 8,
+    'C+': 7, 'C': 6, 'C-': 5,
+    'D+': 4, 'D': 3, 'D-': 2,
+    'F': 1
+  };
+  return ranks[grade] || 0;
 };
 
 export const competitivenessLevels = [

@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
-import { SchoolFilters, defaultFilters, getGradeColor } from "@/types/school";
+import { SchoolFilters, defaultFilters, getGradeColor, gradeOptions } from "@/types/school";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
-import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Trophy, BookOpen, Building2, BedDouble } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Trophy, BookOpen, Building2, BedDouble, Filter, X } from "lucide-react";
 
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
@@ -42,15 +43,107 @@ export default function Schools() {
           </p>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-8 max-w-xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Search schools by name, city, or state..."
-            className="pl-10 h-12 text-base"
-            value={filters.search}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
+        {/* Search and Filters */}
+        <div className="space-y-4 mb-8">
+          <div className="relative max-w-xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Search schools by name, city, or state..."
+              className="pl-10 h-12 text-base"
+              value={filters.search}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </div>
+
+          {/* Grade Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Filter className="h-4 w-4" />
+              <span>Min Grade:</span>
+            </div>
+            
+            <Select
+              value={filters.minAcademicsGrade}
+              onValueChange={(value) => setFilters({ ...filters, minAcademicsGrade: value === "any" ? "" : value })}
+            >
+              <SelectTrigger className="w-[130px] h-9">
+                <BookOpen className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Academics" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                {gradeOptions.map((grade) => (
+                  <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filters.minSportsGrade}
+              onValueChange={(value) => setFilters({ ...filters, minSportsGrade: value === "any" ? "" : value })}
+            >
+              <SelectTrigger className="w-[110px] h-9">
+                <Trophy className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Sports" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                {gradeOptions.map((grade) => (
+                  <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filters.minCampusGrade}
+              onValueChange={(value) => setFilters({ ...filters, minCampusGrade: value === "any" ? "" : value })}
+            >
+              <SelectTrigger className="w-[120px] h-9">
+                <Building2 className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Campus" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                {gradeOptions.map((grade) => (
+                  <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filters.minDormsGrade}
+              onValueChange={(value) => setFilters({ ...filters, minDormsGrade: value === "any" ? "" : value })}
+            >
+              <SelectTrigger className="w-[110px] h-9">
+                <BedDouble className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Dorms" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                {gradeOptions.map((grade) => (
+                  <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {(filters.minAcademicsGrade || filters.minSportsGrade || filters.minCampusGrade || filters.minDormsGrade) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFilters({
+                  ...filters,
+                  minAcademicsGrade: '',
+                  minSportsGrade: '',
+                  minCampusGrade: '',
+                  minDormsGrade: ''
+                })}
+                className="h-9 px-2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Results */}
