@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
-import { SchoolFilters, defaultFilters, getGradeColor, getOverallGradeColor, calculateOverallGrade, gradeOptions } from "@/types/school";
+import { SchoolFilters, defaultFilters, getGradeColor, getOverallGradeColor, calculateOverallGrade, gradeOptions, sortOptions, SortOption } from "@/types/school";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Filter, X, Star, BookOpen, Trophy, Building2, BedDouble } from "lucide-react";
+import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Filter, X, Star, BookOpen, Trophy, Building2, BedDouble, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
@@ -56,18 +56,52 @@ export default function Schools() {
             />
           </div>
 
-          {/* Grade Filters */}
+          {/* Sort and Filter Controls */}
           <div className="flex flex-wrap items-center gap-3">
+            {/* Sort */}
+            <div className="flex items-center gap-2">
+              <Select
+                value={filters.sortBy}
+                onValueChange={(value) => setFilters({ ...filters, sortBy: value as SortOption })}
+              >
+                <SelectTrigger className="w-[150px] h-9">
+                  <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-2"
+                onClick={() => setFilters({ ...filters, sortDesc: !filters.sortDesc })}
+              >
+                {filters.sortDesc ? (
+                  <ArrowDown className="h-4 w-4" />
+                ) : (
+                  <ArrowUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            <div className="h-6 w-px bg-border" />
+
+            {/* Grade Filters */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Filter className="h-4 w-4" />
-              <span>Min Grade:</span>
+              <span>Min:</span>
             </div>
             
             <Select
               value={filters.minAcademicsGrade}
               onValueChange={(value) => setFilters({ ...filters, minAcademicsGrade: value === "any" ? "" : value })}
             >
-              <SelectTrigger className="w-[130px] h-9">
+              <SelectTrigger className="w-[120px] h-9">
                 <BookOpen className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 <SelectValue placeholder="Academics" />
               </SelectTrigger>
@@ -83,7 +117,7 @@ export default function Schools() {
               value={filters.minSportsGrade}
               onValueChange={(value) => setFilters({ ...filters, minSportsGrade: value === "any" ? "" : value })}
             >
-              <SelectTrigger className="w-[110px] h-9">
+              <SelectTrigger className="w-[100px] h-9">
                 <Trophy className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 <SelectValue placeholder="Sports" />
               </SelectTrigger>
@@ -99,7 +133,7 @@ export default function Schools() {
               value={filters.minCampusGrade}
               onValueChange={(value) => setFilters({ ...filters, minCampusGrade: value === "any" ? "" : value })}
             >
-              <SelectTrigger className="w-[120px] h-9">
+              <SelectTrigger className="w-[110px] h-9">
                 <Building2 className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 <SelectValue placeholder="Campus" />
               </SelectTrigger>
@@ -115,7 +149,7 @@ export default function Schools() {
               value={filters.minDormsGrade}
               onValueChange={(value) => setFilters({ ...filters, minDormsGrade: value === "any" ? "" : value })}
             >
-              <SelectTrigger className="w-[110px] h-9">
+              <SelectTrigger className="w-[100px] h-9">
                 <BedDouble className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 <SelectValue placeholder="Dorms" />
               </SelectTrigger>
