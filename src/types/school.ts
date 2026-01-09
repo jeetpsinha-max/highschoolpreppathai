@@ -99,6 +99,20 @@ export const getOverallGradeColor = (grade: string | null): string => {
   return 'bg-gradient-to-br from-red-500 to-red-600 text-white';
 };
 
+export type SortOption = 
+  | 'name' 
+  | 'overall' 
+  | 'academics' 
+  | 'sports' 
+  | 'arts' 
+  | 'clubs' 
+  | 'diversity' 
+  | 'college_prep' 
+  | 'campus' 
+  | 'facilities' 
+  | 'faculty' 
+  | 'dorms';
+
 export interface SchoolFilters {
   search: string;
   states: string[];
@@ -110,6 +124,8 @@ export interface SchoolFilters {
   minSportsGrade: string;
   minCampusGrade: string;
   minDormsGrade: string;
+  sortBy: SortOption;
+  sortDesc: boolean;
 }
 
 export const defaultFilters: SchoolFilters = {
@@ -123,7 +139,24 @@ export const defaultFilters: SchoolFilters = {
   minSportsGrade: '',
   minCampusGrade: '',
   minDormsGrade: '',
+  sortBy: 'name',
+  sortDesc: false,
 };
+
+export const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'name', label: 'Name' },
+  { value: 'overall', label: 'Overall Rating' },
+  { value: 'academics', label: 'Academics' },
+  { value: 'sports', label: 'Sports' },
+  { value: 'arts', label: 'Arts' },
+  { value: 'clubs', label: 'Clubs' },
+  { value: 'diversity', label: 'Diversity' },
+  { value: 'college_prep', label: 'College Prep' },
+  { value: 'campus', label: 'Campus' },
+  { value: 'facilities', label: 'Facilities' },
+  { value: 'faculty', label: 'Faculty' },
+  { value: 'dorms', label: 'Dorms' },
+];
 
 export const gradeOptions = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
 

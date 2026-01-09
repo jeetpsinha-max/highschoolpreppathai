@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { School, SchoolFilters, gradeRank } from "@/types/school";
+import { School, SchoolFilters, gradeRank, calculateOverallGrade } from "@/types/school";
 
 export function useSchools(filters?: SchoolFilters) {
   return useQuery({
@@ -8,8 +8,7 @@ export function useSchools(filters?: SchoolFilters) {
     queryFn: async () => {
       let query = supabase
         .from("schools")
-        .select("*")
-        .order("name");
+        .select("*");
 
       if (filters?.search) {
         query = query.or(`name.ilike.%${filters.search}%,city.ilike.%${filters.search}%,state.ilike.%${filters.search}%`);
@@ -57,6 +56,39 @@ export function useSchools(filters?: SchoolFilters) {
         const minRank = gradeRank(filters.minDormsGrade);
         schools = schools.filter(s => s.boarding && gradeRank(s.dorms_grade) >= minRank);
       }
+      
+      // Client-side sorting
+      const sortBy = filters?.sortBy || 'name';
+      const sortDesc = filters?.sortDesc ?? false;
+      
+      schools.sort((a, b) => {
+        let comparison = 0;
+        
+        if (sortBy === 'name') {
+          comparison = a.name.localeCompare(b.name);
+        } else if (sortBy === 'overall') {
+          comparison = gradeRank(calculateOverallGrade(a)) - gradeRank(calculateOverallGrade(b));
+        } else {
+          const gradeFieldMap: Record<string, keyof School> = {
+            academics: 'academics_grade',
+            sports: 'sports_grade',
+            arts: 'arts_grade',
+            clubs: 'clubs_grade',
+            diversity: 'diversity_grade',
+            college_prep: 'college_prep_grade',
+            campus: 'campus_grade',
+            facilities: 'facilities_grade',
+            faculty: 'faculty_grade',
+            dorms: 'dorms_grade',
+          };
+          const field = gradeFieldMap[sortBy];
+          if (field) {
+            comparison = gradeRank(a[field] as string | null) - gradeRank(b[field] as string | null);
+          }
+        }
+        
+        return sortDesc ? -comparison : comparison;
+      });
       
       return schools;
     },
