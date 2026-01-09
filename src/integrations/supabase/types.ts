@@ -319,12 +319,18 @@ export type Database = {
         Row: {
           academics_grade: string | null
           admission_type: string | null
+          arts_grade: string | null
           boarding: boolean | null
           campus_grade: string | null
           city: string | null
+          clubs_grade: string | null
+          college_prep_grade: string | null
           competitiveness: string | null
           created_at: string
+          diversity_grade: string | null
           dorms_grade: string | null
+          facilities_grade: string | null
+          faculty_grade: string | null
           id: string
           name: string
           notes: string | null
@@ -338,12 +344,18 @@ export type Database = {
         Insert: {
           academics_grade?: string | null
           admission_type?: string | null
+          arts_grade?: string | null
           boarding?: boolean | null
           campus_grade?: string | null
           city?: string | null
+          clubs_grade?: string | null
+          college_prep_grade?: string | null
           competitiveness?: string | null
           created_at?: string
+          diversity_grade?: string | null
           dorms_grade?: string | null
+          facilities_grade?: string | null
+          faculty_grade?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -357,12 +369,18 @@ export type Database = {
         Update: {
           academics_grade?: string | null
           admission_type?: string | null
+          arts_grade?: string | null
           boarding?: boolean | null
           campus_grade?: string | null
           city?: string | null
+          clubs_grade?: string | null
+          college_prep_grade?: string | null
           competitiveness?: string | null
           created_at?: string
+          diversity_grade?: string | null
           dorms_grade?: string | null
+          facilities_grade?: string | null
+          faculty_grade?: string | null
           id?: string
           name?: string
           notes?: string | null
