@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
-import { SchoolFilters, defaultFilters, getGradeColor, gradeOptions } from "@/types/school";
+import { SchoolFilters, defaultFilters, getGradeColor, getOverallGradeColor, calculateOverallGrade, gradeOptions } from "@/types/school";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Trophy, BookOpen, Building2, BedDouble, Filter, X } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Filter, X, Star, BookOpen, Trophy, Building2, BedDouble } from "lucide-react";
 
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
@@ -196,31 +197,43 @@ export default function Schools() {
                     {school.notes?.includes("Catholic") && <Badge variant="religious">Catholic</Badge>}
                   </div>
 
-                  {/* Grades */}
-                  <div className="grid grid-cols-4 gap-1.5 mb-4">
-                    <div className="text-center">
-                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.academics_grade)}`}>
-                        {school.academics_grade || '-'}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">Academics</div>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.sports_grade)}`}>
-                        {school.sports_grade || '-'}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">Sports</div>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.campus_grade)}`}>
-                        {school.campus_grade || '-'}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">Campus</div>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-xs font-bold rounded px-1.5 py-1 ${getGradeColor(school.boarding ? school.dorms_grade : null)}`}>
-                        {school.boarding ? (school.dorms_grade || '-') : 'N/A'}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">Dorms</div>
+                  {/* Overall Grade + Category Grades */}
+                  <div className="flex items-center gap-3 mb-4">
+                    {/* Overall Grade - Prominent */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-lg font-bold text-lg shadow-sm ${getOverallGradeColor(calculateOverallGrade(school))}`}>
+                          {calculateOverallGrade(school)}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Overall Rating</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Category Grades - Compact Grid */}
+                    <div className="flex-1 grid grid-cols-5 gap-1">
+                      {[
+                        { label: 'Acad', grade: school.academics_grade },
+                        { label: 'Sports', grade: school.sports_grade },
+                        { label: 'Arts', grade: school.arts_grade },
+                        { label: 'Clubs', grade: school.clubs_grade },
+                        { label: 'Faculty', grade: school.faculty_grade },
+                      ].map(({ label, grade }) => (
+                        <Tooltip key={label}>
+                          <TooltipTrigger asChild>
+                            <div className="text-center">
+                              <div className={`text-[10px] font-bold rounded px-1 py-0.5 ${getGradeColor(grade)}`}>
+                                {grade || '-'}
+                              </div>
+                              <div className="text-[9px] text-muted-foreground mt-0.5 truncate">{label}</div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{label}: {grade || 'N/A'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
                     </div>
                   </div>
 

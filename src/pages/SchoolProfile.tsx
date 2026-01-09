@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSchool } from "@/hooks/useSchools";
-import { getGradeColor } from "@/types/school";
+import { getGradeColor, getOverallGradeColor, calculateOverallGrade } from "@/types/school";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { 
@@ -25,7 +25,14 @@ import {
   CheckCircle2,
   Trophy,
   Building2,
-  BedDouble
+  BedDouble,
+  Palette,
+  Users2,
+  Globe,
+  Award,
+  Wrench,
+  GraduationCap as Faculty,
+  Star
 } from "lucide-react";
 
 export default function SchoolProfile() {
@@ -318,51 +325,57 @@ export default function SchoolProfile() {
                 </CardContent>
               </Card>
 
+              {/* Overall Rating Card */}
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Star className="h-5 w-5 text-primary" />
+                    Overall Rating
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-center">
+                    <div className={`w-20 h-20 rounded-xl flex items-center justify-center text-3xl font-bold shadow-lg ${getOverallGradeColor(calculateOverallGrade(school))}`}>
+                      {calculateOverallGrade(school)}
+                    </div>
+                  </div>
+                  <p className="text-center text-xs text-muted-foreground mt-3">
+                    Based on all category grades
+                  </p>
+                </CardContent>
+              </Card>
+
               {/* Grades Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">School Grades</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Academics</span>
+                <CardContent className="space-y-2">
+                  {[
+                    { icon: BookOpen, label: 'Academics', grade: school.academics_grade },
+                    { icon: Trophy, label: 'Sports', grade: school.sports_grade },
+                    { icon: Palette, label: 'Arts', grade: school.arts_grade },
+                    { icon: Users2, label: 'Clubs', grade: school.clubs_grade },
+                    { icon: Globe, label: 'Diversity', grade: school.diversity_grade },
+                    { icon: Award, label: 'College Prep', grade: school.college_prep_grade },
+                    { icon: Building2, label: 'Campus', grade: school.campus_grade },
+                    { icon: Wrench, label: 'Facilities', grade: school.facilities_grade },
+                    { icon: Faculty, label: 'Faculty', grade: school.faculty_grade },
+                    { icon: BedDouble, label: 'Dorms', grade: school.boarding ? school.dorms_grade : null, hideIfNA: !school.boarding },
+                  ].filter(item => !item.hideIfNA || item.grade).map(({ icon: Icon, label, grade }, index, arr) => (
+                    <div key={label}>
+                      <div className="flex items-center justify-between py-1">
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{label}</span>
+                        </div>
+                        <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(grade)}`}>
+                          {grade || '-'}
+                        </span>
+                      </div>
+                      {index < arr.length - 1 && <Separator />}
                     </div>
-                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.academics_grade)}`}>
-                      {school.academics_grade || '-'}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Trophy className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Sports</span>
-                    </div>
-                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.sports_grade)}`}>
-                      {school.sports_grade || '-'}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Campus</span>
-                    </div>
-                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.campus_grade)}`}>
-                      {school.campus_grade || '-'}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BedDouble className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Dorms</span>
-                    </div>
-                    <span className={`font-bold px-2 py-0.5 rounded text-sm ${getGradeColor(school.boarding ? school.dorms_grade : null)}`}>
-                      {school.boarding ? (school.dorms_grade || '-') : 'N/A'}
-                    </span>
-                  </div>
+                  ))}
                 </CardContent>
               </Card>
 
