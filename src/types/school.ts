@@ -1,3 +1,26 @@
+// Re-export grading utilities for backwards compatibility
+export { 
+  gradeToRank as gradeRank, 
+  rankToGrade,
+  calculateOverallGrade,
+  getGradeColor,
+  getOverallGradeColor,
+  getGradeDescription,
+  meetsMinimumGrade,
+  sortSchoolsByGrade,
+  filterSchoolsByGrades,
+  getGradeStats,
+  compareByGrade,
+  calculateGPA,
+  getSchoolGrade,
+  GRADE_OPTIONS,
+  GRADE_CATEGORIES,
+  type LetterGrade,
+  type GradeValue,
+  type GradeCategory,
+  type GradeCategoryInfo
+} from "@/lib/grading";
+
 export interface School {
   id: string;
   name: string;
@@ -23,81 +46,6 @@ export interface School {
   created_at: string;
   updated_at: string;
 }
-
-export type GradeValue = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'F' | 'N/A' | null;
-
-export const gradeRank = (grade: string | null): number => {
-  if (!grade || grade === 'N/A') return -1;
-  const ranks: Record<string, number> = {
-    'A+': 13, 'A': 12, 'A-': 11,
-    'B+': 10, 'B': 9, 'B-': 8,
-    'C+': 7, 'C': 6, 'C-': 5,
-    'D+': 4, 'D': 3, 'D-': 2,
-    'F': 1
-  };
-  return ranks[grade] || 0;
-};
-
-export const rankToGrade = (rank: number): string => {
-  if (rank >= 12.5) return 'A+';
-  if (rank >= 11.5) return 'A';
-  if (rank >= 10.5) return 'A-';
-  if (rank >= 9.5) return 'B+';
-  if (rank >= 8.5) return 'B';
-  if (rank >= 7.5) return 'B-';
-  if (rank >= 6.5) return 'C+';
-  if (rank >= 5.5) return 'C';
-  if (rank >= 4.5) return 'C-';
-  if (rank >= 3.5) return 'D+';
-  if (rank >= 2.5) return 'D';
-  if (rank >= 1.5) return 'D-';
-  return 'F';
-};
-
-export const calculateOverallGrade = (school: School): string => {
-  const grades = [
-    school.academics_grade,
-    school.sports_grade,
-    school.campus_grade,
-    school.arts_grade,
-    school.clubs_grade,
-    school.diversity_grade,
-    school.college_prep_grade,
-    school.facilities_grade,
-    school.faculty_grade,
-  ];
-  
-  // Only include dorms if boarding school
-  if (school.boarding && school.dorms_grade && school.dorms_grade !== 'N/A') {
-    grades.push(school.dorms_grade);
-  }
-  
-  const validGrades = grades.filter(g => g && g !== 'N/A');
-  if (validGrades.length === 0) return '-';
-  
-  const totalRank = validGrades.reduce((sum, g) => sum + gradeRank(g), 0);
-  const avgRank = totalRank / validGrades.length;
-  
-  return rankToGrade(avgRank);
-};
-
-export const getGradeColor = (grade: string | null): string => {
-  if (!grade || grade === 'N/A' || grade === '-') return 'bg-muted text-muted-foreground';
-  if (grade.startsWith('A')) return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
-  if (grade.startsWith('B')) return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-  if (grade.startsWith('C')) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-  if (grade.startsWith('D')) return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
-  return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-};
-
-export const getOverallGradeColor = (grade: string | null): string => {
-  if (!grade || grade === '-') return 'bg-muted text-muted-foreground';
-  if (grade.startsWith('A')) return 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white';
-  if (grade.startsWith('B')) return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white';
-  if (grade.startsWith('C')) return 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white';
-  if (grade.startsWith('D')) return 'bg-gradient-to-br from-orange-500 to-orange-600 text-white';
-  return 'bg-gradient-to-br from-red-500 to-red-600 text-white';
-};
 
 export type SortOption = 
   | 'name' 
@@ -158,6 +106,7 @@ export const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'dorms', label: 'Dorms' },
 ];
 
+// Legacy exports - use GRADE_OPTIONS from grading.ts instead
 export const gradeOptions = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
 
 export const competitivenessLevels = [

@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
-import { SchoolFilters, defaultFilters, getGradeColor, getOverallGradeColor, calculateOverallGrade, gradeOptions, sortOptions, SortOption } from "@/types/school";
+import { SchoolFilters, defaultFilters, sortOptions, SortOption } from "@/types/school";
+import { getGradeColor, getOverallGradeColor, calculateOverallGrade, GRADE_OPTIONS } from "@/lib/grading";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -107,7 +108,7 @@ export default function Schools() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any</SelectItem>
-                {gradeOptions.map((grade) => (
+                {GRADE_OPTIONS.map((grade) => (
                   <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
                 ))}
               </SelectContent>
@@ -123,7 +124,7 @@ export default function Schools() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any</SelectItem>
-                {gradeOptions.map((grade) => (
+                {GRADE_OPTIONS.map((grade) => (
                   <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
                 ))}
               </SelectContent>
@@ -139,7 +140,7 @@ export default function Schools() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any</SelectItem>
-                {gradeOptions.map((grade) => (
+                {GRADE_OPTIONS.map((grade) => (
                   <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
                 ))}
               </SelectContent>
@@ -155,7 +156,7 @@ export default function Schools() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any</SelectItem>
-                {gradeOptions.map((grade) => (
+                {GRADE_OPTIONS.map((grade) => (
                   <SelectItem key={grade} value={grade}>{grade}+</SelectItem>
                 ))}
               </SelectContent>

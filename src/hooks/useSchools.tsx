@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { School, SchoolFilters, gradeRank, calculateOverallGrade } from "@/types/school";
+import { School, SchoolFilters } from "@/types/school";
+import { 
+  gradeToRank, 
+  calculateOverallGrade, 
+  meetsMinimumGrade,
+  type GradeCategory 
+} from "@/lib/grading";
 
 export function useSchools(filters?: SchoolFilters) {
   return useQuery({
@@ -34,32 +40,41 @@ export function useSchools(filters?: SchoolFilters) {
 
       if (error) throw error;
       
-      // Client-side filtering for grades (since we need >= comparison)
+      // Client-side filtering for grades using grading utilities
       let schools = data as School[];
       
       if (filters?.minAcademicsGrade) {
-        const minRank = gradeRank(filters.minAcademicsGrade);
-        schools = schools.filter(s => gradeRank(s.academics_grade) >= minRank);
+        schools = schools.filter(s => meetsMinimumGrade(s.academics_grade, filters.minAcademicsGrade));
       }
       
       if (filters?.minSportsGrade) {
-        const minRank = gradeRank(filters.minSportsGrade);
-        schools = schools.filter(s => gradeRank(s.sports_grade) >= minRank);
+        schools = schools.filter(s => meetsMinimumGrade(s.sports_grade, filters.minSportsGrade));
       }
       
       if (filters?.minCampusGrade) {
-        const minRank = gradeRank(filters.minCampusGrade);
-        schools = schools.filter(s => gradeRank(s.campus_grade) >= minRank);
+        schools = schools.filter(s => meetsMinimumGrade(s.campus_grade, filters.minCampusGrade));
       }
       
       if (filters?.minDormsGrade) {
-        const minRank = gradeRank(filters.minDormsGrade);
-        schools = schools.filter(s => s.boarding && gradeRank(s.dorms_grade) >= minRank);
+        schools = schools.filter(s => s.boarding && meetsMinimumGrade(s.dorms_grade, filters.minDormsGrade));
       }
       
-      // Client-side sorting
+      // Client-side sorting using grading utilities
       const sortBy = filters?.sortBy || 'name';
       const sortDesc = filters?.sortDesc ?? false;
+      
+      const gradeFieldMap: Record<string, keyof School> = {
+        academics: 'academics_grade',
+        sports: 'sports_grade',
+        arts: 'arts_grade',
+        clubs: 'clubs_grade',
+        diversity: 'diversity_grade',
+        college_prep: 'college_prep_grade',
+        campus: 'campus_grade',
+        facilities: 'facilities_grade',
+        faculty: 'faculty_grade',
+        dorms: 'dorms_grade',
+      };
       
       schools.sort((a, b) => {
         let comparison = 0;
@@ -67,23 +82,11 @@ export function useSchools(filters?: SchoolFilters) {
         if (sortBy === 'name') {
           comparison = a.name.localeCompare(b.name);
         } else if (sortBy === 'overall') {
-          comparison = gradeRank(calculateOverallGrade(a)) - gradeRank(calculateOverallGrade(b));
+          comparison = gradeToRank(calculateOverallGrade(a)) - gradeToRank(calculateOverallGrade(b));
         } else {
-          const gradeFieldMap: Record<string, keyof School> = {
-            academics: 'academics_grade',
-            sports: 'sports_grade',
-            arts: 'arts_grade',
-            clubs: 'clubs_grade',
-            diversity: 'diversity_grade',
-            college_prep: 'college_prep_grade',
-            campus: 'campus_grade',
-            facilities: 'facilities_grade',
-            faculty: 'faculty_grade',
-            dorms: 'dorms_grade',
-          };
           const field = gradeFieldMap[sortBy];
           if (field) {
-            comparison = gradeRank(a[field] as string | null) - gradeRank(b[field] as string | null);
+            comparison = gradeToRank(a[field] as string | null) - gradeToRank(b[field] as string | null);
           }
         }
         
