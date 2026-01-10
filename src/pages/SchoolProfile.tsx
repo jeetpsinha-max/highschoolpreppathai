@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSchool } from "@/hooks/useSchools";
-import { getGradeColor, getOverallGradeColor, calculateOverallGrade } from "@/types/school";
+import { getGradeColor, getOverallGradeColor, calculateOverallGrade, getGradeDescription } from "@/lib/grading";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { 
