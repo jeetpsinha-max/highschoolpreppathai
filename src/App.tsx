@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Schools from "./pages/Schools";
@@ -35,25 +36,25 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/parent-dashboard" element={<ParentDashboard />} />
-            <Route path="/schools" element={<Schools />} />
-            <Route path="/schools/:id" element={<SchoolProfile />} />
-            <Route path="/schools/compare" element={<SchoolComparison />} />
-            <Route path="/ai-tools" element={<AITools />} />
-            <Route path="/ai-tools/school-matcher" element={<SchoolMatcher />} />
-            <Route path="/ai-tools/school-generator" element={<SchoolGenerator />} />
-            <Route path="/ai-tools/interview" element={<InterviewCoach />} />
-            <Route path="/ai-tools/improve" element={<ImproveChances />} />
-            <Route path="/ai-tools/ssat" element={<SSATPractice />} />
-            <Route path="/ai-tools/assistant" element={<ApplicationAssistant />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/beta" element={<BetaForSchools />} />
-            <Route path="/pilot" element={<PilotProgram />} />
-            <Route path="/documents" element={<Documents />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/parent-dashboard" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
+            <Route path="/schools" element={<ProtectedRoute><Schools /></ProtectedRoute>} />
+            <Route path="/schools/:id" element={<ProtectedRoute><SchoolProfile /></ProtectedRoute>} />
+            <Route path="/schools/compare" element={<ProtectedRoute><SchoolComparison /></ProtectedRoute>} />
+            <Route path="/ai-tools" element={<ProtectedRoute><AITools /></ProtectedRoute>} />
+            <Route path="/ai-tools/school-matcher" element={<ProtectedRoute><SchoolMatcher /></ProtectedRoute>} />
+            <Route path="/ai-tools/school-generator" element={<ProtectedRoute><SchoolGenerator /></ProtectedRoute>} />
+            <Route path="/ai-tools/interview" element={<ProtectedRoute><InterviewCoach /></ProtectedRoute>} />
+            <Route path="/ai-tools/improve" element={<ProtectedRoute><ImproveChances /></ProtectedRoute>} />
+            <Route path="/ai-tools/ssat" element={<ProtectedRoute><SSATPractice /></ProtectedRoute>} />
+            <Route path="/ai-tools/assistant" element={<ProtectedRoute><ApplicationAssistant /></ProtectedRoute>} />
+            <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+            <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
+            <Route path="/beta" element={<ProtectedRoute><BetaForSchools /></ProtectedRoute>} />
+            <Route path="/pilot" element={<ProtectedRoute><PilotProgram /></ProtectedRoute>} />
+            <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
