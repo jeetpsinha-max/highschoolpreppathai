@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, Wand2, Star, MapPin, Users, GraduationCap, ChevronRight, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getGradeColor } from "@/lib/grading";
 
 interface IdealProfile {
   summary: string;
@@ -27,6 +28,7 @@ interface SchoolMatch {
   matchScore: number;
   matchReason: string;
   highlights: string[];
+  grades?: Record<string, string>;
 }
 
 interface GeneratorResults {
@@ -232,6 +234,22 @@ export default function SchoolGenerator() {
                                 <p className="text-sm text-muted-foreground mt-1">
                                   {match.matchReason}
                                 </p>
+                                
+                                {/* Display grades if available */}
+                                {match.grades && (
+                                  <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {['academics', 'sports', 'arts', 'campus'].map(key => {
+                                      const grade = match.grades?.[key];
+                                      if (!grade) return null;
+                                      return (
+                                        <Badge key={key} className={`${getGradeColor(grade)} text-xs`}>
+                                          {key.charAt(0).toUpperCase() + key.slice(1)}: {grade}
+                                        </Badge>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                                
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                   {match.highlights.map((hl, i) => (
                                     <Badge key={i} variant="outline" className="text-xs">

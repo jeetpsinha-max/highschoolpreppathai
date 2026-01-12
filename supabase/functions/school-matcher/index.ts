@@ -38,14 +38,31 @@ serve(async (req) => {
     const systemPrompt = `You are an expert private school admissions counselor helping students find the best-fit schools. 
 Analyze the student's preferences and match them with schools from the provided database.
 
-For each school you recommend, explain WHY it's a good fit based on the student's specific preferences.
+Each school has grades (A+ to F) in multiple categories:
+- academics_grade: Academic rigor and curriculum quality
+- sports_grade: Athletic programs and facilities
+- arts_grade: Visual arts, music, theater programs
+- clubs_grade: Extracurricular activities and clubs
+- diversity_grade: Student body diversity
+- college_prep_grade: College counseling and placement
+- campus_grade: Campus beauty and environment
+- facilities_grade: Buildings, technology, infrastructure
+- faculty_grade: Teacher quality and support
+- dorms_grade: Residential life (for boarding schools)
+
+Use these grades to inform your recommendations. For example:
+- Students interested in STEM should look at schools with high academics_grade
+- Athletes should prioritize high sports_grade
+- Those seeking creative programs should consider arts_grade
+
+For each school you recommend, explain WHY it's a good fit based on the student's specific preferences AND the school's grades.
 
 Categorize your recommendations into:
 - REACH schools (more selective, aspirational choices)
 - TARGET schools (good match for the student's profile)
 - SAFETY schools (likely admission based on profile)
 
-Be specific about which features of each school align with the student's preferences.`;
+Be specific about which features and grades of each school align with the student's preferences.`;
 
     const userPrompt = `Student Preferences:
 - Academic Interests: ${preferences.academicInterests || "Not specified"}
@@ -68,19 +85,29 @@ ${JSON.stringify(schools?.slice(0, 100).map(s => ({
   boarding: s.boarding,
   competitiveness: s.competitiveness,
   size: s.size,
-  notes: s.notes
+  notes: s.notes,
+  academics_grade: s.academics_grade,
+  sports_grade: s.sports_grade,
+  arts_grade: s.arts_grade,
+  clubs_grade: s.clubs_grade,
+  diversity_grade: s.diversity_grade,
+  college_prep_grade: s.college_prep_grade,
+  campus_grade: s.campus_grade,
+  facilities_grade: s.facilities_grade,
+  faculty_grade: s.faculty_grade,
+  dorms_grade: s.dorms_grade
 })), null, 2)}
 
-Based on the student's preferences and the available schools, provide:
-1. 3-5 REACH schools with explanations
-2. 4-6 TARGET schools with explanations  
-3. 2-4 SAFETY schools with explanations
+Based on the student's preferences and the available schools (including their grades), provide:
+1. 3-5 REACH schools with explanations that reference relevant grades
+2. 4-6 TARGET schools with explanations that reference relevant grades
+3. 2-4 SAFETY schools with explanations that reference relevant grades
 
 Format your response as JSON with this structure:
 {
-  "reach": [{"id": "school-uuid", "name": "School Name", "reason": "Why this is a good fit"}],
-  "target": [{"id": "school-uuid", "name": "School Name", "reason": "Why this is a good fit"}],
-  "safety": [{"id": "school-uuid", "name": "School Name", "reason": "Why this is a good fit"}],
+  "reach": [{"id": "school-uuid", "name": "School Name", "reason": "Why this is a good fit (mention relevant grades)", "grades": {"academics": "A", "sports": "B+", ...}}],
+  "target": [{"id": "school-uuid", "name": "School Name", "reason": "Why this is a good fit", "grades": {"academics": "A", "sports": "B+", ...}}],
+  "safety": [{"id": "school-uuid", "name": "School Name", "reason": "Why this is a good fit", "grades": {"academics": "A", "sports": "B+", ...}}],
   "summary": "Brief overall assessment of the student's school search"
 }`;
 
