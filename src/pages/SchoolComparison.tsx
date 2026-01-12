@@ -11,6 +11,12 @@ import { useSchools } from "@/hooks/useSchools";
 import { defaultFilters } from "@/types/school";
 import { useAuth } from "@/hooks/useAuth";
 import { 
+  calculateOverallGrade, 
+  getGradeColor, 
+  getOverallGradeColor,
+  GRADE_CATEGORIES 
+} from "@/lib/grading";
+import { 
   Scale, 
   MapPin, 
   Users, 
@@ -19,7 +25,8 @@ import {
   ExternalLink,
   Loader2,
   ArrowLeft,
-  X
+  X,
+  Award
 } from "lucide-react";
 
 export default function SchoolComparison() {
@@ -163,6 +170,53 @@ export default function SchoolComparison() {
                       </tr>
                     </thead>
                     <tbody>
+                      {/* Overall Grade Row */}
+                      <tr className="border-t border-border">
+                        <td className="p-4 bg-muted/30 font-medium text-sm">
+                          <div className="flex items-center gap-2">
+                            <Award className="h-4 w-4 text-muted-foreground" />
+                            Overall Grade
+                          </div>
+                        </td>
+                        {selectedSchools.map((school) => {
+                          const grade = calculateOverallGrade(school);
+                          return (
+                            <td key={school.id} className="p-4">
+                              <Badge className={`${getOverallGradeColor(grade)} text-base px-3 py-1 shadow-sm`}>
+                                {grade}
+                              </Badge>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      
+                      {/* Individual Grade Categories */}
+                      {GRADE_CATEGORIES.map((category) => (
+                        <tr key={category.key} className="border-t border-border">
+                          <td className="p-4 bg-muted/30 font-medium text-sm">
+                            {category.label}
+                          </td>
+                          {selectedSchools.map((school) => {
+                            const grade = school[category.field] as string | null;
+                            // Skip dorms for non-boarding schools
+                            if (category.key === 'dorms' && !school.boarding) {
+                              return (
+                                <td key={school.id} className="p-4">
+                                  <span className="text-muted-foreground text-sm">N/A</span>
+                                </td>
+                              );
+                            }
+                            return (
+                              <td key={school.id} className="p-4">
+                                <Badge className={getGradeColor(grade)}>
+                                  {grade || "N/A"}
+                                </Badge>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                      
                       <tr className="border-t border-border">
                         <td className="p-4 bg-muted/30 font-medium text-sm">
                           <div className="flex items-center gap-2">

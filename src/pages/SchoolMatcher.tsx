@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, Target, TrendingUp, Shield, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getGradeColor } from "@/lib/grading";
 
 const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME",
@@ -24,6 +25,7 @@ interface SchoolMatch {
   id: string;
   name: string;
   reason: string;
+  grades?: Record<string, string>;
 }
 
 interface MatchResults {
@@ -98,6 +100,9 @@ export default function SchoolMatcher() {
       safety: "bg-blue-500/10 text-blue-600 border-blue-500/20"
     };
 
+    // Key grades to display
+    const keyGrades = ['academics', 'sports', 'arts', 'campus'];
+
     return (
       <Card className="border-border/50 hover:border-primary/30 transition-colors">
         <CardHeader className="pb-2">
@@ -111,6 +116,22 @@ export default function SchoolMatcher() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">{school.reason}</p>
+          
+          {/* Display grades if available */}
+          {school.grades && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {keyGrades.map(key => {
+                const grade = school.grades?.[key];
+                if (!grade) return null;
+                return (
+                  <Badge key={key} className={`${getGradeColor(grade)} text-xs`}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}: {grade}
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
+          
           <Button 
             variant="ghost" 
             size="sm" 

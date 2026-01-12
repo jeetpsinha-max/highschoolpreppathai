@@ -39,7 +39,7 @@ serve(async (req) => {
 
     console.log(`Fetched ${schools?.length || 0} schools from database`);
 
-    // Create school summary for AI
+    // Create school summary for AI including grades
     const schoolSummary = schools?.map(s => ({
       id: s.id,
       name: s.name,
@@ -49,7 +49,19 @@ serve(async (req) => {
       competitiveness: s.competitiveness,
       size: s.size,
       type: s.type,
-      notes: s.notes
+      notes: s.notes,
+      grades: {
+        academics: s.academics_grade,
+        sports: s.sports_grade,
+        arts: s.arts_grade,
+        clubs: s.clubs_grade,
+        diversity: s.diversity_grade,
+        college_prep: s.college_prep_grade,
+        campus: s.campus_grade,
+        facilities: s.facilities_grade,
+        faculty: s.faculty_grade,
+        dorms: s.dorms_grade
+      }
     }));
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -59,14 +71,27 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert high school admissions counselor. A student has described their ideal school.
 
+Each school in the database has grades (A+ to F) across multiple categories:
+- academics: Academic rigor, curriculum quality, and college preparation
+- sports: Athletic programs, facilities, and competitive success
+- arts: Visual arts, music, theater, and creative programs
+- clubs: Extracurricular activities, student organizations, and clubs
+- diversity: Student body diversity and inclusive culture
+- college_prep: College counseling, placement rates, and preparation
+- campus: Campus beauty, size, and overall environment
+- facilities: Buildings, technology, labs, and infrastructure
+- faculty: Teacher quality, experience, and student support
+- dorms: Residential life quality (for boarding schools)
+
 Your tasks:
 1. Create a detailed "Ideal School Profile" based on their description - this should synthesize what they're looking for into key characteristics
-2. Find the 10 schools from the database that best match this profile
-3. For each match, explain specifically why it matches
+2. Find the 10 schools from the database that best match this profile, using the grades to inform your decisions
+3. For each match, explain specifically why it matches AND reference the relevant grades
 
 IMPORTANT GUIDELINES:
 - Be encouraging and age-appropriate (for middle/high school students)
-- Consider all aspects: academics, culture, location, size, competitiveness
+- Consider all aspects: academics, culture, location, size, competitiveness, AND grades
+- Use grades to justify your matches (e.g., "With an A in academics and A- in arts...")
 - Rank matches from best to good fit
 - Be specific about why each school matches
 
@@ -88,8 +113,9 @@ Return a JSON object with this exact structure:
       "id": "school-uuid",
       "name": "School Name",
       "matchScore": 95,
-      "matchReason": "2-3 sentence explanation of why this school matches",
-      "highlights": ["highlight1", "highlight2", "highlight3"]
+      "matchReason": "2-3 sentence explanation of why this school matches (reference grades)",
+      "highlights": ["highlight1", "highlight2", "highlight3"],
+      "grades": {"academics": "A", "sports": "B+", "arts": "A-", ...}
     }
   ]
 }
