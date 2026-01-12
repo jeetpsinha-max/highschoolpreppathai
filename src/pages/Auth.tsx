@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +10,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { GraduationCap, Mail, Lock, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
 export default function Auth() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +27,10 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+
+  // Get the intended destination from navigation state
+  const state = location.state as LocationState;
+  const from = state?.from?.pathname || null;
 
   useEffect(() => {
     if (user) {
@@ -31,6 +42,13 @@ export default function Auth() {
   const checkUserRoleAndRedirect = async () => {
     if (!user) return;
     
+    // If there's a saved destination, go there first
+    if (from && from !== '/auth') {
+      navigate(from, { replace: true });
+      return;
+    }
+    
+    // Otherwise, redirect based on role
     const { data } = await supabase
       .from('user_roles')
       .select('role')
@@ -39,9 +57,9 @@ export default function Auth() {
       .maybeSingle();
     
     if (data) {
-      navigate('/parent-dashboard');
+      navigate('/parent-dashboard', { replace: true });
     } else {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   };
 
