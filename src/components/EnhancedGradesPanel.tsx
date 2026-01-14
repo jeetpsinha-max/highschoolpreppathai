@@ -124,23 +124,19 @@ function GradeEnhancementCard({ enhancement }: { enhancement: GradeEnhancement }
 }
 
 export function EnhancedGradesPanel({ school }: EnhancedGradesPanelProps) {
-  const { enhancedData, isLoading, error, fetchEnhancedGrades } = useEnhancedGrades();
+  const { enhancedData, isLoading, isCached, cachedAt, error, fetchEnhancedGrades } = useEnhancedGrades(school.id, school.name);
 
-  const handleEnhance = () => {
-    const currentGrades = {
-      academics: school.academics_grade,
-      sports: school.sports_grade,
-      arts: school.arts_grade,
-      clubs: school.clubs_grade,
-      diversity: school.diversity_grade,
-      college_prep: school.college_prep_grade,
-      campus: school.campus_grade,
-      facilities: school.facilities_grade,
-      faculty: school.faculty_grade,
-      dorms: school.dorms_grade,
-    };
-    
-    fetchEnhancedGrades(school.id, school.name, currentGrades);
+  const handleEnhance = (forceRefresh = false) => {
+    fetchEnhancedGrades(forceRefresh);
+  };
+
+  const formatCacheDate = (date: string | null) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
   if (!enhancedData) {
@@ -157,7 +153,7 @@ export function EnhancedGradesPanel({ school }: EnhancedGradesPanelProps) {
         </CardHeader>
         <CardContent>
           <Button 
-            onClick={handleEnhance} 
+            onClick={() => handleEnhance(false)} 
             disabled={isLoading}
             className="w-full"
           >
@@ -200,8 +196,13 @@ export function EnhancedGradesPanel({ school }: EnhancedGradesPanelProps) {
           <Sparkles className="h-5 w-5 text-primary" />
           Enhanced Grade Analysis
         </CardTitle>
-        <CardDescription>
-          AI-enhanced data cross-referenced from multiple sources
+        <CardDescription className="flex items-center justify-between">
+          <span>AI-enhanced data cross-referenced from multiple sources</span>
+          {isCached && cachedAt && (
+            <Badge variant="outline" className="text-xs">
+              Cached {formatCacheDate(cachedAt)}
+            </Badge>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -281,7 +282,7 @@ export function EnhancedGradesPanel({ school }: EnhancedGradesPanelProps) {
 
         <Button 
           variant="outline" 
-          onClick={handleEnhance} 
+          onClick={() => handleEnhance(true)} 
           disabled={isLoading}
           className="w-full"
         >

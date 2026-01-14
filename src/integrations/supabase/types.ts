@@ -135,6 +135,59 @@ export type Database = {
           },
         ]
       }
+      enhanced_school_grades: {
+        Row: {
+          areas_for_improvement: Json
+          confidence_avg: number | null
+          created_at: string
+          grade_enhancements: Json
+          id: string
+          key_strengths: Json
+          notable_programs: Json
+          overall_description: string | null
+          reputation: string | null
+          school_id: string
+          sources_used: Json | null
+          updated_at: string
+        }
+        Insert: {
+          areas_for_improvement?: Json
+          confidence_avg?: number | null
+          created_at?: string
+          grade_enhancements?: Json
+          id?: string
+          key_strengths?: Json
+          notable_programs?: Json
+          overall_description?: string | null
+          reputation?: string | null
+          school_id: string
+          sources_used?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          areas_for_improvement?: Json
+          confidence_avg?: number | null
+          created_at?: string
+          grade_enhancements?: Json
+          id?: string
+          key_strengths?: Json
+          notable_programs?: Json
+          overall_description?: string | null
+          reputation?: string | null
+          school_id?: string
+          sources_used?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enhanced_school_grades_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: true
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       essays: {
         Row: {
           ai_feedback: Json | null
