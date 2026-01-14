@@ -25,24 +25,12 @@ interface EnhancedSchoolData {
   reputation: string;
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const { schoolId, schoolName, currentGrades } = await req.json();
-    
-    if (!schoolName) {
-      throw new Error('School name is required');
-    }
-
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
-    }
-
-    const systemPrompt = `You are an expert researcher on US private and boarding schools. Your task is to provide accurate, well-researched information about schools based on publicly available data from sources like:
+async function enhanceSchoolWithAI(
+  schoolName: string, 
+  currentGrades: Record<string, string | null> | undefined,
+  apiKey: string
+): Promise<EnhancedSchoolData> {
+  const systemPrompt = `You are an expert researcher on US private and boarding schools. Your task is to provide accurate, well-researched information about schools based on publicly available data from sources like:
 - Niche.com school ratings
 - PrepReview.com
 - BoardingSchoolReview.com
@@ -58,27 +46,14 @@ IMPORTANT:
 - Focus on well-documented strengths and programs
 - Provide specific, verifiable information when possible`;
 
-    const gradeCategories = [
-      { key: 'academics', label: 'Academics', description: 'Academic rigor, curriculum quality, AP/honors courses, college prep' },
-      { key: 'sports', label: 'Athletics', description: 'Athletic programs, facilities, competitive success, variety of sports' },
-      { key: 'arts', label: 'Arts', description: 'Visual arts, music, theater, dance, creative programs' },
-      { key: 'clubs', label: 'Extracurriculars', description: 'Clubs, student organizations, leadership opportunities' },
-      { key: 'diversity', label: 'Diversity', description: 'Student body diversity, international students, inclusive culture' },
-      { key: 'college_prep', label: 'College Preparation', description: 'College counseling, placement rates, college matriculation' },
-      { key: 'campus', label: 'Campus', description: 'Campus beauty, size, location, environment' },
-      { key: 'facilities', label: 'Facilities', description: 'Buildings, technology, labs, sports facilities, libraries' },
-      { key: 'faculty', label: 'Faculty', description: 'Teacher credentials, student-teacher ratio, support' },
-      { key: 'dorms', label: 'Residential Life', description: 'Dorm quality, residential programs, community' },
-    ];
+  const currentGradesInfo = currentGrades 
+    ? `\n\nCurrent grades we have on file:\n${Object.entries(currentGrades)
+        .filter(([_, grade]) => grade && grade !== 'N/A')
+        .map(([cat, grade]) => `- ${cat}: ${grade}`)
+        .join('\n')}`
+    : '';
 
-    const currentGradesInfo = currentGrades 
-      ? `\n\nCurrent grades we have on file:\n${Object.entries(currentGrades)
-          .filter(([_, grade]) => grade && grade !== 'N/A')
-          .map(([cat, grade]) => `- ${cat}: ${grade}`)
-          .join('\n')}`
-      : '';
-
-    const userPrompt = `Research and provide enhanced grade information for: ${schoolName}
+  const userPrompt = `Research and provide enhanced grade information for: ${schoolName}
 
 ${currentGradesInfo}
 
@@ -98,89 +73,173 @@ Based on publicly available information from school rating websites, official sc
 
 Be accurate and cite what you know. If you're uncertain, indicate lower confidence.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "provide_school_grades",
-              description: "Provide enhanced grade information for a school",
-              parameters: {
-                type: "object",
-                properties: {
-                  schoolName: { type: "string" },
-                  overallDescription: { type: "string" },
-                  gradeEnhancements: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        category: { type: "string" },
-                        grade: { type: "string", enum: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F"] },
-                        confidence: { type: "number", minimum: 0, maximum: 100 },
-                        description: { type: "string" },
-                        highlights: { type: "array", items: { type: "string" } },
-                        sources: { type: "array", items: { type: "string" } }
-                      },
-                      required: ["category", "grade", "confidence", "description", "highlights", "sources"]
-                    }
-                  },
-                  keyStrengths: { type: "array", items: { type: "string" } },
-                  areasForImprovement: { type: "array", items: { type: "string" } },
-                  notablePrograms: { type: "array", items: { type: "string" } },
-                  reputation: { type: "string" }
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "provide_school_grades",
+            description: "Provide enhanced grade information for a school",
+            parameters: {
+              type: "object",
+              properties: {
+                schoolName: { type: "string" },
+                overallDescription: { type: "string" },
+                gradeEnhancements: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      category: { type: "string" },
+                      grade: { type: "string", enum: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F"] },
+                      confidence: { type: "number", minimum: 0, maximum: 100 },
+                      description: { type: "string" },
+                      highlights: { type: "array", items: { type: "string" } },
+                      sources: { type: "array", items: { type: "string" } }
+                    },
+                    required: ["category", "grade", "confidence", "description", "highlights", "sources"]
+                  }
                 },
-                required: ["schoolName", "overallDescription", "gradeEnhancements", "keyStrengths", "areasForImprovement", "notablePrograms", "reputation"]
-              }
+                keyStrengths: { type: "array", items: { type: "string" } },
+                areasForImprovement: { type: "array", items: { type: "string" } },
+                notablePrograms: { type: "array", items: { type: "string" } },
+                reputation: { type: "string" }
+              },
+              required: ["schoolName", "overallDescription", "gradeEnhancements", "keyStrengths", "areasForImprovement", "notablePrograms", "reputation"]
             }
           }
-        ],
-        tool_choice: { type: "function", function: { name: "provide_school_grades" } }
-      }),
-    });
+        }
+      ],
+      tool_choice: { type: "function", function: { name: "provide_school_grades" } }
+    }),
+  });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+  if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error("Rate limit exceeded. Please try again later.");
     }
+    if (response.status === 402) {
+      throw new Error("AI credits exhausted. Please add credits to continue.");
+    }
+    const errorText = await response.text();
+    console.error('AI API error:', response.status, errorText);
+    throw new Error(`AI API error: ${response.status}`);
+  }
 
-    const data = await response.json();
+  const data = await response.json();
+  
+  const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+  if (!toolCall || toolCall.function.name !== 'provide_school_grades') {
+    throw new Error('Failed to get structured response from AI');
+  }
+
+  return JSON.parse(toolCall.function.arguments);
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { schoolId, schoolName, currentGrades, forceRefresh } = await req.json();
     
-    // Extract the function call result
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== 'provide_school_grades') {
-      throw new Error('Failed to get structured response from AI');
+    if (!schoolName) {
+      throw new Error('School name is required');
     }
 
-    const enhancedData: EnhancedSchoolData = JSON.parse(toolCall.function.arguments);
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check cache first (unless force refresh)
+    if (!forceRefresh && schoolId) {
+      const { data: cached } = await supabase
+        .from('enhanced_school_grades')
+        .select('*')
+        .eq('school_id', schoolId)
+        .single();
+      
+      if (cached) {
+        // Return cached data if less than 30 days old
+        const updatedAt = new Date(cached.updated_at);
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        
+        if (updatedAt > thirtyDaysAgo) {
+          return new Response(JSON.stringify({
+            success: true,
+            schoolId,
+            cached: true,
+            cachedAt: cached.updated_at,
+            data: {
+              schoolName,
+              overallDescription: cached.overall_description,
+              gradeEnhancements: cached.grade_enhancements,
+              keyStrengths: cached.key_strengths,
+              areasForImprovement: cached.areas_for_improvement,
+              notablePrograms: cached.notable_programs,
+              reputation: cached.reputation
+            }
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    }
+
+    // Fetch fresh data from AI
+    const enhancedData = await enhanceSchoolWithAI(schoolName, currentGrades, LOVABLE_API_KEY);
+
+    // Calculate average confidence
+    const avgConfidence = enhancedData.gradeEnhancements.length > 0
+      ? enhancedData.gradeEnhancements.reduce((sum, e) => sum + e.confidence, 0) / enhancedData.gradeEnhancements.length
+      : null;
+
+    // Collect all sources
+    const allSources = [...new Set(enhancedData.gradeEnhancements.flatMap(e => e.sources))];
+
+    // Cache the result
+    if (schoolId) {
+      const { error: upsertError } = await supabase
+        .from('enhanced_school_grades')
+        .upsert({
+          school_id: schoolId,
+          overall_description: enhancedData.overallDescription,
+          grade_enhancements: enhancedData.gradeEnhancements,
+          key_strengths: enhancedData.keyStrengths,
+          areas_for_improvement: enhancedData.areasForImprovement,
+          notable_programs: enhancedData.notablePrograms,
+          reputation: enhancedData.reputation,
+          sources_used: allSources,
+          confidence_avg: avgConfidence,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'school_id' });
+
+      if (upsertError) {
+        console.error('Error caching enhanced grades:', upsertError);
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,
       schoolId,
+      cached: false,
       data: enhancedData
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
