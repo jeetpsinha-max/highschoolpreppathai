@@ -10,6 +10,7 @@ import { useSchool } from "@/hooks/useSchools";
 import { getGradeColor, getOverallGradeColor, calculateOverallGrade, getGradeDescription } from "@/lib/grading";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
+import { EnhancedGradesPanel } from "@/components/EnhancedGradesPanel";
 import { 
   MapPin, 
   ExternalLink, 
@@ -378,6 +379,9 @@ export default function SchoolProfile() {
                   ))}
                 </CardContent>
               </Card>
+
+              {/* Enhanced Grades Panel */}
+              <EnhancedGradesPanel school={school} />
 
               <Card>
                 <CardHeader>
