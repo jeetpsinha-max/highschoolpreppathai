@@ -20,3 +20,12 @@ verify_jwt = false
 
 [functions.ask-admissions]
 verify_jwt = false
+
+[functions.enhance-school-grades]
+verify_jwt = false
+
+[functions.bulk-enhance-grades]
+verify_jwt = false
+
+[functions.refresh-stale-grades]
+verify_jwt = false
