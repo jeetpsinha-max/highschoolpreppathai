@@ -15,7 +15,7 @@ export default {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'DM Sans',
+  				'Montserrat',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -33,7 +33,7 @@ export default {
   				'sans-serif'
   			],
   			serif: [
-  				'Crimson Pro',
+  				'Cormorant Garamond',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -42,7 +42,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'SF Mono',
+  				'IBM Plex Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
@@ -166,7 +166,7 @@ export default {
   					transform: 'scale(1)'
   				}
   			},
-  			ticker: {
+  			'ticker': {
   				from: {
   					transform: 'translateX(0)'
   				},
@@ -182,7 +182,7 @@ export default {
   					opacity: '0.8'
   				}
   			},
-  			float: {
+  			'float': {
   				'0%, 100%': {
   					transform: 'translateY(0)'
   				},
@@ -198,12 +198,12 @@ export default {
   			'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
   			'slide-in-right': 'slide-in-right 0.5s ease-out forwards',
   			'scale-in': 'scale-in 0.3s ease-out forwards',
-  			ticker: 'ticker 30s linear infinite',
+  			'ticker': 'ticker 30s linear infinite',
   			'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite',
-  			float: 'float 3s ease-in-out infinite'
+  			'float': 'float 3s ease-in-out infinite'
   		},
   		boxShadow: {
-  			glow: '0 0 30px hsl(var(--secondary) / 0.3)',
+  			'glow': '0 0 30px hsl(var(--secondary) / 0.3)',
   			'glow-lg': '0 0 50px hsl(var(--secondary) / 0.4)',
   			'2xs': 'var(--shadow-2xs)',
   			xs: 'var(--shadow-xs)',
