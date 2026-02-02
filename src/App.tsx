@@ -25,6 +25,7 @@ import BetaForSchools from "./pages/BetaForSchools";
 import PilotProgram from "./pages/PilotProgram";
 import Documents from "./pages/Documents";
 import BulkEnhancement from "./pages/BulkEnhancement";
+import AdminStatus from "./pages/AdminStatus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/pilot" element={<ProtectedRoute><PilotProgram /></ProtectedRoute>} />
             <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
             <Route path="/admin/bulk-enhancement" element={<ProtectedRoute><BulkEnhancement /></ProtectedRoute>} />
+            <Route path="/admin/status" element={<ProtectedRoute><AdminStatus /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
