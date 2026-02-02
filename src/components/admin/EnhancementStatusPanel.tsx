@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { useEnhancementStats } from '@/hooks/useEnhancedGrades';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Database, Clock, CheckCircle, AlertTriangle, RefreshCw, Calendar } from 'lucide-react';
+import { Database, Clock, CheckCircle, AlertTriangle, RefreshCw, Calendar, Loader2 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
+import { toast } from 'sonner';
 
 export function EnhancementStatusPanel() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
   const { data: stats, isLoading: statsLoading } = useEnhancementStats();
   
   const { data: lastRefresh, isLoading: refreshLoading } = useQuery({
@@ -26,6 +31,26 @@ export function EnhancementStatusPanel() {
   });
 
   const isLoading = statsLoading || refreshLoading;
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('refresh-stale-grades');
+      
+      if (error) throw error;
+      
+      toast.success(`Refresh complete: ${data.refreshed} records updated`);
+      
+      // Invalidate queries to refresh the panel
+      queryClient.invalidateQueries({ queryKey: ['enhancement-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['last-enhancement-refresh'] });
+    } catch (error) {
+      console.error('Manual refresh failed:', error);
+      toast.error('Failed to refresh stale grades');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -66,9 +91,24 @@ export function EnhancementStatusPanel() {
               AI-enhanced school grade data cache status
             </CardDescription>
           </div>
-          <Badge variant={freshPercentage > 80 ? "default" : freshPercentage > 50 ? "secondary" : "destructive"}>
-            {freshPercentage}% Fresh
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-1" />
+              )}
+              Refresh Now
+            </Button>
+            <Badge variant={freshPercentage > 80 ? "default" : freshPercentage > 50 ? "secondary" : "destructive"}>
+              {freshPercentage}% Fresh
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
