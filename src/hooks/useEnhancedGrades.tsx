@@ -12,6 +12,15 @@ export interface GradeEnhancement {
   sources: string[];
 }
 
+export interface SportProgram {
+  sport: string;
+  gender: 'Boys' | 'Girls' | 'Coed';
+  grade: string;
+  level: 'Varsity' | 'JV' | 'Club' | 'Recreational';
+  season: 'Fall' | 'Winter' | 'Spring' | 'Year-round';
+  highlights: string[];
+}
+
 export interface EnhancedSchoolData {
   schoolName: string;
   overallDescription: string;
@@ -20,6 +29,7 @@ export interface EnhancedSchoolData {
   areasForImprovement: string[];
   notablePrograms: string[];
   reputation: string;
+  sportsPrograms: SportProgram[];
 }
 
 interface CachedEnhancedGrades {
@@ -33,6 +43,7 @@ interface CachedEnhancedGrades {
   reputation: string | null;
   sources_used: string[];
   confidence_avg: number | null;
+  sports_programs: SportProgram[];
   created_at: string;
   updated_at: string;
 }
@@ -74,7 +85,8 @@ export function useEnhancedGrades(schoolId: string, schoolName: string): UseEnha
           keyStrengths: (cached.key_strengths as unknown as string[]) || [],
           areasForImprovement: (cached.areas_for_improvement as unknown as string[]) || [],
           notablePrograms: (cached.notable_programs as unknown as string[]) || [],
-          reputation: cached.reputation || ''
+          reputation: cached.reputation || '',
+          sportsPrograms: (cached.sports_programs as unknown as SportProgram[]) || []
         });
         setIsCached(true);
         setCachedAt(cached.updated_at);

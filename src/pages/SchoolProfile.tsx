@@ -7,10 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSchool } from "@/hooks/useSchools";
+import { useEnhancedGrades } from "@/hooks/useEnhancedGrades";
 import { getGradeColor, getOverallGradeColor, calculateOverallGrade, getGradeDescription } from "@/lib/grading";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { EnhancedGradesPanel } from "@/components/EnhancedGradesPanel";
+import { SportsOverviewPanel } from "@/components/SportsOverviewPanel";
 import { 
   MapPin, 
   ExternalLink, 
@@ -39,6 +41,12 @@ import {
 export default function SchoolProfile() {
   const { id } = useParams<{ id: string }>();
   const { data: school, isLoading, error } = useSchool(id || "");
+  const { 
+    enhancedData, 
+    isLoading: isEnhancing, 
+    isCached, 
+    fetchEnhancedGrades 
+  } = useEnhancedGrades(id || "", school?.name || "");
 
   const getCompetitivenessColor = (level: string | null) => {
     switch (level) {
@@ -211,6 +219,14 @@ export default function SchoolProfile() {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Sports Programs Overview */}
+              <SportsOverviewPanel 
+                sportsPrograms={enhancedData?.sportsPrograms || []}
+                isLoading={isEnhancing}
+                onRefresh={() => fetchEnhancedGrades(true)}
+                isCached={isCached}
+              />
 
               {/* AI Insights */}
               <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
