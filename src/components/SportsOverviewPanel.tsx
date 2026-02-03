@@ -172,8 +172,33 @@ export function SportsOverviewPanel({
                         <span className="text-muted-foreground text-sm" title={sport.gender}>
                           {genderIcons[sport.gender]}
                         </span>
+                        {sport.record && (
+                          <Badge variant="secondary" className="text-xs font-mono">
+                            {sport.record}
+                          </Badge>
+                        )}
                       </div>
-                      {sport.highlights && sport.highlights.length > 0 && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {sport.stateRanking && (
+                          <span className="text-amber-600 dark:text-amber-400 font-medium">
+                            #{sport.stateRanking} State
+                          </span>
+                        )}
+                        {sport.nationalRanking && (
+                          <span className="text-blue-600 dark:text-blue-400 font-medium">
+                            #{sport.nationalRanking} National
+                          </span>
+                        )}
+                        {sport.conference && (
+                          <span>{sport.conference}</span>
+                        )}
+                      </div>
+                      {sport.championships && sport.championships.length > 0 && (
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                          🏆 {sport.championships[0]}
+                        </p>
+                      )}
+                      {sport.highlights && sport.highlights.length > 0 && !sport.championships?.length && (
                         <p className="text-xs text-muted-foreground line-clamp-1">
                           {sport.highlights[0]}
                         </p>

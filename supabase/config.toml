@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.refresh-stale-grades]
 verify_jwt = false
+
+[functions.import-niche-schools]
+verify_jwt = false
