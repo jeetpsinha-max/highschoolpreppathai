@@ -19,6 +19,11 @@ export interface SportProgram {
   level: 'Varsity' | 'JV' | 'Club' | 'Recreational';
   season: 'Fall' | 'Winter' | 'Spring' | 'Year-round';
   highlights: string[];
+  record?: string;
+  stateRanking?: number;
+  nationalRanking?: number;
+  conference?: string;
+  championships?: string[];
 }
 
 export interface EnhancedSchoolData {

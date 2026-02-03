@@ -22,6 +22,11 @@ interface SportProgram {
   level: 'Varsity' | 'JV' | 'Club' | 'Recreational';
   season: 'Fall' | 'Winter' | 'Spring' | 'Year-round';
   highlights: string[];
+  record?: string;
+  stateRanking?: number;
+  nationalRanking?: number;
+  conference?: string;
+  championships?: string[];
 }
 
 interface EnhancedSchoolData {
@@ -63,7 +68,10 @@ IMPORTANT:
 - If you're not confident about specific data, indicate lower confidence
 - Focus on well-documented strengths and programs
 - Provide specific, verifiable information when possible
-- For sports, list ALL sports you can identify that the school offers`;
+- For sports, list ALL sports you can identify that the school offers
+- Include team records (e.g., "12-3", "8-2-1") when available from MaxPreps
+- Include state and national rankings from MaxPreps when available
+- Include conference affiliations and championship history`;
 
   const currentGradesInfo = currentGrades 
     ? `\n\nCurrent grades we have on file:\n${Object.entries(currentGrades)
@@ -96,6 +104,11 @@ Based on publicly available information from school rating websites, official sc
    - Level (Varsity, JV, Club, or Recreational)
    - Season (Fall, Winter, Spring, or Year-round)
    - 1-2 highlights if the sport is notable (championships, strong program, etc.)
+   - Record (current or most recent season, e.g., "15-2", "8-4-1")
+   - State ranking (if available from MaxPreps, e.g., #5 in state)
+   - National ranking (if available from MaxPreps)
+   - Conference affiliation (e.g., "NEPSAC", "ISL", "PAISAA")
+   - Championship history (recent titles, state championships)
 
 Be accurate and cite what you know. If you're uncertain, indicate lower confidence. For sports, try to identify as many as possible - typical private schools offer 15-25+ sports.`;
 
@@ -143,7 +156,7 @@ Be accurate and cite what you know. If you're uncertain, indicate lower confiden
                 reputation: { type: "string" },
                 sportsPrograms: {
                   type: "array",
-                  description: "List of all sports programs offered at the school",
+                  description: "List of all sports programs offered at the school with records and rankings",
                   items: {
                     type: "object",
                     properties: {
@@ -152,7 +165,12 @@ Be accurate and cite what you know. If you're uncertain, indicate lower confiden
                       grade: { type: "string", enum: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F"] },
                       level: { type: "string", enum: ["Varsity", "JV", "Club", "Recreational"] },
                       season: { type: "string", enum: ["Fall", "Winter", "Spring", "Year-round"] },
-                      highlights: { type: "array", items: { type: "string" }, description: "Notable achievements or facts about this sport program" }
+                      highlights: { type: "array", items: { type: "string" }, description: "Notable achievements or facts about this sport program" },
+                      record: { type: "string", description: "Current or recent season record (e.g., '15-2', '8-4-1')" },
+                      stateRanking: { type: "number", description: "State ranking from MaxPreps if available" },
+                      nationalRanking: { type: "number", description: "National ranking from MaxPreps if available" },
+                      conference: { type: "string", description: "Conference affiliation (e.g., 'NEPSAC', 'ISL')" },
+                      championships: { type: "array", items: { type: "string" }, description: "Recent championships or titles won" }
                     },
                     required: ["sport", "gender", "grade", "level", "season", "highlights"]
                   }

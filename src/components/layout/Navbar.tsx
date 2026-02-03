@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Menu, X, Search, Sparkles, User, LogOut, Users, Shield } from "lucide-react";
+import { GraduationCap, Menu, X, Search, Sparkles, User, LogOut, Users, Shield, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,10 @@ const navLinks = [{
   href: "/schools",
   label: "Find Schools",
   icon: Search
+}, {
+  href: "/sports-rankings",
+  label: "Sports Rankings",
+  icon: Trophy
 }, {
   href: "/ai-tools",
   label: "AI Tools",
