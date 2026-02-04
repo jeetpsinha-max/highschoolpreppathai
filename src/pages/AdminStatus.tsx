@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { EnhancementStatusPanel } from '@/components/admin/EnhancementStatusPanel';
+import { BulkSportsLoader } from '@/components/admin/BulkSportsLoader';
+import { BulkStateImporter } from '@/components/admin/BulkStateImporter';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -32,7 +34,11 @@ export default function AdminStatus() {
           </p>
         </div>
         
-        <EnhancementStatusPanel />
+        <div className="space-y-6">
+          <EnhancementStatusPanel />
+          <BulkStateImporter />
+          <BulkSportsLoader />
+        </div>
       </main>
       <Footer />
     </div>
