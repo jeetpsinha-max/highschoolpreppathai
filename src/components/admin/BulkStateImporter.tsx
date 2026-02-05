@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +25,7 @@ export function BulkStateImporter() {
   const [results, setResults] = useState<StateResult[]>([]);
   const queryClient = useQueryClient();
 
-  const stopRef = { current: false };
+  const stopRef = useRef(false);
 
   const handleBulkImport = async () => {
     setIsImporting(true);
@@ -43,37 +44,60 @@ export function BulkStateImporter() {
         const state = usStates[i];
         setProgress({ current: i + 1, total: usStates.length, currentState: state });
 
-        try {
-          const { data, error } = await supabase.functions.invoke('import-niche-schools', {
-            body: { state, limit: 25 },
-          });
+        let retries = 0;
+        const maxRetries = 3;
+        let success = false;
 
-          if (error) throw error;
-          if (data.error) throw new Error(data.error);
+        while (!success && retries < maxRetries && !stopRef.current) {
+          try {
+            const { data, error } = await supabase.functions.invoke('import-niche-schools', {
+              body: { state, limit: 25 },
+            });
 
-          totalInserted += data.inserted || 0;
-          totalDuplicates += data.duplicatesSkipped || 0;
+            if (error) throw error;
+            if (data.error) {
+              if (data.error.includes('Rate limit')) {
+                throw new Error('RATE_LIMIT');
+              }
+              throw new Error(data.error);
+            }
 
-          setResults(prev => [...prev, {
-            state,
-            inserted: data.inserted || 0,
-            duplicatesSkipped: data.duplicatesSkipped || 0,
-            success: true,
-          }]);
-        } catch (error) {
-          console.error(`Error importing ${state}:`, error);
-          setResults(prev => [...prev, {
-            state,
-            inserted: 0,
-            duplicatesSkipped: 0,
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          }]);
+            totalInserted += data.inserted || 0;
+            totalDuplicates += data.duplicatesSkipped || 0;
+
+            setResults(prev => [...prev, {
+              state,
+              inserted: data.inserted || 0,
+              duplicatesSkipped: data.duplicatesSkipped || 0,
+              success: true,
+            }]);
+            success = true;
+          } catch (error) {
+            const isRateLimit = error instanceof Error && 
+              (error.message === 'RATE_LIMIT' || error.message.includes('Rate limit'));
+            
+            if (isRateLimit && retries < maxRetries - 1) {
+              retries++;
+              const backoffDelay = Math.pow(2, retries) * 10000; // 20s, 40s, 80s
+              console.log(`Rate limited on ${state}, waiting ${backoffDelay/1000}s before retry ${retries}/${maxRetries}`);
+              await new Promise(resolve => setTimeout(resolve, backoffDelay));
+            } else {
+              console.error(`Error importing ${state}:`, error);
+              setResults(prev => [...prev, {
+                state,
+                inserted: 0,
+                duplicatesSkipped: 0,
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }]);
+              break;
+            }
+          }
         }
 
-        // Delay between states to avoid rate limiting
+        // Longer delay between states to avoid rate limiting (15 seconds)
         if (i < usStates.length - 1 && !stopRef.current) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise(resolve => setTimeout(resolve, 15000));
         }
       }
 
