@@ -16,8 +16,11 @@ import {
   CheckCircle2, 
   XCircle, 
   AlertTriangle,
-  Download
+  Download,
+  Trophy
 } from 'lucide-react';
+import { BulkSportsLoader } from '@/components/admin/BulkSportsLoader';
+import { BulkStateImporter } from '@/components/admin/BulkStateImporter';
 
 interface ImportResult {
   success: boolean;
@@ -96,7 +99,8 @@ export default function ImportSchools() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -233,6 +237,12 @@ export default function ImportSchools() {
               </CardContent>
             </Card>
           )}
+        </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <BulkStateImporter />
+            <BulkSportsLoader />
+          </div>
         </div>
       </main>
 
