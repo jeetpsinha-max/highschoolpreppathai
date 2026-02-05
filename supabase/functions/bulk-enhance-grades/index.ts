@@ -25,10 +25,15 @@ interface EnhancedSchoolData {
   reputation: string;
 }
 
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function enhanceSchoolWithAI(
   schoolName: string, 
   currentGrades: Record<string, string | null>,
-  apiKey: string
+  apiKey: string,
+  maxRetries = 3
 ): Promise<EnhancedSchoolData> {
   const systemPrompt = `You are an expert researcher on US private and boarding schools. Provide accurate, well-researched information based on sources like Niche.com, PrepReview, BoardingSchoolReview, official websites, and US News. Be factual and indicate confidence levels.`;
 
@@ -39,70 +44,95 @@ async function enhanceSchoolWithAI(
 
   const userPrompt = `Research ${schoolName}. Current grades:\n${currentGradesInfo}\n\nProvide: overall description, grade enhancements with confidence, key strengths, areas for improvement, notable programs, and reputation.`;
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: "provide_school_grades",
-            description: "Provide enhanced grade information for a school",
-            parameters: {
-              type: "object",
-              properties: {
-                schoolName: { type: "string" },
-                overallDescription: { type: "string" },
-                gradeEnhancements: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      category: { type: "string" },
-                      grade: { type: "string" },
-                      confidence: { type: "number" },
-                      description: { type: "string" },
-                      highlights: { type: "array", items: { type: "string" } },
-                      sources: { type: "array", items: { type: "string" } }
-                    },
-                    required: ["category", "grade", "confidence", "description", "highlights", "sources"]
-                  }
-                },
-                keyStrengths: { type: "array", items: { type: "string" } },
-                areasForImprovement: { type: "array", items: { type: "string" } },
-                notablePrograms: { type: "array", items: { type: "string" } },
-                reputation: { type: "string" }
-              },
-              required: ["schoolName", "overallDescription", "gradeEnhancements", "keyStrengths", "areasForImprovement", "notablePrograms", "reputation"]
-            }
-          }
-        }
-      ],
-      tool_choice: { type: "function", function: { name: "provide_school_grades" } }
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`AI API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+  let lastError: Error | null = null;
   
-  if (!toolCall) {
-    throw new Error('Failed to get structured response from AI');
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        // Exponential backoff: 30s, 90s, 270s
+        const backoffMs = Math.pow(3, attempt) * 30000;
+        console.log(`Retry ${attempt + 1}/${maxRetries} for ${schoolName} after ${backoffMs/1000}s`);
+        await sleep(backoffMs);
+      }
+
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "provide_school_grades",
+                description: "Provide enhanced grade information for a school",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    schoolName: { type: "string" },
+                    overallDescription: { type: "string" },
+                    gradeEnhancements: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          category: { type: "string" },
+                          grade: { type: "string" },
+                          confidence: { type: "number" },
+                          description: { type: "string" },
+                          highlights: { type: "array", items: { type: "string" } },
+                          sources: { type: "array", items: { type: "string" } }
+                        },
+                        required: ["category", "grade", "confidence", "description", "highlights", "sources"]
+                      }
+                    },
+                    keyStrengths: { type: "array", items: { type: "string" } },
+                    areasForImprovement: { type: "array", items: { type: "string" } },
+                    notablePrograms: { type: "array", items: { type: "string" } },
+                    reputation: { type: "string" }
+                  },
+                  required: ["schoolName", "overallDescription", "gradeEnhancements", "keyStrengths", "areasForImprovement", "notablePrograms", "reputation"]
+                }
+              }
+            }
+          ],
+          tool_choice: { type: "function", function: { name: "provide_school_grades" } }
+        }),
+      });
+
+      if (response.status === 429) {
+        lastError = new Error('Rate limited');
+        continue; // Retry with backoff
+      }
+
+      if (!response.ok) {
+        throw new Error(`AI API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+      
+      if (!toolCall) {
+        throw new Error('Failed to get structured response from AI');
+      }
+
+      return JSON.parse(toolCall.function.arguments);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Unknown error');
+      if (error instanceof Error && !error.message.includes('Rate')) {
+        throw error; // Non-rate-limit errors should fail immediately
+      }
+    }
   }
 
-  return JSON.parse(toolCall.function.arguments);
+  throw lastError || new Error('Max retries exceeded');
 }
 
 serve(async (req) => {
@@ -111,7 +141,8 @@ serve(async (req) => {
   }
 
   try {
-    const { schoolIds, batchSize = 5, delayMs = 2000 } = await req.json();
+    // Much longer delays by default to avoid rate limits
+    const { schoolIds, delayMs = 10000 } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -156,65 +187,64 @@ serve(async (req) => {
     
     // Filter to only uncached schools
     const schoolsToEnhance = schools.filter(s => !cachedIds.has(s.id));
+    
+    console.log(`Processing ${schoolsToEnhance.length} schools (${cachedIds.size} already cached)`);
 
     const results: { schoolId: string; schoolName: string; status: 'success' | 'error'; error?: string }[] = [];
     
-    // Process in batches with delay to avoid rate limits
-    for (let i = 0; i < schoolsToEnhance.length; i += batchSize) {
-      const batch = schoolsToEnhance.slice(i, i + batchSize);
+    // Process schools sequentially to avoid rate limits
+    for (let i = 0; i < schoolsToEnhance.length; i++) {
+      const school = schoolsToEnhance[i];
+      console.log(`Processing ${i + 1}/${schoolsToEnhance.length}: ${school.name}`);
       
-      const batchPromises = batch.map(async (school) => {
-        try {
-          const currentGrades = {
-            academics: school.academics_grade,
-            sports: school.sports_grade,
-            arts: school.arts_grade,
-            clubs: school.clubs_grade,
-            diversity: school.diversity_grade,
-            college_prep: school.college_prep_grade,
-            campus: school.campus_grade,
-            facilities: school.facilities_grade,
-            faculty: school.faculty_grade,
-            dorms: school.dorms_grade,
-          };
+      try {
+        const currentGrades = {
+          academics: school.academics_grade,
+          sports: school.sports_grade,
+          arts: school.arts_grade,
+          clubs: school.clubs_grade,
+          diversity: school.diversity_grade,
+          college_prep: school.college_prep_grade,
+          campus: school.campus_grade,
+          facilities: school.facilities_grade,
+          faculty: school.faculty_grade,
+          dorms: school.dorms_grade,
+        };
 
-          const enhancedData = await enhanceSchoolWithAI(school.name, currentGrades, LOVABLE_API_KEY);
+        const enhancedData = await enhanceSchoolWithAI(school.name, currentGrades, LOVABLE_API_KEY);
 
-          const avgConfidence = enhancedData.gradeEnhancements.length > 0
-            ? enhancedData.gradeEnhancements.reduce((sum, e) => sum + e.confidence, 0) / enhancedData.gradeEnhancements.length
-            : null;
+        const avgConfidence = enhancedData.gradeEnhancements.length > 0
+          ? enhancedData.gradeEnhancements.reduce((sum, e) => sum + e.confidence, 0) / enhancedData.gradeEnhancements.length
+          : null;
 
-          const allSources = [...new Set(enhancedData.gradeEnhancements.flatMap(e => e.sources))];
+        const allSources = [...new Set(enhancedData.gradeEnhancements.flatMap(e => e.sources))];
 
-          await supabase
-            .from('enhanced_school_grades')
-            .upsert({
-              school_id: school.id,
-              overall_description: enhancedData.overallDescription,
-              grade_enhancements: enhancedData.gradeEnhancements,
-              key_strengths: enhancedData.keyStrengths,
-              areas_for_improvement: enhancedData.areasForImprovement,
-              notable_programs: enhancedData.notablePrograms,
-              reputation: enhancedData.reputation,
-              sources_used: allSources,
-              confidence_avg: avgConfidence,
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'school_id' });
+        await supabase
+          .from('enhanced_school_grades')
+          .upsert({
+            school_id: school.id,
+            overall_description: enhancedData.overallDescription,
+            grade_enhancements: enhancedData.gradeEnhancements,
+            key_strengths: enhancedData.keyStrengths,
+            areas_for_improvement: enhancedData.areasForImprovement,
+            notable_programs: enhancedData.notablePrograms,
+            reputation: enhancedData.reputation,
+            sources_used: allSources,
+            confidence_avg: avgConfidence,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'school_id' });
 
-          return { schoolId: school.id, schoolName: school.name, status: 'success' as const };
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`Error enhancing ${school.name}:`, message);
-          return { schoolId: school.id, schoolName: school.name, status: 'error' as const, error: message };
-        }
-      });
+        results.push({ schoolId: school.id, schoolName: school.name, status: 'success' });
+        console.log(`✓ Enhanced ${school.name}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`✗ Error enhancing ${school.name}:`, message);
+        results.push({ schoolId: school.id, schoolName: school.name, status: 'error', error: message });
+      }
 
-      const batchResults = await Promise.all(batchPromises);
-      results.push(...batchResults);
-
-      // Delay between batches to avoid rate limits
-      if (i + batchSize < schoolsToEnhance.length) {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
+      // Delay between schools to avoid rate limits
+      if (i < schoolsToEnhance.length - 1) {
+        await sleep(delayMs);
       }
     }
 
