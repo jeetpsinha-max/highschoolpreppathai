@@ -27,6 +27,7 @@ import Documents from "./pages/Documents";
 import BulkEnhancement from "./pages/BulkEnhancement";
 import AdminStatus from "./pages/AdminStatus";
 import SportsRankings from "./pages/SportsRankings";
+import SportDetail from "./pages/SportDetail";
 import ImportSchools from "./pages/ImportSchools";
 import NotFound from "./pages/NotFound";
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/pilot" element={<ProtectedRoute><PilotProgram /></ProtectedRoute>} />
             <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
             <Route path="/sports-rankings" element={<ProtectedRoute><SportsRankings /></ProtectedRoute>} />
+            <Route path="/sports-rankings/:sport" element={<ProtectedRoute><SportDetail /></ProtectedRoute>} />
             <Route path="/admin/bulk-enhancement" element={<ProtectedRoute><BulkEnhancement /></ProtectedRoute>} />
             <Route path="/admin/status" element={<ProtectedRoute><AdminStatus /></ProtectedRoute>} />
             <Route path="/admin/import-schools" element={<ProtectedRoute><ImportSchools /></ProtectedRoute>} />

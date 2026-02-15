@@ -382,6 +382,18 @@ export default function SportsRankings() {
 
           {/* By Sport Tab */}
           <TabsContent value="by-sport">
+            {/* Quick sport links */}
+            {!isLoading && data?.availableSports && data.availableSports.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {data.availableSports.slice(0, 20).map(sport => (
+                  <Link key={sport} to={`/sports-rankings/${encodeURIComponent(sport)}`}>
+                    <Badge variant={sportFilter === sport ? 'default' : 'outline'} className="cursor-pointer hover:bg-primary/10 transition-colors">
+                      {sport}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
             {isLoading ? (
               <Card><CardContent className="py-12 text-center"><div className="animate-pulse">Loading...</div></CardContent></Card>
             ) : filteredSports.length === 0 ? (
@@ -434,7 +446,9 @@ export default function SportsRankings() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <div className="font-medium">{entry.sport}</div>
+                            <Link to={`/sports-rankings/${encodeURIComponent(entry.sport)}`} className="font-medium hover:text-primary transition-colors">
+                              {entry.sport}
+                            </Link>
                             <div className="text-xs text-muted-foreground">
                               {entry.gender} · {entry.level}
                             </div>
