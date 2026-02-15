@@ -10,329 +10,508 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trophy, Search, Medal, ArrowUpDown, ExternalLink } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getGradeColor, gradeToRank } from '@/lib/grading';
 import { SportProgram } from '@/hooks/useEnhancedGrades';
 
-interface SchoolSportsData {
-  school_id: string;
-  school_name: string;
-  school_city: string;
-  school_state: string;
-  sports_programs: SportProgram[];
-  overall_sports_grade: string;
-  total_sports: number;
-  ranked_sports: number;
-}
+const PAGE_SIZE = 50;
 
 const SPORTS_LIST = [
-  'All Sports',
   'Football', 'Basketball', 'Soccer', 'Baseball', 'Softball',
   'Tennis', 'Swimming', 'Track & Field', 'Cross Country', 'Lacrosse',
   'Hockey', 'Golf', 'Volleyball', 'Wrestling', 'Field Hockey',
   'Water Polo', 'Rowing', 'Squash', 'Skiing', 'Sailing'
 ];
 
+interface SchoolRow {
+  id: string;
+  name: string;
+  city: string | null;
+  state: string | null;
+  sports_grade: string | null;
+  total_sports: number;
+  ranked_sports: number;
+  top_sports: { sport: string; grade: string; stateRanking?: number }[];
+  has_detail: boolean;
+}
+
+interface SportEntry {
+  school_id: string;
+  school_name: string;
+  school_state: string | null;
+  sport: string;
+  gender: string;
+  grade: string;
+  level: string;
+  record?: string;
+  stateRanking?: number;
+  nationalRanking?: number;
+  championships?: string[];
+}
+
 export default function SportsRankings() {
+  const [tab, setTab] = useState('overall');
   const [search, setSearch] = useState('');
-  const [sportFilter, setSportFilter] = useState('All Sports');
-  const [sortBy, setSortBy] = useState<'grade' | 'total' | 'ranked'>('grade');
+  const [stateFilter, setStateFilter] = useState('all');
+  const [sportFilter, setSportFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'grade' | 'total' | 'name'>('grade');
   const [sortDesc, setSortDesc] = useState(true);
+  const [page, setPage] = useState(0);
 
-  const { data: schoolsData, isLoading } = useQuery({
-    queryKey: ['sports-rankings'],
+  // Sport tab state
+  const [sportSortBy, setSportSortBy] = useState<'grade' | 'ranking'>('grade');
+  const [sportSortDesc, setSportSortDesc] = useState(true);
+  const [sportPage, setSportPage] = useState(0);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['sports-rankings-v2'],
     queryFn: async () => {
-      const { data: enhanced, error } = await supabase
-        .from('enhanced_school_grades')
-        .select(`
-          school_id,
-          sports_programs
-        `);
-
-      if (error) throw error;
-
-      // Get school details
-      const schoolIds = enhanced?.map(e => e.school_id) || [];
-      const { data: schools } = await supabase
+      // Fetch all schools
+      const { data: schools, error: schoolsErr } = await supabase
         .from('schools')
-        .select('id, name, city, state, sports_grade')
-        .in('id', schoolIds);
+        .select('id, name, city, state, sports_grade');
+      if (schoolsErr) throw schoolsErr;
 
-      const schoolMap = new Map(schools?.map(s => [s.id, s]) || []);
+      // Fetch enhanced data (sports programs)
+      const { data: enhanced, error: enhErr } = await supabase
+        .from('enhanced_school_grades')
+        .select('school_id, sports_programs');
+      if (enhErr) throw enhErr;
 
-      // Process and calculate rankings
-      const processed: SchoolSportsData[] = (enhanced || [])
-        .filter(e => e.sports_programs && Array.isArray(e.sports_programs) && e.sports_programs.length > 0)
-        .map(e => {
-          const school = schoolMap.get(e.school_id);
-          const programs = (e.sports_programs as unknown as SportProgram[]) || [];
-          
-          // Calculate average grade
-          const validGrades = programs.filter(p => p.grade).map(p => gradeToRank(p.grade));
-          const avgGrade = validGrades.length > 0 
-            ? validGrades.reduce((a, b) => a + b, 0) / validGrades.length 
-            : 0;
-          
-          // Count ranked sports
+      const enhancedMap = new Map<string, SportProgram[]>();
+      for (const e of enhanced || []) {
+        const programs = (e.sports_programs as unknown as SportProgram[]) || [];
+        if (programs.length > 0) enhancedMap.set(e.school_id, programs);
+      }
+
+      // Build overall rows
+      const overallRows: SchoolRow[] = (schools || [])
+        .filter(s => s.sports_grade)
+        .map(s => {
+          const programs = enhancedMap.get(s.id) || [];
           const rankedSports = programs.filter(p => p.stateRanking || p.nationalRanking).length;
+          const topSports = programs
+            .filter(p => p.grade?.startsWith('A'))
+            .slice(0, 3)
+            .map(p => ({ sport: p.sport, grade: p.grade, stateRanking: p.stateRanking }));
 
           return {
-            school_id: e.school_id,
-            school_name: school?.name || 'Unknown School',
-            school_city: school?.city || '',
-            school_state: school?.state || '',
-            sports_programs: programs,
-            overall_sports_grade: school?.sports_grade || calculateGradeFromAvg(avgGrade),
+            id: s.id,
+            name: s.name,
+            city: s.city,
+            state: s.state,
+            sports_grade: s.sports_grade,
             total_sports: programs.length,
-            ranked_sports: rankedSports
+            ranked_sports: rankedSports,
+            top_sports: topSports,
+            has_detail: programs.length > 0,
           };
         });
 
-      return processed;
+      // Build individual sport entries
+      const sportEntries: SportEntry[] = [];
+      for (const [schoolId, programs] of enhancedMap) {
+        const school = (schools || []).find(s => s.id === schoolId);
+        if (!school) continue;
+        for (const p of programs) {
+          sportEntries.push({
+            school_id: schoolId,
+            school_name: school.name,
+            school_state: school.state,
+            sport: p.sport,
+            gender: p.gender,
+            grade: p.grade,
+            level: p.level,
+            record: p.record,
+            stateRanking: p.stateRanking,
+            nationalRanking: p.nationalRanking,
+            championships: p.championships,
+          });
+        }
+      }
+
+      // Get unique states
+      const states = [...new Set((schools || []).map(s => s.state).filter(Boolean) as string[])].sort();
+
+      // Get unique sports from actual data
+      const availableSports = [...new Set(sportEntries.map(e => e.sport))].sort();
+
+      return { overallRows, sportEntries, states, availableSports };
     }
   });
 
-  const filteredAndSorted = useMemo(() => {
-    if (!schoolsData) return [];
+  // Overall tab filtering/sorting
+  const filteredOverall = useMemo(() => {
+    if (!data) return [];
+    let result = [...data.overallRows];
 
-    let result = [...schoolsData];
-
-    // Search filter
     if (search) {
-      const searchLower = search.toLowerCase();
-      result = result.filter(s => 
-        s.school_name.toLowerCase().includes(searchLower) ||
-        s.school_city?.toLowerCase().includes(searchLower) ||
-        s.school_state?.toLowerCase().includes(searchLower)
+      const q = search.toLowerCase();
+      result = result.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.city?.toLowerCase().includes(q) ||
+        s.state?.toLowerCase().includes(q)
       );
     }
-
-    // Sport filter
-    if (sportFilter !== 'All Sports') {
-      result = result.filter(s => 
-        s.sports_programs.some(p => 
-          p.sport.toLowerCase().includes(sportFilter.toLowerCase())
-        )
-      );
+    if (stateFilter !== 'all') {
+      result = result.filter(s => s.state === stateFilter);
     }
 
-    // Sort
     result.sort((a, b) => {
-      let comparison = 0;
-      if (sortBy === 'grade') {
-        comparison = gradeToRank(a.overall_sports_grade) - gradeToRank(b.overall_sports_grade);
-      } else if (sortBy === 'total') {
-        comparison = a.total_sports - b.total_sports;
-      } else {
-        comparison = a.ranked_sports - b.ranked_sports;
-      }
-      return sortDesc ? -comparison : comparison;
+      let cmp = 0;
+      if (sortBy === 'grade') cmp = gradeToRank(a.sports_grade) - gradeToRank(b.sports_grade);
+      else if (sortBy === 'total') cmp = a.total_sports - b.total_sports;
+      else cmp = a.name.localeCompare(b.name);
+      return sortDesc ? -cmp : cmp;
     });
 
     return result;
-  }, [schoolsData, search, sportFilter, sortBy, sortDesc]);
+  }, [data, search, stateFilter, sortBy, sortDesc]);
 
-  const toggleSort = (column: typeof sortBy) => {
-    if (sortBy === column) {
-      setSortDesc(!sortDesc);
-    } else {
-      setSortBy(column);
-      setSortDesc(true);
+  // Sport tab filtering/sorting
+  const filteredSports = useMemo(() => {
+    if (!data) return [];
+    let result = [...data.sportEntries];
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(e =>
+        e.school_name.toLowerCase().includes(q) ||
+        e.sport.toLowerCase().includes(q)
+      );
     }
+    if (stateFilter !== 'all') {
+      result = result.filter(e => e.school_state === stateFilter);
+    }
+    if (sportFilter !== 'all') {
+      result = result.filter(e => e.sport === sportFilter);
+    }
+
+    result.sort((a, b) => {
+      let cmp = 0;
+      if (sportSortBy === 'grade') cmp = gradeToRank(a.grade) - gradeToRank(b.grade);
+      else {
+        const ra = a.stateRanking ?? 9999;
+        const rb = b.stateRanking ?? 9999;
+        cmp = rb - ra; // lower ranking = better
+      }
+      return sportSortDesc ? -cmp : cmp;
+    });
+
+    return result;
+  }, [data, search, stateFilter, sportFilter, sportSortBy, sportSortDesc]);
+
+  const overallPaged = filteredOverall.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalOverallPages = Math.ceil(filteredOverall.length / PAGE_SIZE);
+
+  const sportsPaged = filteredSports.slice(sportPage * PAGE_SIZE, (sportPage + 1) * PAGE_SIZE);
+  const totalSportPages = Math.ceil(filteredSports.length / PAGE_SIZE);
+
+  const toggleOverallSort = (col: typeof sortBy) => {
+    if (sortBy === col) setSortDesc(!sortDesc);
+    else { setSortBy(col); setSortDesc(true); }
+    setPage(0);
+  };
+
+  const toggleSportSort = (col: typeof sportSortBy) => {
+    if (sportSortBy === col) setSportSortDesc(!sportSortDesc);
+    else { setSportSortBy(col); setSportSortDesc(true); }
+    setSportPage(0);
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
           <Trophy className="h-8 w-8 text-primary" />
           <div>
             <h1 className="text-3xl font-bold">Sports Rankings</h1>
-            <p className="text-muted-foreground">Top athletic programs at private and boarding schools</p>
+            <p className="text-muted-foreground">
+              {data ? `${filteredOverall.length.toLocaleString()} schools ranked` : 'Loading...'}
+            </p>
           </div>
         </div>
 
+        {/* Filters */}
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search schools..."
+                  placeholder="Search schools or sports..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => { setSearch(e.target.value); setPage(0); setSportPage(0); }}
                   className="pl-10"
                 />
               </div>
-              <Select value={sportFilter} onValueChange={setSportFilter}>
-                <SelectTrigger className="w-full md:w-[200px]">
-                  <SelectValue placeholder="Filter by sport" />
+              <Select value={stateFilter} onValueChange={(v) => { setStateFilter(v); setPage(0); setSportPage(0); }}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
-                  {SPORTS_LIST.map(sport => (
-                    <SelectItem key={sport} value={sport}>{sport}</SelectItem>
+                  <SelectItem value="all">All States</SelectItem>
+                  {data?.states.map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {tab === 'by-sport' && (
+                <Select value={sportFilter} onValueChange={(v) => { setSportFilter(v); setSportPage(0); }}>
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="All Sports" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sports</SelectItem>
+                    {(data?.availableSports || SPORTS_LIST).map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {isLoading ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <div className="animate-pulse">Loading sports rankings...</div>
-            </CardContent>
-          </Card>
-        ) : filteredAndSorted.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No schools with sports data found.</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Sports data is populated when viewing individual school profiles.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Medal className="h-5 w-5" />
-                {filteredAndSorted.length} Schools Ranked
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>School</TableHead>
-                    <TableHead className="text-center">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => toggleSort('grade')}
-                        className="gap-1"
-                      >
-                        Grade
-                        <ArrowUpDown className="h-3 w-3" />
-                      </Button>
-                    </TableHead>
-                    <TableHead className="text-center">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => toggleSort('total')}
-                        className="gap-1"
-                      >
-                        Sports
-                        <ArrowUpDown className="h-3 w-3" />
-                      </Button>
-                    </TableHead>
-                    <TableHead className="text-center">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => toggleSort('ranked')}
-                        className="gap-1"
-                      >
-                        Ranked
-                        <ArrowUpDown className="h-3 w-3" />
-                      </Button>
-                    </TableHead>
-                    <TableHead className="hidden md:table-cell">Top Sports</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAndSorted.map((school, idx) => {
-                    const topSports = school.sports_programs
-                      .filter(p => p.grade.startsWith('A'))
-                      .slice(0, 3);
-                    
-                    return (
-                      <TableRow key={school.school_id}>
-                        <TableCell className="font-medium text-muted-foreground">
-                          {idx + 1}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <Link 
-                              to={`/schools/${school.school_id}`}
-                              className="font-medium hover:text-primary transition-colors"
-                            >
-                              {school.school_name}
-                            </Link>
-                            <div className="text-sm text-muted-foreground">
-                              {school.school_city}, {school.school_state}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge className={`${getGradeColor(school.overall_sports_grade)} font-bold`}>
-                            {school.overall_sports_grade}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center font-medium">
-                          {school.total_sports}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {school.ranked_sports > 0 ? (
-                            <Badge variant="secondary" className="gap-1">
-                              <Medal className="h-3 w-3" />
-                              {school.ranked_sports}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="flex flex-wrap gap-1">
-                            {topSports.map((sport, i) => (
-                              <Badge key={i} variant="outline" className="text-xs">
-                                {sport.sport}
-                                {sport.stateRanking && ` #${sport.stateRanking}`}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Link to={`/schools/${school.school_id}`}>
-                            <Button variant="ghost" size="icon">
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
-      </main>
+        <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); setSportPage(0); }}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="overall" className="gap-2">
+              <Trophy className="h-4 w-4" />
+              Overall Rankings
+            </TabsTrigger>
+            <TabsTrigger value="by-sport" className="gap-2">
+              <Medal className="h-4 w-4" />
+              By Sport
+            </TabsTrigger>
+          </TabsList>
 
+          {/* Overall Rankings Tab */}
+          <TabsContent value="overall">
+            {isLoading ? (
+              <Card><CardContent className="py-12 text-center"><div className="animate-pulse">Loading rankings...</div></CardContent></Card>
+            ) : (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      {filteredOverall.length.toLocaleString()} Schools
+                    </span>
+                    <Pagination page={page} total={totalOverallPages} onChange={setPage} />
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-14">#</TableHead>
+                        <TableHead>
+                          <SortButton label="School" active={sortBy === 'name'} desc={sortDesc} onClick={() => toggleOverallSort('name')} />
+                        </TableHead>
+                        <TableHead className="text-center">
+                          <SortButton label="Grade" active={sortBy === 'grade'} desc={sortDesc} onClick={() => toggleOverallSort('grade')} />
+                        </TableHead>
+                        <TableHead className="text-center">
+                          <SortButton label="Sports" active={sortBy === 'total'} desc={sortDesc} onClick={() => toggleOverallSort('total')} />
+                        </TableHead>
+                        <TableHead className="text-center hidden md:table-cell">Ranked</TableHead>
+                        <TableHead className="hidden lg:table-cell">Top Programs</TableHead>
+                        <TableHead className="w-10" />
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {overallPaged.map((school, idx) => (
+                        <TableRow key={school.id}>
+                          <TableCell className="font-mono text-muted-foreground">
+                            {page * PAGE_SIZE + idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Link to={`/schools/${school.id}`} className="font-medium hover:text-primary transition-colors">
+                              {school.name}
+                            </Link>
+                            <div className="text-xs text-muted-foreground">
+                              {[school.city, school.state].filter(Boolean).join(', ')}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge className={`${getGradeColor(school.sports_grade)} font-bold`}>
+                              {school.sports_grade}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center font-medium">
+                            {school.total_sports || '-'}
+                          </TableCell>
+                          <TableCell className="text-center hidden md:table-cell">
+                            {school.ranked_sports > 0 ? (
+                              <Badge variant="secondary" className="gap-1">
+                                <Medal className="h-3 w-3" />
+                                {school.ranked_sports}
+                              </Badge>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            <div className="flex flex-wrap gap-1">
+                              {school.top_sports.map((s, i) => (
+                                <Badge key={i} variant="outline" className="text-xs">
+                                  {s.sport}{s.stateRanking ? ` #${s.stateRanking}` : ''}
+                                </Badge>
+                              ))}
+                              {!school.has_detail && (
+                                <span className="text-xs text-muted-foreground italic">No detail data</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Link to={`/schools/${school.id}`}>
+                              <Button variant="ghost" size="icon"><ExternalLink className="h-4 w-4" /></Button>
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <div className="flex justify-center mt-4">
+                    <Pagination page={page} total={totalOverallPages} onChange={setPage} />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* By Sport Tab */}
+          <TabsContent value="by-sport">
+            {isLoading ? (
+              <Card><CardContent className="py-12 text-center"><div className="animate-pulse">Loading...</div></CardContent></Card>
+            ) : filteredSports.length === 0 ? (
+              <Card><CardContent className="py-12 text-center">
+                <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No individual sport data found. Select a different sport or clear filters.</p>
+              </CardContent></Card>
+            ) : (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Medal className="h-5 w-5" />
+                      {filteredSports.length.toLocaleString()} Programs
+                      {sportFilter !== 'all' && <Badge variant="secondary">{sportFilter}</Badge>}
+                    </span>
+                    <Pagination page={sportPage} total={totalSportPages} onChange={setSportPage} />
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-14">#</TableHead>
+                        <TableHead>School</TableHead>
+                        <TableHead>Sport</TableHead>
+                        <TableHead className="text-center">
+                          <SortButton label="Grade" active={sportSortBy === 'grade'} desc={sportSortDesc} onClick={() => toggleSportSort('grade')} />
+                        </TableHead>
+                        <TableHead className="text-center">
+                          <SortButton label="Ranking" active={sportSortBy === 'ranking'} desc={sportSortDesc} onClick={() => toggleSportSort('ranking')} />
+                        </TableHead>
+                        <TableHead className="hidden md:table-cell">Record</TableHead>
+                        <TableHead className="hidden lg:table-cell">Achievements</TableHead>
+                        <TableHead className="w-10" />
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sportsPaged.map((entry, idx) => (
+                        <TableRow key={`${entry.school_id}-${entry.sport}-${entry.gender}-${idx}`}>
+                          <TableCell className="font-mono text-muted-foreground">
+                            {sportPage * PAGE_SIZE + idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Link to={`/schools/${entry.school_id}`} className="font-medium hover:text-primary transition-colors">
+                              {entry.school_name}
+                            </Link>
+                            {entry.school_state && (
+                              <div className="text-xs text-muted-foreground">{entry.school_state}</div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">{entry.sport}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {entry.gender} · {entry.level}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge className={`${getGradeColor(entry.grade)} font-bold`}>
+                              {entry.grade}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex flex-col items-center gap-0.5">
+                              {entry.stateRanking && (
+                                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                                  #{entry.stateRanking} State
+                                </span>
+                              )}
+                              {entry.nationalRanking && (
+                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                                  #{entry.nationalRanking} Natl
+                                </span>
+                              )}
+                              {!entry.stateRanking && !entry.nationalRanking && '-'}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell font-mono text-sm">
+                            {entry.record || '-'}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {entry.championships && entry.championships.length > 0 ? (
+                              <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                                🏆 {entry.championships[0]}
+                              </span>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Link to={`/schools/${entry.school_id}`}>
+                              <Button variant="ghost" size="icon"><ExternalLink className="h-4 w-4" /></Button>
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <div className="flex justify-center mt-4">
+                    <Pagination page={sportPage} total={totalSportPages} onChange={setSportPage} />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </main>
       <Footer />
     </div>
   );
 }
 
-function calculateGradeFromAvg(avg: number): string {
-  if (avg >= 12) return 'A+';
-  if (avg >= 11) return 'A';
-  if (avg >= 10) return 'A-';
-  if (avg >= 9) return 'B+';
-  if (avg >= 8) return 'B';
-  if (avg >= 7) return 'B-';
-  if (avg >= 6) return 'C+';
-  if (avg >= 5) return 'C';
-  if (avg >= 4) return 'C-';
-  if (avg >= 3) return 'D+';
-  if (avg >= 2) return 'D';
-  if (avg >= 1) return 'D-';
-  return 'F';
+function SortButton({ label, active, desc, onClick }: { label: string; active: boolean; desc: boolean; onClick: () => void }) {
+  return (
+    <Button variant="ghost" size="sm" onClick={onClick} className={`gap-1 ${active ? 'text-foreground' : ''}`}>
+      {label}
+      <ArrowUpDown className={`h-3 w-3 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+    </Button>
+  );
+}
+
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
+  if (total <= 1) return null;
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <Button variant="outline" size="icon" className="h-7 w-7" disabled={page === 0} onClick={() => onChange(page - 1)}>
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <span className="text-muted-foreground">{page + 1} / {total}</span>
+      <Button variant="outline" size="icon" className="h-7 w-7" disabled={page >= total - 1} onClick={() => onChange(page + 1)}>
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 }
