@@ -55,12 +55,12 @@ export default function SportsRankings() {
   const [search, setSearch] = useState('');
   const [stateFilter, setStateFilter] = useState('all');
   const [sportFilter, setSportFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'grade' | 'total' | 'name'>('grade');
+  const [sortBy, setSortBy] = useState<'grade' | 'total' | 'name' | 'state' | 'ranked'>('grade');
   const [sortDesc, setSortDesc] = useState(true);
   const [page, setPage] = useState(0);
 
   // Sport tab state
-  const [sportSortBy, setSportSortBy] = useState<'grade' | 'ranking'>('grade');
+  const [sportSortBy, setSportSortBy] = useState<'grade' | 'ranking' | 'school' | 'sport' | 'record'>('grade');
   const [sportSortDesc, setSportSortDesc] = useState(true);
   const [sportPage, setSportPage] = useState(0);
 
@@ -162,6 +162,8 @@ export default function SportsRankings() {
       let cmp = 0;
       if (sortBy === 'grade') cmp = gradeToRank(a.sports_grade) - gradeToRank(b.sports_grade);
       else if (sortBy === 'total') cmp = a.total_sports - b.total_sports;
+      else if (sortBy === 'ranked') cmp = a.ranked_sports - b.ranked_sports;
+      else if (sortBy === 'state') cmp = (a.state || '').localeCompare(b.state || '');
       else cmp = a.name.localeCompare(b.name);
       return sortDesc ? -cmp : cmp;
     });
@@ -191,10 +193,24 @@ export default function SportsRankings() {
     result.sort((a, b) => {
       let cmp = 0;
       if (sportSortBy === 'grade') cmp = gradeToRank(a.grade) - gradeToRank(b.grade);
-      else {
+      else if (sportSortBy === 'ranking') {
         const ra = a.stateRanking ?? 9999;
         const rb = b.stateRanking ?? 9999;
-        cmp = rb - ra; // lower ranking = better
+        cmp = rb - ra;
+      } else if (sportSortBy === 'school') {
+        cmp = a.school_name.localeCompare(b.school_name);
+      } else if (sportSortBy === 'sport') {
+        cmp = a.sport.localeCompare(b.sport);
+      } else if (sportSortBy === 'record') {
+        // Parse win percentage from record like "15-3"
+        const parseWinPct = (r?: string) => {
+          if (!r) return -1;
+          const parts = r.split('-').map(Number);
+          if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return -1;
+          const total = parts[0] + parts[1];
+          return total > 0 ? parts[0] / total : -1;
+        };
+        cmp = parseWinPct(a.record) - parseWinPct(b.record);
       }
       return sportSortDesc ? -cmp : cmp;
     });
@@ -319,7 +335,9 @@ export default function SportsRankings() {
                         <TableHead className="text-center">
                           <SortButton label="Sports" active={sortBy === 'total'} desc={sortDesc} onClick={() => toggleOverallSort('total')} />
                         </TableHead>
-                        <TableHead className="text-center hidden md:table-cell">Ranked</TableHead>
+                        <TableHead className="text-center hidden md:table-cell">
+                          <SortButton label="Ranked" active={sortBy === 'ranked'} desc={sortDesc} onClick={() => toggleOverallSort('ranked')} />
+                        </TableHead>
                         <TableHead className="hidden lg:table-cell">Top Programs</TableHead>
                         <TableHead className="w-10" />
                       </TableRow>
@@ -422,15 +440,21 @@ export default function SportsRankings() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-14">#</TableHead>
-                        <TableHead>School</TableHead>
-                        <TableHead>Sport</TableHead>
+                        <TableHead>
+                          <SortButton label="School" active={sportSortBy === 'school'} desc={sportSortDesc} onClick={() => toggleSportSort('school')} />
+                        </TableHead>
+                        <TableHead>
+                          <SortButton label="Sport" active={sportSortBy === 'sport'} desc={sportSortDesc} onClick={() => toggleSportSort('sport')} />
+                        </TableHead>
                         <TableHead className="text-center">
                           <SortButton label="Grade" active={sportSortBy === 'grade'} desc={sportSortDesc} onClick={() => toggleSportSort('grade')} />
                         </TableHead>
                         <TableHead className="text-center">
                           <SortButton label="Ranking" active={sportSortBy === 'ranking'} desc={sportSortDesc} onClick={() => toggleSportSort('ranking')} />
                         </TableHead>
-                        <TableHead className="hidden md:table-cell">Record</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          <SortButton label="Record" active={sportSortBy === 'record'} desc={sportSortDesc} onClick={() => toggleSportSort('record')} />
+                        </TableHead>
                         <TableHead className="hidden lg:table-cell">Achievements</TableHead>
                         <TableHead className="w-10" />
                       </TableRow>
