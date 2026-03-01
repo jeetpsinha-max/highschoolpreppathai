@@ -192,7 +192,7 @@ serve(async (req) => {
   }
 
   try {
-    const { schoolIds, delayMs = 10000 } = await req.json();
+    const { schoolIds, delayMs = 10000, batchSize = 10 } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -235,12 +235,14 @@ serve(async (req) => {
     
     const cachedIds = new Set(cached?.map(c => c.school_id) || []);
     
-    // Filter to only uncached schools
-    const schoolsToEnhance = schools.filter(s => !cachedIds.has(s.id));
+    // Filter to only uncached schools, then limit by batchSize
+    const allUncached = schools.filter(s => !cachedIds.has(s.id));
+    const schoolsToEnhance = allUncached.slice(0, Math.min(batchSize, allUncached.length));
     
-    console.log(`Processing ${schoolsToEnhance.length} schools (${cachedIds.size} already cached)`);
+    console.log(`Processing ${schoolsToEnhance.length} of ${allUncached.length} uncached schools (${cachedIds.size} cached, batch=${batchSize})`);
 
     const results: { schoolId: string; schoolName: string; status: 'success' | 'error'; error?: string }[] = [];
+    let creditsExhausted = false;
     
     for (let i = 0; i < schoolsToEnhance.length; i++) {
       const school = schoolsToEnhance[i];
@@ -290,6 +292,13 @@ serve(async (req) => {
         const message = error instanceof Error ? error.message : 'Unknown error';
         console.error(`✗ Error enhancing ${school.name}:`, message);
         results.push({ schoolId: school.id, schoolName: school.name, status: 'error', error: message });
+        
+        // Stop immediately on credits exhausted - no point continuing
+        if (message.includes('credits exhausted') || message.includes('402')) {
+          console.log('⚠ AI credits exhausted - stopping batch early');
+          creditsExhausted = true;
+          break;
+        }
       }
 
       if (i < schoolsToEnhance.length - 1) {
@@ -300,14 +309,19 @@ serve(async (req) => {
     const successCount = results.filter(r => r.status === 'success').length;
     const errorCount = results.filter(r => r.status === 'error').length;
     const skippedCount = cachedIds.size;
+    const remaining = allUncached.length - schoolsToEnhance.length;
 
     return new Response(JSON.stringify({
       success: true,
-      message: `Processed ${successCount} schools successfully, ${errorCount} errors, ${skippedCount} already cached`,
+      message: creditsExhausted 
+        ? `Stopped early: AI credits exhausted. Processed ${successCount} schools before stopping.`
+        : `Processed ${successCount} schools successfully, ${errorCount} errors, ${skippedCount} cached`,
       processed: successCount,
       errors: errorCount,
       skipped: skippedCount,
       total: schools.length,
+      remaining,
+      creditsExhausted,
       results
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
