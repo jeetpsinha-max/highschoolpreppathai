@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, Users, ChevronLeft, ChevronRight, Star, TrendingUp, Activity } from 'lucide-react';
 import { getGradeColor, gradeToRank } from '@/lib/grading';
 import { SportProgram } from '@/hooks/useEnhancedGrades';
 
@@ -292,6 +292,9 @@ export default function SportsRankings() {
             {isLoading ? (
               <Card><CardContent className="py-12 text-center"><div className="animate-pulse">Loading rankings...</div></CardContent></Card>
             ) : (
+              <>
+              {/* Summary Stats */}
+              <SummaryStats data={data} filtered={filteredOverall} />
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center justify-between">
@@ -377,6 +380,7 @@ export default function SportsRankings() {
                   </div>
                 </CardContent>
               </Card>
+              </>
             )}
           </TabsContent>
 
@@ -526,6 +530,94 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
       <Button variant="outline" size="icon" className="h-7 w-7" disabled={page >= total - 1} onClick={() => onChange(page + 1)}>
         <ChevronRight className="h-4 w-4" />
       </Button>
+    </div>
+  );
+}
+
+function SummaryStats({ data, filtered }: { data: any; filtered: SchoolRow[] }) {
+  if (!data) return null;
+
+  const allRows = data.overallRows as SchoolRow[];
+  const aRated = allRows.filter(s => s.sports_grade?.startsWith('A')).length;
+  const bRated = allRows.filter(s => s.sports_grade?.startsWith('B')).length;
+  const withDetail = allRows.filter(s => s.has_detail).length;
+
+  // Most popular sports from sport entries
+  const sportCounts = new Map<string, number>();
+  for (const e of (data.sportEntries || [])) {
+    sportCounts.set(e.sport, (sportCounts.get(e.sport) || 0) + 1);
+  }
+  const topSports = [...sportCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // States with most A-rated schools
+  const stateCounts = new Map<string, number>();
+  for (const s of allRows.filter(s => s.sports_grade?.startsWith('A'))) {
+    if (s.state) stateCounts.set(s.state, (stateCounts.get(s.state) || 0) + 1);
+  }
+  const topStates = [...stateCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <Card>
+        <CardContent className="pt-4 pb-3 text-center">
+          <Star className="h-5 w-5 mx-auto text-primary mb-1" />
+          <div className="text-2xl font-bold">{aRated}</div>
+          <div className="text-xs text-muted-foreground">A-Rated Schools</div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="pt-4 pb-3 text-center">
+          <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
+          <div className="text-2xl font-bold">{bRated}</div>
+          <div className="text-xs text-muted-foreground">B-Rated Schools</div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="pt-4 pb-3 text-center">
+          <Activity className="h-5 w-5 mx-auto text-primary mb-1" />
+          <div className="text-2xl font-bold">{withDetail}</div>
+          <div className="text-xs text-muted-foreground">With Sport Details</div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="pt-4 pb-3 text-center">
+          <Trophy className="h-5 w-5 mx-auto text-primary mb-1" />
+          <div className="text-2xl font-bold">{data.availableSports?.length || 0}</div>
+          <div className="text-xs text-muted-foreground">Sports Tracked</div>
+        </CardContent>
+      </Card>
+      {topSports.length > 0 && (
+        <Card className="col-span-2">
+          <CardContent className="pt-4 pb-3">
+            <div className="text-xs font-medium text-muted-foreground mb-2">Most Popular Sports</div>
+            <div className="flex flex-wrap gap-1.5">
+              {topSports.map(([sport, count]) => (
+                <Badge key={sport} variant="secondary" className="text-xs">
+                  {sport} ({count})
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      {topStates.length > 0 && (
+        <Card className="col-span-2">
+          <CardContent className="pt-4 pb-3">
+            <div className="text-xs font-medium text-muted-foreground mb-2">Top States (A-Rated)</div>
+            <div className="flex flex-wrap gap-1.5">
+              {topStates.map(([state, count]) => (
+                <Badge key={state} variant="outline" className="text-xs">
+                  {state} ({count})
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
