@@ -48,7 +48,7 @@ async function enhanceSchoolWithAI(
   schoolName: string, 
   currentGrades: Record<string, string | null>,
   apiKey: string,
-  maxRetries = 3
+  maxRetries = 1
 ): Promise<EnhancedSchoolData> {
   const systemPrompt = `You are an expert researcher on US private and boarding schools. Provide accurate, well-researched information based on sources like Niche.com, PrepReview, BoardingSchoolReview, MaxPreps (for sports), official websites, and US News. Be factual and indicate confidence levels.
 
