@@ -71,7 +71,7 @@ export function BulkSportsLoader() {
       setProgress(prev => ({ ...prev, total: count || 0 }));
 
       const { data, error } = await supabase.functions.invoke('bulk-enhance-grades', {
-        body: { batchSize: 10, delayMs: 5000 },
+        body: { batchSize: 3, delayMs: 2000 },
       });
 
       if (error) throw error;
