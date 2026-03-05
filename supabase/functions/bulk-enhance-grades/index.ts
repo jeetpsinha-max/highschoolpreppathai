@@ -76,7 +76,7 @@ For sports, list every sport offered with grade (A+ to F based on competitivenes
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        const backoffMs = Math.pow(3, attempt) * 30000;
+        const backoffMs = Math.pow(2, attempt) * 3000;
         console.log(`Retry ${attempt + 1}/${maxRetries} for ${schoolName} after ${backoffMs/1000}s`);
         await sleep(backoffMs);
       }
