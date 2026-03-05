@@ -48,7 +48,7 @@ async function enhanceSchoolWithAI(
   schoolName: string, 
   currentGrades: Record<string, string | null>,
   apiKey: string,
-  maxRetries = 3
+  maxRetries = 1
 ): Promise<EnhancedSchoolData> {
   const systemPrompt = `You are an expert researcher on US private and boarding schools. Provide accurate, well-researched information based on sources like Niche.com, PrepReview, BoardingSchoolReview, MaxPreps (for sports), official websites, and US News. Be factual and indicate confidence levels.
 
@@ -76,7 +76,7 @@ For sports, list every sport offered with grade (A+ to F based on competitivenes
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        const backoffMs = Math.pow(3, attempt) * 30000;
+        const backoffMs = Math.pow(2, attempt) * 3000;
         console.log(`Retry ${attempt + 1}/${maxRetries} for ${schoolName} after ${backoffMs/1000}s`);
         await sleep(backoffMs);
       }
@@ -192,7 +192,7 @@ serve(async (req) => {
   }
 
   try {
-    const { schoolIds, delayMs = 10000, batchSize = 10 } = await req.json();
+    const { schoolIds, delayMs = 2000, batchSize = 3 } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
