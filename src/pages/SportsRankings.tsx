@@ -283,17 +283,40 @@ export default function SportsRankings() {
                 </SelectContent>
               </Select>
               {tab === 'by-sport' && (
-                <Select value={sportFilter} onValueChange={(v) => { setSportFilter(v); setSportPage(0); }}>
-                  <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="All Sports" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sports</SelectItem>
-                    {(data?.availableSports || SPORTS_LIST).map(s => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <>
+                  <Select value={sportFilter} onValueChange={(v) => { setSportFilter(v); setSportPage(0); }}>
+                    <SelectTrigger className="w-full md:w-[200px]">
+                      <SelectValue placeholder="All Sports" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sports</SelectItem>
+                      {(data?.availableSports || SPORTS_LIST).map(s => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={genderFilter} onValueChange={(v) => { setGenderFilter(v); setSportPage(0); }}>
+                    <SelectTrigger className="w-full md:w-[140px]">
+                      <SelectValue placeholder="All Genders" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Genders</SelectItem>
+                      <SelectItem value="Boys">♂ Boys</SelectItem>
+                      <SelectItem value="Girls">♀ Girls</SelectItem>
+                      <SelectItem value="Coed">⚥ Coed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={levelFilter} onValueChange={(v) => { setLevelFilter(v); setSportPage(0); }}>
+                    <SelectTrigger className="w-full md:w-[140px]">
+                      <SelectValue placeholder="All Levels" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="Varsity">Varsity</SelectItem>
+                      <SelectItem value="JV">JV</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
               )}
             </div>
           </CardContent>
