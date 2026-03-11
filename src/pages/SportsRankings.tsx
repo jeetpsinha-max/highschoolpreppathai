@@ -224,7 +224,7 @@ export default function SportsRankings() {
     });
 
     return result;
-  }, [data, search, stateFilter, sportFilter, sportSortBy, sportSortDesc]);
+  }, [data, search, stateFilter, sportFilter, genderFilter, levelFilter, sportSortBy, sportSortDesc]);
 
   const overallPaged = filteredOverall.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalOverallPages = Math.ceil(filteredOverall.length / PAGE_SIZE);
