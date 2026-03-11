@@ -9,11 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
-import { getGradeColor, gradeToRank, GRADE_OPTIONS } from '@/lib/grading';
+import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight, BarChart3, Users } from 'lucide-react';
+import { getGradeColor, gradeToRank } from '@/lib/grading';
 import { SportProgram } from '@/hooks/useEnhancedGrades';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const PAGE_SIZE = 50;
 
@@ -31,15 +32,8 @@ interface SportSchoolEntry {
   conference?: string;
   championships?: string[];
   highlights?: string[];
+  season?: string;
 }
-
-const GRADE_COLORS: Record<string, string> = {
-  'A+': '#059669', 'A': '#10b981', 'A-': '#34d399',
-  'B+': '#3b82f6', 'B': '#60a5fa', 'B-': '#93c5fd',
-  'C+': '#eab308', 'C': '#facc15', 'C-': '#fde047',
-  'D+': '#f97316', 'D': '#fb923c', 'D-': '#fdba74',
-  'F': '#ef4444',
-};
 
 export default function SportDetail() {
   const { sport: sportParam } = useParams<{ sport: string }>();
@@ -47,8 +41,9 @@ export default function SportDetail() {
   
   const [search, setSearch] = useState('');
   const [stateFilter, setStateFilter] = useState('all');
-  const [genderFilter, setGenderFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'grade' | 'ranking' | 'name'>('grade');
+  const [genderTab, setGenderTab] = useState('all');
+  const [levelFilter, setLevelFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'grade' | 'ranking' | 'name' | 'record'>('grade');
   const [sortDesc, setSortDesc] = useState(true);
   const [page, setPage] = useState(0);
 
@@ -90,6 +85,7 @@ export default function SportDetail() {
               conference: p.conference,
               championships: p.championships,
               highlights: p.highlights,
+              season: p.season,
             });
           }
         }
@@ -97,8 +93,15 @@ export default function SportDetail() {
 
       const states = [...new Set(entries.map(e => e.school_state).filter(Boolean) as string[])].sort();
       const genders = [...new Set(entries.map(e => e.gender))].sort();
+      const levels = [...new Set(entries.map(e => e.level))].sort();
 
-      return { entries, states, genders };
+      // Compute gender counts
+      const genderCounts: Record<string, number> = {};
+      for (const e of entries) {
+        genderCounts[e.gender] = (genderCounts[e.gender] || 0) + 1;
+      }
+
+      return { entries, states, genders, levels, genderCounts };
     },
     enabled: !!sportName,
   });
@@ -112,7 +115,8 @@ export default function SportDetail() {
       result = result.filter(e => e.school_name.toLowerCase().includes(q));
     }
     if (stateFilter !== 'all') result = result.filter(e => e.school_state === stateFilter);
-    if (genderFilter !== 'all') result = result.filter(e => e.gender === genderFilter);
+    if (genderTab !== 'all') result = result.filter(e => e.gender === genderTab);
+    if (levelFilter !== 'all') result = result.filter(e => e.level === levelFilter);
 
     result.sort((a, b) => {
       let cmp = 0;
@@ -121,12 +125,21 @@ export default function SportDetail() {
         const ra = a.stateRanking ?? 9999;
         const rb = b.stateRanking ?? 9999;
         cmp = rb - ra;
+      } else if (sortBy === 'record') {
+        const parseWinPct = (r?: string) => {
+          if (!r) return -1;
+          const m = r.match(/(\d+)-(\d+)/);
+          if (!m) return -1;
+          const total = parseInt(m[1]) + parseInt(m[2]);
+          return total > 0 ? parseInt(m[1]) / total : -1;
+        };
+        cmp = parseWinPct(a.record) - parseWinPct(b.record);
       } else cmp = a.school_name.localeCompare(b.school_name);
       return sortDesc ? -cmp : cmp;
     });
 
     return result;
-  }, [data, search, stateFilter, genderFilter, sortBy, sortDesc]);
+  }, [data, search, stateFilter, genderTab, levelFilter, sortBy, sortDesc]);
 
   // Chart data
   const gradeDistribution = useMemo(() => {
@@ -167,6 +180,13 @@ export default function SportDetail() {
     setPage(0);
   };
 
+  const genderLabel = (g: string) => {
+    if (g === 'Boys') return '♂ Boys';
+    if (g === 'Girls') return '♀ Girls';
+    if (g === 'Coed') return '⚥ Coed';
+    return g;
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
@@ -179,10 +199,28 @@ export default function SportDetail() {
           <div>
             <h1 className="text-3xl font-bold">{sportName} Rankings</h1>
             <p className="text-muted-foreground">
-              {filtered.length} programs across {data?.states.length || 0} states
+              {data?.entries.length || 0} programs across {data?.states.length || 0} states
             </p>
           </div>
         </div>
+
+        {/* Gender Tabs - Primary separation */}
+        {!isLoading && data && data.genders.length > 0 && (
+          <Tabs value={genderTab} onValueChange={(v) => { setGenderTab(v); setPage(0); }} className="mb-6">
+            <TabsList className="h-auto gap-1 flex-wrap">
+              <TabsTrigger value="all" className="gap-2">
+                <Users className="h-4 w-4" />
+                All ({data.entries.length})
+              </TabsTrigger>
+              {data.genders.map(g => (
+                <TabsTrigger key={g} value={g} className="gap-1.5">
+                  <span>{g === 'Boys' ? '♂' : g === 'Girls' ? '♀' : '⚥'}</span>
+                  {g} ({data.genderCounts[g] || 0})
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
 
         {/* Charts */}
         {!isLoading && filtered.length > 0 && (
@@ -192,6 +230,7 @@ export default function SportDetail() {
                 <CardTitle className="text-sm flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   Grade Distribution
+                  {genderTab !== 'all' && <Badge variant="secondary" className="text-xs">{genderLabel(genderTab)}</Badge>}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -261,13 +300,13 @@ export default function SportDetail() {
                   {data?.states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={genderFilter} onValueChange={(v) => { setGenderFilter(v); setPage(0); }}>
+              <Select value={levelFilter} onValueChange={(v) => { setLevelFilter(v); setPage(0); }}>
                 <SelectTrigger className="w-full md:w-[140px]">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder="All Levels" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Genders</SelectItem>
-                  {data?.genders.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                  <SelectItem value="all">All Levels</SelectItem>
+                  {data?.levels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -280,13 +319,17 @@ export default function SportDetail() {
         ) : filtered.length === 0 ? (
           <Card><CardContent className="py-12 text-center">
             <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No {sportName} programs found.</p>
+            <p className="text-muted-foreground">No {sportName} programs found{genderTab !== 'all' ? ` for ${genderTab}` : ''}.</p>
           </CardContent></Card>
         ) : (
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center justify-between">
-                <span>{filtered.length} Programs</span>
+                <span className="flex items-center gap-2">
+                  {filtered.length} Programs
+                  {genderTab !== 'all' && <Badge variant="secondary">{genderLabel(genderTab)}</Badge>}
+                  {levelFilter !== 'all' && <Badge variant="outline">{levelFilter}</Badge>}
+                </span>
                 <Pagination page={page} total={totalPages} onChange={setPage} />
               </CardTitle>
             </CardHeader>
@@ -298,21 +341,26 @@ export default function SportDetail() {
                     <TableHead>
                       <SortButton label="School" active={sortBy === 'name'} desc={sortDesc} onClick={() => toggleSort('name')} />
                     </TableHead>
-                    <TableHead className="text-center">Gender</TableHead>
+                    {genderTab === 'all' && (
+                      <TableHead className="text-center">Gender</TableHead>
+                    )}
+                    <TableHead className="text-center">Level</TableHead>
                     <TableHead className="text-center">
                       <SortButton label="Grade" active={sortBy === 'grade'} desc={sortDesc} onClick={() => toggleSort('grade')} />
                     </TableHead>
                     <TableHead className="text-center">
                       <SortButton label="Ranking" active={sortBy === 'ranking'} desc={sortDesc} onClick={() => toggleSort('ranking')} />
                     </TableHead>
-                    <TableHead className="hidden md:table-cell">Record</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      <SortButton label="Record" active={sortBy === 'record'} desc={sortDesc} onClick={() => toggleSort('record')} />
+                    </TableHead>
                     <TableHead className="hidden lg:table-cell">Achievements</TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paged.map((entry, idx) => (
-                    <TableRow key={`${entry.school_id}-${entry.gender}-${idx}`}>
+                    <TableRow key={`${entry.school_id}-${entry.gender}-${entry.level}-${idx}`}>
                       <TableCell className="font-mono text-muted-foreground">
                         {page * PAGE_SIZE + idx + 1}
                       </TableCell>
@@ -324,8 +372,13 @@ export default function SportDetail() {
                           {[entry.school_city, entry.school_state].filter(Boolean).join(', ')}
                         </div>
                       </TableCell>
+                      {genderTab === 'all' && (
+                        <TableCell className="text-center">
+                          <GenderBadge gender={entry.gender} />
+                        </TableCell>
+                      )}
                       <TableCell className="text-center">
-                        <Badge variant="outline" className="text-xs">{entry.gender}</Badge>
+                        <LevelBadge level={entry.level} />
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge className={`${getGradeColor(entry.grade)} font-bold`}>{entry.grade}</Badge>
@@ -369,6 +422,33 @@ export default function SportDetail() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function GenderBadge({ gender }: { gender: string }) {
+  const styles: Record<string, string> = {
+    'Boys': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    'Girls': 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 border-pink-200 dark:border-pink-800',
+    'Coed': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+  };
+  const icons: Record<string, string> = { 'Boys': '♂', 'Girls': '♀', 'Coed': '⚥' };
+  return (
+    <Badge variant="outline" className={`text-xs gap-1 ${styles[gender] || ''}`}>
+      {icons[gender]} {gender}
+    </Badge>
+  );
+}
+
+function LevelBadge({ level }: { level: string }) {
+  const styles: Record<string, string> = {
+    'Varsity': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+    'JV': 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
+    'Freshman': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+  };
+  return (
+    <Badge variant="outline" className={`text-xs ${styles[level] || ''}`}>
+      {level}
+    </Badge>
   );
 }
 

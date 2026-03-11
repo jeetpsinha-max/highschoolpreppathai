@@ -479,9 +479,24 @@ export default function SportsRankings() {
                             <Link to={`/sports-rankings/${encodeURIComponent(entry.sport)}`} className="font-medium hover:text-primary transition-colors">
                               {entry.sport}
                             </Link>
-                            <div className="text-xs text-muted-foreground">
-                              {entry.gender} · {entry.level}
-                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className={`text-xs gap-1 ${
+                              entry.gender === 'Boys' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800' :
+                              entry.gender === 'Girls' ? 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 border-pink-200 dark:border-pink-800' :
+                              'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800'
+                            }`}>
+                              {entry.gender === 'Boys' ? '♂' : entry.gender === 'Girls' ? '♀' : '⚥'} {entry.gender}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className={`text-xs ${
+                              entry.level === 'Varsity' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                              entry.level === 'JV' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300' :
+                              ''
+                            }`}>
+                              {entry.level}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-center">
                             <Badge className={`${getGradeColor(entry.grade)} font-bold`}>
