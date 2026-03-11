@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,10 +28,16 @@ const seasonColors: Record<string, string> = {
   'Year-round': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
 };
 
-const genderIcons: Record<string, string> = {
-  'Boys': '♂',
-  'Girls': '♀',
-  'Coed': '⚥',
+const genderStyles: Record<string, { icon: string; color: string; label: string }> = {
+  'Boys': { icon: '♂', color: 'border-l-blue-500', label: 'Boys' },
+  'Girls': { icon: '♀', color: 'border-l-pink-500', label: 'Girls' },
+  'Coed': { icon: '⚥', color: 'border-l-purple-500', label: 'Coed' },
+};
+
+const levelStyles: Record<string, string> = {
+  'Varsity': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+  'JV': 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
+  'Freshman': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
 };
 
 export function SportsOverviewPanel({ 
@@ -42,6 +48,42 @@ export function SportsOverviewPanel({
 }: SportsOverviewPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('all');
+
+  // Group sports by season
+  const sportsBySeason = useMemo(() => {
+    return sportsPrograms.reduce((acc, sport) => {
+      const season = sport.season || 'Other';
+      if (!acc[season]) acc[season] = [];
+      acc[season].push(sport);
+      return acc;
+    }, {} as Record<string, SportProgram[]>);
+  }, [sportsPrograms]);
+
+  const seasons = useMemo(() => ['all', ...Object.keys(sportsBySeason).sort()], [sportsBySeason]);
+
+  // Filter by season tab
+  const filteredSports = useMemo(() => {
+    return activeTab === 'all' ? sportsPrograms : sportsBySeason[activeTab] || [];
+  }, [activeTab, sportsPrograms, sportsBySeason]);
+
+  // Group filtered sports by gender
+  const groupedByGender = useMemo(() => {
+    const groups: Record<string, SportProgram[]> = {};
+    for (const sport of filteredSports) {
+      const gender = sport.gender || 'Other';
+      if (!groups[gender]) groups[gender] = [];
+      groups[gender].push(sport);
+    }
+    const gradeOrder = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade));
+    }
+    const orderedKeys = ['Boys', 'Girls', 'Coed'].filter(k => groups[k]);
+    const otherKeys = Object.keys(groups).filter(k => !orderedKeys.includes(k));
+    return [...orderedKeys, ...otherKeys].map(key => ({ gender: key, programs: groups[key] }));
+  }, [filteredSports]);
+
+  const allDisplayItems = useMemo(() => groupedByGender.flatMap(g => g.programs), [groupedByGender]);
 
   if (!sportsPrograms || sportsPrograms.length === 0) {
     if (isLoading) {
@@ -82,29 +124,14 @@ export function SportsOverviewPanel({
     );
   }
 
-  // Group sports by season
-  const sportsBySeason = sportsPrograms.reduce((acc, sport) => {
-    const season = sport.season || 'Other';
-    if (!acc[season]) acc[season] = [];
-    acc[season].push(sport);
-    return acc;
-  }, {} as Record<string, SportProgram[]>);
-
-  // Get unique seasons for tabs
-  const seasons = ['all', ...Object.keys(sportsBySeason).sort()];
-
-  // Calculate stats
+  // Stats
   const totalSports = sportsPrograms.length;
   const varsitySports = sportsPrograms.filter(s => s.level === 'Varsity').length;
   const topSports = sportsPrograms.filter(s => s.grade.startsWith('A')).length;
-
-  // Filter sports based on active tab
-  const filteredSports = activeTab === 'all' 
-    ? sportsPrograms 
-    : sportsBySeason[activeTab] || [];
-
-  // Limit display if not expanded
-  const displaySports = expanded ? filteredSports : filteredSports.slice(0, 6);
+  const boysCount = sportsPrograms.filter(s => s.gender === 'Boys').length;
+  const girlsCount = sportsPrograms.filter(s => s.gender === 'Girls').length;
+  const coedCount = sportsPrograms.filter(s => s.gender === 'Coed').length;
+  const displayLimit = expanded ? allDisplayItems.length : 8;
 
   return (
     <Card>
@@ -126,10 +153,11 @@ export function SportsOverviewPanel({
             )}
           </div>
         </div>
-        <div className="flex gap-4 mt-2 text-sm">
+        {/* Summary stats with gender breakdown */}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
           <div className="flex items-center gap-1">
             <span className="font-semibold text-foreground">{totalSports}</span>
-            <span className="text-muted-foreground">Total Sports</span>
+            <span className="text-muted-foreground">Total</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="font-semibold text-foreground">{varsitySports}</span>
@@ -139,6 +167,25 @@ export function SportsOverviewPanel({
             <span className="font-semibold text-emerald-600">{topSports}</span>
             <span className="text-muted-foreground">A-Rated</span>
           </div>
+          <span className="text-muted-foreground/40">|</span>
+          {boysCount > 0 && (
+            <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+              <span>♂</span>
+              <span className="font-semibold">{boysCount}</span>
+            </div>
+          )}
+          {girlsCount > 0 && (
+            <div className="flex items-center gap-1 text-pink-600 dark:text-pink-400">
+              <span>♀</span>
+              <span className="font-semibold">{girlsCount}</span>
+            </div>
+          )}
+          {coedCount > 0 && (
+            <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
+              <span>⚥</span>
+              <span className="font-semibold">{coedCount}</span>
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="pt-4">
@@ -156,68 +203,37 @@ export function SportsOverviewPanel({
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-0">
-            <div className="grid gap-2">
-              {displaySports.map((sport, idx) => (
-                <div 
-                  key={`${sport.sport}-${sport.gender}-${idx}`}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold ${getGradeColor(sport.grade)}`}>
-                      {sport.grade}
+            <div className="space-y-4">
+              {groupedByGender.map(({ gender, programs }) => {
+                const gs = genderStyles[gender] || { icon: '', color: 'border-l-muted', label: gender };
+                const visiblePrograms = expanded 
+                  ? programs 
+                  : programs.slice(0, Math.max(2, Math.floor(displayLimit / groupedByGender.length)));
+
+                return (
+                  <div key={gender}>
+                    {/* Gender section header */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium">{gs.icon} {gs.label}</span>
+                      <span className="text-xs text-muted-foreground">({programs.length} sports)</span>
+                      <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{sport.sport}</span>
-                        <span className="text-muted-foreground text-sm" title={sport.gender}>
-                          {genderIcons[sport.gender]}
-                        </span>
-                        {sport.record && (
-                          <Badge variant="secondary" className="text-xs font-mono">
-                            {sport.record}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {sport.stateRanking && (
-                          <span className="text-amber-600 dark:text-amber-400 font-medium">
-                            #{sport.stateRanking} State
-                          </span>
-                        )}
-                        {sport.nationalRanking && (
-                          <span className="text-blue-600 dark:text-blue-400 font-medium">
-                            #{sport.nationalRanking} National
-                          </span>
-                        )}
-                        {sport.conference && (
-                          <span>{sport.conference}</span>
-                        )}
-                      </div>
-                      {sport.championships && sport.championships.length > 0 && (
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                          🏆 {sport.championships[0]}
-                        </p>
-                      )}
-                      {sport.highlights && sport.highlights.length > 0 && !sport.championships?.length && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {sport.highlights[0]}
-                        </p>
+                    <div className="grid gap-1.5">
+                      {visiblePrograms.map((sport, idx) => (
+                        <SportRow key={`${sport.sport}-${sport.gender}-${sport.level}-${idx}`} sport={sport} genderColor={gs.color} />
+                      ))}
+                      {!expanded && programs.length > visiblePrograms.length && (
+                        <div className="text-xs text-muted-foreground text-center py-1">
+                          +{programs.length - visiblePrograms.length} more {gs.label.toLowerCase()} sports
+                        </div>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {sport.level}
-                    </Badge>
-                    <Badge className={`text-xs ${seasonColors[sport.season] || 'bg-muted'}`}>
-                      {sport.season}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {filteredSports.length > 6 && (
+            {allDisplayItems.length > 8 && (
               <Button 
                 variant="ghost" 
                 className="w-full mt-3"
@@ -231,7 +247,7 @@ export function SportsOverviewPanel({
                 ) : (
                   <>
                     <ChevronDown className="h-4 w-4 mr-2" />
-                    Show All {filteredSports.length} Sports
+                    Show All {allDisplayItems.length} Sports
                   </>
                 )}
               </Button>
@@ -240,5 +256,58 @@ export function SportsOverviewPanel({
         </Tabs>
       </CardContent>
     </Card>
+  );
+}
+
+function SportRow({ sport, genderColor }: { sport: SportProgram; genderColor: string }) {
+  return (
+    <div className={`flex items-center justify-between p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border-l-3 ${genderColor}`}>
+      <div className="flex items-center gap-3">
+        <div className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold ${getGradeColor(sport.grade)}`}>
+          {sport.grade}
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-sm">{sport.sport}</span>
+            {sport.record && (
+              <Badge variant="secondary" className="text-xs font-mono py-0 h-5">
+                {sport.record}
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {sport.stateRanking && (
+              <span className="text-amber-600 dark:text-amber-400 font-medium">
+                #{sport.stateRanking} State
+              </span>
+            )}
+            {sport.nationalRanking && (
+              <span className="text-blue-600 dark:text-blue-400 font-medium">
+                #{sport.nationalRanking} National
+              </span>
+            )}
+            {sport.conference && <span>{sport.conference}</span>}
+          </div>
+          {sport.championships && sport.championships.length > 0 && (
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">
+              🏆 {sport.championships[0]}
+            </p>
+          )}
+          {sport.highlights && sport.highlights.length > 0 && !sport.championships?.length && (
+            <p className="text-xs text-muted-foreground line-clamp-1">
+              {sport.highlights[0]}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <Badge variant="outline" className={`text-xs py-0 h-5 ${levelStyles[sport.level] || ''}`}>
+          {sport.level}
+        </Badge>
+        <Badge className={`text-xs py-0 h-5 ${seasonColors[sport.season] || 'bg-muted'}`}>
+          {sport.season}
+        </Badge>
+      </div>
+    </div>
   );
 }

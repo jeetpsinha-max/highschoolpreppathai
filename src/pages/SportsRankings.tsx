@@ -63,6 +63,8 @@ export default function SportsRankings() {
   const [sportSortBy, setSportSortBy] = useState<'grade' | 'ranking' | 'school' | 'sport' | 'record'>('grade');
   const [sportSortDesc, setSportSortDesc] = useState(true);
   const [sportPage, setSportPage] = useState(0);
+  const [genderFilter, setGenderFilter] = useState('all');
+  const [levelFilter, setLevelFilter] = useState('all');
 
   const { data, isLoading } = useQuery({
     queryKey: ['sports-rankings-v2'],
@@ -189,6 +191,12 @@ export default function SportsRankings() {
     if (sportFilter !== 'all') {
       result = result.filter(e => e.sport === sportFilter);
     }
+    if (genderFilter !== 'all') {
+      result = result.filter(e => e.gender === genderFilter);
+    }
+    if (levelFilter !== 'all') {
+      result = result.filter(e => e.level === levelFilter);
+    }
 
     result.sort((a, b) => {
       let cmp = 0;
@@ -216,7 +224,7 @@ export default function SportsRankings() {
     });
 
     return result;
-  }, [data, search, stateFilter, sportFilter, sportSortBy, sportSortDesc]);
+  }, [data, search, stateFilter, sportFilter, genderFilter, levelFilter, sportSortBy, sportSortDesc]);
 
   const overallPaged = filteredOverall.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalOverallPages = Math.ceil(filteredOverall.length / PAGE_SIZE);
@@ -275,17 +283,40 @@ export default function SportsRankings() {
                 </SelectContent>
               </Select>
               {tab === 'by-sport' && (
-                <Select value={sportFilter} onValueChange={(v) => { setSportFilter(v); setSportPage(0); }}>
-                  <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="All Sports" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sports</SelectItem>
-                    {(data?.availableSports || SPORTS_LIST).map(s => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <>
+                  <Select value={sportFilter} onValueChange={(v) => { setSportFilter(v); setSportPage(0); }}>
+                    <SelectTrigger className="w-full md:w-[200px]">
+                      <SelectValue placeholder="All Sports" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sports</SelectItem>
+                      {(data?.availableSports || SPORTS_LIST).map(s => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={genderFilter} onValueChange={(v) => { setGenderFilter(v); setSportPage(0); }}>
+                    <SelectTrigger className="w-full md:w-[140px]">
+                      <SelectValue placeholder="All Genders" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Genders</SelectItem>
+                      <SelectItem value="Boys">♂ Boys</SelectItem>
+                      <SelectItem value="Girls">♀ Girls</SelectItem>
+                      <SelectItem value="Coed">⚥ Coed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={levelFilter} onValueChange={(v) => { setLevelFilter(v); setSportPage(0); }}>
+                    <SelectTrigger className="w-full md:w-[140px]">
+                      <SelectValue placeholder="All Levels" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="Varsity">Varsity</SelectItem>
+                      <SelectItem value="JV">JV</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
               )}
             </div>
           </CardContent>
@@ -444,8 +475,10 @@ export default function SportsRankings() {
                           <SortButton label="School" active={sportSortBy === 'school'} desc={sportSortDesc} onClick={() => toggleSportSort('school')} />
                         </TableHead>
                         <TableHead>
-                          <SortButton label="Sport" active={sportSortBy === 'sport'} desc={sportSortDesc} onClick={() => toggleSportSort('sport')} />
+              <SortButton label="Sport" active={sportSortBy === 'sport'} desc={sportSortDesc} onClick={() => toggleSportSort('sport')} />
                         </TableHead>
+                        <TableHead className="text-center">Gender</TableHead>
+                        <TableHead className="text-center">Level</TableHead>
                         <TableHead className="text-center">
                           <SortButton label="Grade" active={sportSortBy === 'grade'} desc={sportSortDesc} onClick={() => toggleSportSort('grade')} />
                         </TableHead>
@@ -477,9 +510,24 @@ export default function SportsRankings() {
                             <Link to={`/sports-rankings/${encodeURIComponent(entry.sport)}`} className="font-medium hover:text-primary transition-colors">
                               {entry.sport}
                             </Link>
-                            <div className="text-xs text-muted-foreground">
-                              {entry.gender} · {entry.level}
-                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className={`text-xs gap-1 ${
+                              entry.gender === 'Boys' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800' :
+                              entry.gender === 'Girls' ? 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 border-pink-200 dark:border-pink-800' :
+                              'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800'
+                            }`}>
+                              {entry.gender === 'Boys' ? '♂' : entry.gender === 'Girls' ? '♀' : '⚥'} {entry.gender}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className={`text-xs ${
+                              entry.level === 'Varsity' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                              entry.level === 'JV' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300' :
+                              ''
+                            }`}>
+                              {entry.level}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-center">
                             <Badge className={`${getGradeColor(entry.grade)} font-bold`}>
