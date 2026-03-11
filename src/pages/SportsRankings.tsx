@@ -191,6 +191,12 @@ export default function SportsRankings() {
     if (sportFilter !== 'all') {
       result = result.filter(e => e.sport === sportFilter);
     }
+    if (genderFilter !== 'all') {
+      result = result.filter(e => e.gender === genderFilter);
+    }
+    if (levelFilter !== 'all') {
+      result = result.filter(e => e.level === levelFilter);
+    }
 
     result.sort((a, b) => {
       let cmp = 0;
