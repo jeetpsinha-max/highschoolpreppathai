@@ -63,6 +63,8 @@ export default function SportsRankings() {
   const [sportSortBy, setSportSortBy] = useState<'grade' | 'ranking' | 'school' | 'sport' | 'record'>('grade');
   const [sportSortDesc, setSportSortDesc] = useState(true);
   const [sportPage, setSportPage] = useState(0);
+  const [genderFilter, setGenderFilter] = useState('all');
+  const [levelFilter, setLevelFilter] = useState('all');
 
   const { data, isLoading } = useQuery({
     queryKey: ['sports-rankings-v2'],
