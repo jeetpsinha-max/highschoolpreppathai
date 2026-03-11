@@ -49,6 +49,42 @@ export function SportsOverviewPanel({
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('all');
 
+  // Group sports by season
+  const sportsBySeason = useMemo(() => {
+    return sportsPrograms.reduce((acc, sport) => {
+      const season = sport.season || 'Other';
+      if (!acc[season]) acc[season] = [];
+      acc[season].push(sport);
+      return acc;
+    }, {} as Record<string, SportProgram[]>);
+  }, [sportsPrograms]);
+
+  const seasons = useMemo(() => ['all', ...Object.keys(sportsBySeason).sort()], [sportsBySeason]);
+
+  // Filter by season tab
+  const filteredSports = useMemo(() => {
+    return activeTab === 'all' ? sportsPrograms : sportsBySeason[activeTab] || [];
+  }, [activeTab, sportsPrograms, sportsBySeason]);
+
+  // Group filtered sports by gender
+  const groupedByGender = useMemo(() => {
+    const groups: Record<string, SportProgram[]> = {};
+    for (const sport of filteredSports) {
+      const gender = sport.gender || 'Other';
+      if (!groups[gender]) groups[gender] = [];
+      groups[gender].push(sport);
+    }
+    const gradeOrder = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade));
+    }
+    const orderedKeys = ['Boys', 'Girls', 'Coed'].filter(k => groups[k]);
+    const otherKeys = Object.keys(groups).filter(k => !orderedKeys.includes(k));
+    return [...orderedKeys, ...otherKeys].map(key => ({ gender: key, programs: groups[key] }));
+  }, [filteredSports]);
+
+  const allDisplayItems = useMemo(() => groupedByGender.flatMap(g => g.programs), [groupedByGender]);
+
   if (!sportsPrograms || sportsPrograms.length === 0) {
     if (isLoading) {
       return (
