@@ -124,16 +124,6 @@ export function SportsOverviewPanel({
     );
   }
 
-  // Group sports by season
-  const sportsBySeason = sportsPrograms.reduce((acc, sport) => {
-    const season = sport.season || 'Other';
-    if (!acc[season]) acc[season] = [];
-    acc[season].push(sport);
-    return acc;
-  }, {} as Record<string, SportProgram[]>);
-
-  const seasons = ['all', ...Object.keys(sportsBySeason).sort()];
-
   // Stats
   const totalSports = sportsPrograms.length;
   const varsitySports = sportsPrograms.filter(s => s.level === 'Varsity').length;
@@ -141,33 +131,6 @@ export function SportsOverviewPanel({
   const boysCount = sportsPrograms.filter(s => s.gender === 'Boys').length;
   const girlsCount = sportsPrograms.filter(s => s.gender === 'Girls').length;
   const coedCount = sportsPrograms.filter(s => s.gender === 'Coed').length;
-
-  // Filter by season tab
-  const filteredSports = activeTab === 'all' 
-    ? sportsPrograms 
-    : sportsBySeason[activeTab] || [];
-
-  // Group filtered sports by gender, then sort by grade within each group
-  const groupedByGender = useMemo(() => {
-    const groups: Record<string, SportProgram[]> = {};
-    for (const sport of filteredSports) {
-      const gender = sport.gender || 'Other';
-      if (!groups[gender]) groups[gender] = [];
-      groups[gender].push(sport);
-    }
-    // Sort each group by grade quality
-    const gradeOrder = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
-    for (const key of Object.keys(groups)) {
-      groups[key].sort((a, b) => gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade));
-    }
-    // Return in order: Boys, Girls, Coed, then any others
-    const orderedKeys = ['Boys', 'Girls', 'Coed'].filter(k => groups[k]);
-    const otherKeys = Object.keys(groups).filter(k => !orderedKeys.includes(k));
-    return [...orderedKeys, ...otherKeys].map(key => ({ gender: key, programs: groups[key] }));
-  }, [filteredSports]);
-
-  // Flatten for limiting display
-  const allDisplayItems = groupedByGender.flatMap(g => g.programs);
   const displayLimit = expanded ? allDisplayItems.length : 8;
 
   return (
