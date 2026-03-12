@@ -551,15 +551,6 @@ export default function SportsRankings() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-center">
-                            <Badge variant="outline" className={`text-xs ${
-                              entry.level === 'Varsity' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
-                              entry.level === 'JV' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300' :
-                              ''
-                            }`}>
-                              {entry.level}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
                             <Badge className={`${getGradeColor(entry.grade)} font-bold`}>
                               {entry.grade}
                             </Badge>
