@@ -49,15 +49,21 @@ export function SportsOverviewPanel({
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('all');
 
+  // Filter to Varsity only
+  const varsityPrograms = useMemo(() => 
+    sportsPrograms.filter(s => s.level === 'Varsity'),
+    [sportsPrograms]
+  );
+
   // Group sports by season
   const sportsBySeason = useMemo(() => {
-    return sportsPrograms.reduce((acc, sport) => {
+    return varsityPrograms.reduce((acc, sport) => {
       const season = sport.season || 'Other';
       if (!acc[season]) acc[season] = [];
       acc[season].push(sport);
       return acc;
     }, {} as Record<string, SportProgram[]>);
-  }, [sportsPrograms]);
+  }, [varsityPrograms]);
 
   const seasons = useMemo(() => ['all', ...Object.keys(sportsBySeason).sort()], [sportsBySeason]);
 
