@@ -130,13 +130,12 @@ export function SportsOverviewPanel({
     );
   }
 
-  // Stats
-  const totalSports = sportsPrograms.length;
-  const varsitySports = sportsPrograms.filter(s => s.level === 'Varsity').length;
-  const topSports = sportsPrograms.filter(s => s.grade.startsWith('A')).length;
-  const boysCount = sportsPrograms.filter(s => s.gender === 'Boys').length;
-  const girlsCount = sportsPrograms.filter(s => s.gender === 'Girls').length;
-  const coedCount = sportsPrograms.filter(s => s.gender === 'Coed').length;
+  // Stats (Varsity only)
+  const totalSports = varsityPrograms.length;
+  const topSports = varsityPrograms.filter(s => s.grade.startsWith('A')).length;
+  const boysCount = varsityPrograms.filter(s => s.gender === 'Boys').length;
+  const girlsCount = varsityPrograms.filter(s => s.gender === 'Girls').length;
+  const coedCount = varsityPrograms.filter(s => s.gender === 'Coed').length;
   const displayLimit = expanded ? allDisplayItems.length : 8;
 
   return (
