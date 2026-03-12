@@ -189,7 +189,11 @@ export default function SportsRankings() {
 
     result.sort((a, b) => {
       let cmp = 0;
-      if (sortBy === 'grade') cmp = gradeToRank(a.sports_grade) - gradeToRank(b.sports_grade);
+      if (sortBy === 'grade') {
+        // Primary: grade rank, Secondary: composite score for tie-breaking
+        cmp = gradeToRank(a.sports_grade) - gradeToRank(b.sports_grade);
+        if (cmp === 0) cmp = a.compositeScore - b.compositeScore;
+      }
       else if (sortBy === 'total') cmp = a.total_sports - b.total_sports;
       else if (sortBy === 'ranked') cmp = a.ranked_sports - b.ranked_sports;
       else if (sortBy === 'state') cmp = (a.state || '').localeCompare(b.state || '');
