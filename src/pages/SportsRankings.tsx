@@ -438,8 +438,9 @@ export default function SportsRankings() {
                             <div className="flex flex-wrap gap-1">
                               {school.top_sports.map((s, i) => (
                                 <Badge key={i} variant="outline" className="text-xs">
-                                  {s.sport}{s.stateRanking ? ` #${s.stateRanking}` : ''}
+                                  {s.gender === 'Boys' ? '♂' : '♀'} {s.sport}{s.stateRanking ? ` #${s.stateRanking}` : ''}
                                 </Badge>
+                              ))}
                               ))}
                               {!school.has_detail && (
                                 <span className="text-xs text-muted-foreground italic">No detail data</span>
