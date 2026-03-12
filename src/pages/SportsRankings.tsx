@@ -509,7 +509,6 @@ export default function SportsRankings() {
               <SortButton label="Sport" active={sportSortBy === 'sport'} desc={sportSortDesc} onClick={() => toggleSportSort('sport')} />
                         </TableHead>
                         <TableHead className="text-center">Gender</TableHead>
-                        <TableHead className="text-center">Level</TableHead>
                         <TableHead className="text-center">
                           <SortButton label="Grade" active={sportSortBy === 'grade'} desc={sportSortDesc} onClick={() => toggleSportSort('grade')} />
                         </TableHead>
