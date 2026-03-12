@@ -161,12 +161,8 @@ export function SportsOverviewPanel({
         {/* Summary stats with gender breakdown */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
           <div className="flex items-center gap-1">
-            <span className="font-semibold text-foreground">{totalSports}</span>
-            <span className="text-muted-foreground">Total</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="font-semibold text-foreground">{varsitySports}</span>
-            <span className="text-muted-foreground">Varsity</span>
+           <span className="font-semibold text-foreground">{totalSports}</span>
+            <span className="text-muted-foreground">Varsity Sports</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="font-semibold text-emerald-600">{topSports}</span>
