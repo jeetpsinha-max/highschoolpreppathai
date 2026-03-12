@@ -32,8 +32,9 @@ interface SchoolRow {
   sports_grade: string | null;
   total_sports: number;
   ranked_sports: number;
-  top_sports: { sport: string; grade: string; stateRanking?: number }[];
+  top_sports: { sport: string; grade: string; gender: string; stateRanking?: number }[];
   has_detail: boolean;
+  compositeScore: number; // For accurate tie-breaking
 }
 
 interface SportEntry {
