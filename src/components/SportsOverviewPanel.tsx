@@ -49,21 +49,27 @@ export function SportsOverviewPanel({
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('all');
 
+  // Filter to Varsity only
+  const varsityPrograms = useMemo(() => 
+    sportsPrograms.filter(s => s.level === 'Varsity'),
+    [sportsPrograms]
+  );
+
   // Group sports by season
   const sportsBySeason = useMemo(() => {
-    return sportsPrograms.reduce((acc, sport) => {
+    return varsityPrograms.reduce((acc, sport) => {
       const season = sport.season || 'Other';
       if (!acc[season]) acc[season] = [];
       acc[season].push(sport);
       return acc;
     }, {} as Record<string, SportProgram[]>);
-  }, [sportsPrograms]);
+  }, [varsityPrograms]);
 
   const seasons = useMemo(() => ['all', ...Object.keys(sportsBySeason).sort()], [sportsBySeason]);
 
   // Filter by season tab
   const filteredSports = useMemo(() => {
-    return activeTab === 'all' ? sportsPrograms : sportsBySeason[activeTab] || [];
+    return activeTab === 'all' ? varsityPrograms : sportsBySeason[activeTab] || [];
   }, [activeTab, sportsPrograms, sportsBySeason]);
 
   // Group filtered sports by gender
@@ -124,13 +130,12 @@ export function SportsOverviewPanel({
     );
   }
 
-  // Stats
-  const totalSports = sportsPrograms.length;
-  const varsitySports = sportsPrograms.filter(s => s.level === 'Varsity').length;
-  const topSports = sportsPrograms.filter(s => s.grade.startsWith('A')).length;
-  const boysCount = sportsPrograms.filter(s => s.gender === 'Boys').length;
-  const girlsCount = sportsPrograms.filter(s => s.gender === 'Girls').length;
-  const coedCount = sportsPrograms.filter(s => s.gender === 'Coed').length;
+  // Stats (Varsity only)
+  const totalSports = varsityPrograms.length;
+  const topSports = varsityPrograms.filter(s => s.grade.startsWith('A')).length;
+  const boysCount = varsityPrograms.filter(s => s.gender === 'Boys').length;
+  const girlsCount = varsityPrograms.filter(s => s.gender === 'Girls').length;
+  const coedCount = varsityPrograms.filter(s => s.gender === 'Coed').length;
   const displayLimit = expanded ? allDisplayItems.length : 8;
 
   return (
@@ -156,12 +161,8 @@ export function SportsOverviewPanel({
         {/* Summary stats with gender breakdown */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
           <div className="flex items-center gap-1">
-            <span className="font-semibold text-foreground">{totalSports}</span>
-            <span className="text-muted-foreground">Total</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="font-semibold text-foreground">{varsitySports}</span>
-            <span className="text-muted-foreground">Varsity</span>
+           <span className="font-semibold text-foreground">{totalSports}</span>
+            <span className="text-muted-foreground">Varsity Sports</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="font-semibold text-emerald-600">{topSports}</span>
@@ -301,9 +302,6 @@ function SportRow({ sport, genderColor }: { sport: SportProgram; genderColor: st
         </div>
       </div>
       <div className="flex items-center gap-1.5">
-        <Badge variant="outline" className={`text-xs py-0 h-5 ${levelStyles[sport.level] || ''}`}>
-          {sport.level}
-        </Badge>
         <Badge className={`text-xs py-0 h-5 ${seasonColors[sport.season] || 'bg-muted'}`}>
           {sport.season}
         </Badge>

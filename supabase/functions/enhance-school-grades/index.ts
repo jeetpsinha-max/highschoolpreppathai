@@ -17,9 +17,9 @@ interface GradeEnhancement {
 
 interface SportProgram {
   sport: string;
-  gender: 'Boys' | 'Girls' | 'Coed';
+  gender: 'Boys' | 'Girls';
   grade: string;
-  level: 'Varsity' | 'JV' | 'Club' | 'Recreational';
+  level: 'Varsity';
   season: 'Fall' | 'Winter' | 'Spring' | 'Year-round';
   highlights: string[];
   record?: string;
@@ -57,7 +57,9 @@ async function enhanceSchoolWithAI(
 You should cross-reference multiple sources mentally and provide balanced, accurate assessments.
 
 For SPORTS PROGRAMS specifically, research:
-- What varsity, JV, and club sports the school offers
+- What varsity sports the school offers (ONLY varsity level, no JV/Club/Recreational)
+- ALWAYS list Boys and Girls teams SEPARATELY - never use "Coed". If both genders play a sport, list it twice (once for Boys, once for Girls)
+- ALWAYS include Varsity Soccer (Boys Soccer and Girls Soccer) if the school offers it
 - Which sports the school is particularly known for or competitive in
 - Recent athletic achievements or championships
 - Quality of coaching staff and athletic facilities
@@ -68,7 +70,8 @@ IMPORTANT:
 - If you're not confident about specific data, indicate lower confidence
 - Focus on well-documented strengths and programs
 - Provide specific, verifiable information when possible
-- For sports, list ALL sports you can identify that the school offers
+- For sports, list ALL VARSITY sports you can identify that the school offers
+- ALWAYS separate Boys and Girls teams - never combine them as "Coed"
 - Include team records (e.g., "12-3", "8-2-1") when available from MaxPreps
 - Include state and national rankings from MaxPreps when available
 - Include conference affiliations and championship history`;
@@ -97,11 +100,11 @@ Based on publicly available information from school rating websites, official sc
 4. Areas for improvement (1-3 points, be diplomatic)
 5. Notable programs or achievements
 6. Overall reputation summary (1 sentence)
-7. SPORTS PROGRAMS - List ALL sports offered at this school with:
+7. SPORTS PROGRAMS - List ALL VARSITY sports offered at this school with:
    - Sport name
-   - Gender (Boys, Girls, or Coed)
+   - Gender (Boys or Girls ONLY - never "Coed". List separately for each gender)
    - Grade for that specific sport (A+ to F based on program quality, competitiveness, facilities)
-   - Level (Varsity, JV, Club, or Recreational)
+   - Level: always "Varsity" (do NOT include JV, Club, or Recreational)
    - Season (Fall, Winter, Spring, or Year-round)
    - 1-2 highlights if the sport is notable (championships, strong program, etc.)
    - Record (current or most recent season, e.g., "15-2", "8-4-1")
@@ -110,7 +113,13 @@ Based on publicly available information from school rating websites, official sc
    - Conference affiliation (e.g., "NEPSAC", "ISL", "PAISAA")
    - Championship history (recent titles, state championships)
 
-Be accurate and cite what you know. If you're uncertain, indicate lower confidence. For sports, try to identify as many as possible - typical private schools offer 15-25+ sports.`;
+CRITICAL RULES FOR SPORTS:
+- ALWAYS include Boys Soccer and Girls Soccer if the school has a soccer program
+- NEVER use "Coed" as gender - always list Boys and Girls separately
+- ONLY include Varsity level sports
+- Typical private schools offer 15-25+ varsity sports
+
+Be accurate and cite what you know. If you're uncertain, indicate lower confidence.`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
