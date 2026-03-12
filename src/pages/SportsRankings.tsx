@@ -32,8 +32,9 @@ interface SchoolRow {
   sports_grade: string | null;
   total_sports: number;
   ranked_sports: number;
-  top_sports: { sport: string; grade: string; stateRanking?: number }[];
+  top_sports: { sport: string; grade: string; gender: string; stateRanking?: number }[];
   has_detail: boolean;
+  compositeScore: number; // For accurate tie-breaking
 }
 
 interface SportEntry {
@@ -96,8 +97,32 @@ export default function SportsRankings() {
           const rankedSports = programs.filter(p => p.stateRanking || p.nationalRanking).length;
           const topSports = programs
             .filter(p => p.grade?.startsWith('A'))
+            .sort((a, b) => gradeToRank(b.grade) - gradeToRank(a.grade))
             .slice(0, 3)
-            .map(p => ({ sport: p.sport, grade: p.grade, stateRanking: p.stateRanking }));
+            .map(p => ({ sport: p.sport, grade: p.grade, gender: p.gender, stateRanking: p.stateRanking }));
+
+          // Composite score for accurate ranking (grade + competitive depth + breadth)
+          const gradeScore = gradeToRank(s.sports_grade) * 100; // 100-1300
+          const rankedBonus = Math.min(rankedSports * 15, 100); // up to 100
+          const aRatedCount = programs.filter(p => p.grade?.startsWith('A')).length;
+          const aBonus = Math.min(aRatedCount * 10, 80); // up to 80
+          const breadthBonus = Math.min(programs.length * 3, 60); // up to 60
+          // Win rate bonus from records
+          let winRateBonus = 0;
+          const recordPrograms = programs.filter(p => p.record);
+          if (recordPrograms.length > 0) {
+            const avgWinPct = recordPrograms.reduce((sum, p) => {
+              const parts = p.record!.split('-').map(Number);
+              if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                const total = parts[0] + parts[1];
+                return sum + (total > 0 ? parts[0] / total : 0.5);
+              }
+              return sum + 0.5;
+            }, 0) / recordPrograms.length;
+            winRateBonus = Math.round(avgWinPct * 60); // up to 60
+          }
+
+          const compositeScore = gradeScore + rankedBonus + aBonus + breadthBonus + winRateBonus;
 
           return {
             id: s.id,
@@ -109,6 +134,7 @@ export default function SportsRankings() {
             ranked_sports: rankedSports,
             top_sports: topSports,
             has_detail: programs.length > 0,
+            compositeScore,
           };
         });
 
@@ -163,7 +189,11 @@ export default function SportsRankings() {
 
     result.sort((a, b) => {
       let cmp = 0;
-      if (sortBy === 'grade') cmp = gradeToRank(a.sports_grade) - gradeToRank(b.sports_grade);
+      if (sortBy === 'grade') {
+        // Primary: grade rank, Secondary: composite score for tie-breaking
+        cmp = gradeToRank(a.sports_grade) - gradeToRank(b.sports_grade);
+        if (cmp === 0) cmp = a.compositeScore - b.compositeScore;
+      }
       else if (sortBy === 'total') cmp = a.total_sports - b.total_sports;
       else if (sortBy === 'ranked') cmp = a.ranked_sports - b.ranked_sports;
       else if (sortBy === 'state') cmp = (a.state || '').localeCompare(b.state || '');
@@ -201,17 +231,28 @@ export default function SportsRankings() {
 
     result.sort((a, b) => {
       let cmp = 0;
-      if (sportSortBy === 'grade') cmp = gradeToRank(a.grade) - gradeToRank(b.grade);
+      if (sportSortBy === 'grade') {
+        cmp = gradeToRank(a.grade) - gradeToRank(b.grade);
+        // Tie-break: state ranking (lower = better), then record
+        if (cmp === 0) {
+          const ra = a.stateRanking ?? 9999;
+          const rb = b.stateRanking ?? 9999;
+          cmp = rb - ra; // lower ranking number = better
+        }
+      }
       else if (sportSortBy === 'ranking') {
-        const ra = a.stateRanking ?? 9999;
-        const rb = b.stateRanking ?? 9999;
-        cmp = rb - ra;
+        // Sort by best ranking available (national first, then state)
+        const getRankScore = (e: typeof a) => {
+          if (e.nationalRanking && e.nationalRanking > 0) return 10000 - e.nationalRanking;
+          if (e.stateRanking && e.stateRanking > 0) return 5000 - e.stateRanking;
+          return -1;
+        };
+        cmp = getRankScore(a) - getRankScore(b);
       } else if (sportSortBy === 'school') {
         cmp = a.school_name.localeCompare(b.school_name);
       } else if (sportSortBy === 'sport') {
         cmp = a.sport.localeCompare(b.sport);
       } else if (sportSortBy === 'record') {
-        // Parse win percentage from record like "15-3"
         const parseWinPct = (r?: string) => {
           if (!r) return -1;
           const parts = r.split('-').map(Number);
@@ -304,17 +345,6 @@ export default function SportsRankings() {
                       <SelectItem value="all">All Genders</SelectItem>
                       <SelectItem value="Boys">♂ Boys</SelectItem>
                       <SelectItem value="Girls">♀ Girls</SelectItem>
-                      <SelectItem value="Coed">⚥ Coed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={levelFilter} onValueChange={(v) => { setLevelFilter(v); setSportPage(0); }}>
-                    <SelectTrigger className="w-full md:w-[140px]">
-                      <SelectValue placeholder="All Levels" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Levels</SelectItem>
-                      <SelectItem value="Varsity">Varsity</SelectItem>
-                      <SelectItem value="JV">JV</SelectItem>
                     </SelectContent>
                   </Select>
                 </>
@@ -408,7 +438,7 @@ export default function SportsRankings() {
                             <div className="flex flex-wrap gap-1">
                               {school.top_sports.map((s, i) => (
                                 <Badge key={i} variant="outline" className="text-xs">
-                                  {s.sport}{s.stateRanking ? ` #${s.stateRanking}` : ''}
+                                  {s.gender === 'Boys' ? '♂' : '♀'} {s.sport}{s.stateRanking ? ` #${s.stateRanking}` : ''}
                                 </Badge>
                               ))}
                               {!school.has_detail && (
@@ -479,7 +509,6 @@ export default function SportsRankings() {
               <SortButton label="Sport" active={sportSortBy === 'sport'} desc={sportSortDesc} onClick={() => toggleSportSort('sport')} />
                         </TableHead>
                         <TableHead className="text-center">Gender</TableHead>
-                        <TableHead className="text-center">Level</TableHead>
                         <TableHead className="text-center">
                           <SortButton label="Grade" active={sportSortBy === 'grade'} desc={sportSortDesc} onClick={() => toggleSportSort('grade')} />
                         </TableHead>
@@ -519,15 +548,6 @@ export default function SportsRankings() {
                               'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800'
                             }`}>
                               {entry.gender === 'Boys' ? '♂' : entry.gender === 'Girls' ? '♀' : '⚥'} {entry.gender}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="outline" className={`text-xs ${
-                              entry.level === 'Varsity' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
-                              entry.level === 'JV' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300' :
-                              ''
-                            }`}>
-                              {entry.level}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-center">
