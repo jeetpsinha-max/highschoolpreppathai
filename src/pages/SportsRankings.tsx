@@ -97,8 +97,32 @@ export default function SportsRankings() {
           const rankedSports = programs.filter(p => p.stateRanking || p.nationalRanking).length;
           const topSports = programs
             .filter(p => p.grade?.startsWith('A'))
+            .sort((a, b) => gradeToRank(b.grade) - gradeToRank(a.grade))
             .slice(0, 3)
-            .map(p => ({ sport: p.sport, grade: p.grade, stateRanking: p.stateRanking }));
+            .map(p => ({ sport: p.sport, grade: p.grade, gender: p.gender, stateRanking: p.stateRanking }));
+
+          // Composite score for accurate ranking (grade + competitive depth + breadth)
+          const gradeScore = gradeToRank(s.sports_grade) * 100; // 100-1300
+          const rankedBonus = Math.min(rankedSports * 15, 100); // up to 100
+          const aRatedCount = programs.filter(p => p.grade?.startsWith('A')).length;
+          const aBonus = Math.min(aRatedCount * 10, 80); // up to 80
+          const breadthBonus = Math.min(programs.length * 3, 60); // up to 60
+          // Win rate bonus from records
+          let winRateBonus = 0;
+          const recordPrograms = programs.filter(p => p.record);
+          if (recordPrograms.length > 0) {
+            const avgWinPct = recordPrograms.reduce((sum, p) => {
+              const parts = p.record!.split('-').map(Number);
+              if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                const total = parts[0] + parts[1];
+                return sum + (total > 0 ? parts[0] / total : 0.5);
+              }
+              return sum + 0.5;
+            }, 0) / recordPrograms.length;
+            winRateBonus = Math.round(avgWinPct * 60); // up to 60
+          }
+
+          const compositeScore = gradeScore + rankedBonus + aBonus + breadthBonus + winRateBonus;
 
           return {
             id: s.id,
@@ -110,6 +134,7 @@ export default function SportsRankings() {
             ranked_sports: rankedSports,
             top_sports: topSports,
             has_detail: programs.length > 0,
+            compositeScore,
           };
         });
 
