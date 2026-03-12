@@ -231,17 +231,28 @@ export default function SportsRankings() {
 
     result.sort((a, b) => {
       let cmp = 0;
-      if (sportSortBy === 'grade') cmp = gradeToRank(a.grade) - gradeToRank(b.grade);
+      if (sportSortBy === 'grade') {
+        cmp = gradeToRank(a.grade) - gradeToRank(b.grade);
+        // Tie-break: state ranking (lower = better), then record
+        if (cmp === 0) {
+          const ra = a.stateRanking ?? 9999;
+          const rb = b.stateRanking ?? 9999;
+          cmp = rb - ra; // lower ranking number = better
+        }
+      }
       else if (sportSortBy === 'ranking') {
-        const ra = a.stateRanking ?? 9999;
-        const rb = b.stateRanking ?? 9999;
-        cmp = rb - ra;
+        // Sort by best ranking available (national first, then state)
+        const getRankScore = (e: typeof a) => {
+          if (e.nationalRanking && e.nationalRanking > 0) return 10000 - e.nationalRanking;
+          if (e.stateRanking && e.stateRanking > 0) return 5000 - e.stateRanking;
+          return -1;
+        };
+        cmp = getRankScore(a) - getRankScore(b);
       } else if (sportSortBy === 'school') {
         cmp = a.school_name.localeCompare(b.school_name);
       } else if (sportSortBy === 'sport') {
         cmp = a.sport.localeCompare(b.sport);
       } else if (sportSortBy === 'record') {
-        // Parse win percentage from record like "15-3"
         const parseWinPct = (r?: string) => {
           if (!r) return -1;
           const parts = r.split('-').map(Number);
