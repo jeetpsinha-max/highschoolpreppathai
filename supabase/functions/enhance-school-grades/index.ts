@@ -17,9 +17,9 @@ interface GradeEnhancement {
 
 interface SportProgram {
   sport: string;
-  gender: 'Boys' | 'Girls' | 'Coed';
+  gender: 'Boys' | 'Girls';
   grade: string;
-  level: 'Varsity' | 'JV' | 'Club' | 'Recreational';
+  level: 'Varsity';
   season: 'Fall' | 'Winter' | 'Spring' | 'Year-round';
   highlights: string[];
   record?: string;
