@@ -57,7 +57,9 @@ async function enhanceSchoolWithAI(
 You should cross-reference multiple sources mentally and provide balanced, accurate assessments.
 
 For SPORTS PROGRAMS specifically, research:
-- What varsity, JV, and club sports the school offers
+- What varsity sports the school offers (ONLY varsity level, no JV/Club/Recreational)
+- ALWAYS list Boys and Girls teams SEPARATELY - never use "Coed". If both genders play a sport, list it twice (once for Boys, once for Girls)
+- ALWAYS include Varsity Soccer (Boys Soccer and Girls Soccer) if the school offers it
 - Which sports the school is particularly known for or competitive in
 - Recent athletic achievements or championships
 - Quality of coaching staff and athletic facilities
@@ -68,7 +70,8 @@ IMPORTANT:
 - If you're not confident about specific data, indicate lower confidence
 - Focus on well-documented strengths and programs
 - Provide specific, verifiable information when possible
-- For sports, list ALL sports you can identify that the school offers
+- For sports, list ALL VARSITY sports you can identify that the school offers
+- ALWAYS separate Boys and Girls teams - never combine them as "Coed"
 - Include team records (e.g., "12-3", "8-2-1") when available from MaxPreps
 - Include state and national rankings from MaxPreps when available
 - Include conference affiliations and championship history`;
