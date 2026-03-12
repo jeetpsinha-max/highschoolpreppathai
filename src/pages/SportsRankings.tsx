@@ -441,7 +441,6 @@ export default function SportsRankings() {
                                   {s.gender === 'Boys' ? '♂' : '♀'} {s.sport}{s.stateRanking ? ` #${s.stateRanking}` : ''}
                                 </Badge>
                               ))}
-                              ))}
                               {!school.has_detail && (
                                 <span className="text-xs text-muted-foreground italic">No detail data</span>
                               )}
