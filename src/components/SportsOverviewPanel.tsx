@@ -302,9 +302,6 @@ function SportRow({ sport, genderColor }: { sport: SportProgram; genderColor: st
         </div>
       </div>
       <div className="flex items-center gap-1.5">
-        <Badge variant="outline" className={`text-xs py-0 h-5 ${levelStyles[sport.level] || ''}`}>
-          {sport.level}
-        </Badge>
         <Badge className={`text-xs py-0 h-5 ${seasonColors[sport.season] || 'bg-muted'}`}>
           {sport.season}
         </Badge>
