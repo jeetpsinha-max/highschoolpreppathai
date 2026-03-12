@@ -69,7 +69,7 @@ export function SportsOverviewPanel({
 
   // Filter by season tab
   const filteredSports = useMemo(() => {
-    return activeTab === 'all' ? sportsPrograms : sportsBySeason[activeTab] || [];
+    return activeTab === 'all' ? varsityPrograms : sportsBySeason[activeTab] || [];
   }, [activeTab, sportsPrograms, sportsBySeason]);
 
   // Group filtered sports by gender
