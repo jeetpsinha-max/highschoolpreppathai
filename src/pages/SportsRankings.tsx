@@ -84,7 +84,8 @@ export default function SportsRankings() {
       const enhancedMap = new Map<string, SportProgram[]>();
       for (const e of enhanced || []) {
         const programs = (e.sports_programs as unknown as SportProgram[]) || [];
-        if (programs.length > 0) enhancedMap.set(e.school_id, programs);
+        const varsityPrograms = programs.filter(p => p.level === 'Varsity');
+        if (varsityPrograms.length > 0) enhancedMap.set(e.school_id, varsityPrograms);
       }
 
       // Build overall rows

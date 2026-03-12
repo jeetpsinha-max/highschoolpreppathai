@@ -65,7 +65,8 @@ export default function SportDetail() {
       const entries: SportSchoolEntry[] = [];
 
       for (const e of enhanced || []) {
-        const programs = (e.sports_programs as unknown as SportProgram[]) || [];
+        const allPrograms = (e.sports_programs as unknown as SportProgram[]) || [];
+        const programs = allPrograms.filter(p => p.level === 'Varsity');
         const school = schoolMap.get(e.school_id);
         if (!school) continue;
 
