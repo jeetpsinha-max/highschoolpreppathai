@@ -25,7 +25,7 @@ export default function Schools() {
   const getCompetitivenessColor = (level: string | null) => {
     switch (level) {
       case "Highly Selective": return "competitive";
-      case "Selective": return "gold";
+      case "Selective": return "teal";
       default: return "secondary";
     }
   };

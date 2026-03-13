@@ -85,8 +85,8 @@ export default function About() {
 
             <Card className="text-center p-6 hover:shadow-lg transition-shadow">
               <CardContent className="pt-4">
-                <div className="h-14 w-14 rounded-2xl bg-secondary/10 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-7 w-7 text-secondary" />
+                <div className="h-14 w-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-7 w-7 text-teal" />
                 </div>
                 <h3 className="font-display font-semibold text-lg mb-2">Family Dashboard</h3>
                 <p className="text-sm text-muted-foreground">

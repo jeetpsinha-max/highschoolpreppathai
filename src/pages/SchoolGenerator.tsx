@@ -77,7 +77,7 @@ export default function SchoolGenerator() {
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-emerald-500";
-    if (score >= 80) return "text-secondary";
+    if (score >= 80) return "text-teal";
     if (score >= 70) return "text-amber-500";
     return "text-muted-foreground";
   };
