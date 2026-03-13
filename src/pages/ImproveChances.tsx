@@ -379,20 +379,20 @@ export default function ImproveChances() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-teal" />
+                    <Calendar className="h-5 w-5 text-secondary" />
                     Preparation Timeline
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
                     {plan.timeline.map((phase, i) => (
-                      <div key={i} className="relative pl-6 border-l-2 border-teal/30 last:border-l-transparent">
-                        <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-teal"></div>
+                      <div key={i} className="relative pl-6 border-l-2 border-secondary/30 last:border-l-transparent">
+                        <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-secondary"></div>
                         <h4 className="font-medium mb-2">{phase.timeframe}</h4>
                         <ul className="space-y-1">
                           {phase.tasks.map((task, j) => (
                             <li key={j} className="text-sm text-muted-foreground flex items-start gap-2">
-                              <CheckCircle2 className="h-4 w-4 text-teal mt-0.5 flex-shrink-0" />
+                              <CheckCircle2 className="h-4 w-4 text-secondary mt-0.5 flex-shrink-0" />
                               {task}
                             </li>
                           ))}
