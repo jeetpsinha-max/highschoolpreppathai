@@ -82,10 +82,10 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-l-teal">
+            <Card className="border-l-4 border-l-secondary">
               <CardContent className="p-6 flex items-start gap-4">
-                <div className="h-10 w-10 rounded-xl bg-teal/10 flex items-center justify-center shrink-0">
-                  <MapPin className="h-5 w-5 text-teal" />
+                <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                  <MapPin className="h-5 w-5 text-secondary" />
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Location</h3>
