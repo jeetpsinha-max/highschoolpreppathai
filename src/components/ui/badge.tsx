@@ -12,7 +12,7 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
-        teal: "border-transparent bg-teal/15 text-teal-dark",
+        gold: "border-transparent bg-secondary/15 text-secondary",
         boarding: "border-transparent bg-accent text-accent-foreground",
         competitive: "border-transparent bg-primary/10 text-primary",
         "girls-only": "border-transparent bg-pink-100 text-pink-700",
