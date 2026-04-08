@@ -3,106 +3,181 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Target, MessageSquare, FileText, TrendingUp, Brain, Wand2, ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Target, MessageSquare, FileText, TrendingUp, Brain, Wand2, ArrowRight,
+  DollarSign, MapPin, Mail, Calendar, Trophy, Sparkles
+} from "lucide-react";
 
-const tools = [
+interface ToolDef {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  color: string;
+  category: string;
+  isNew?: boolean;
+}
+
+const tools: ToolDef[] = [
+  // Discovery & Matching
   {
     id: "school-matcher",
     title: "AI School Matcher",
-    description: "Answer questions about your preferences and get personalized school recommendations with Reach, Target, and Safety lists.",
+    description: "Answer questions about your preferences and get personalized Reach, Target, and Safety school lists.",
     icon: Target,
-    color: "from-teal to-teal-light",
-    available: true,
+    color: "from-secondary to-secondary/80",
+    category: "Discovery",
   },
   {
     id: "school-generator",
     title: "AI School Generator",
-    description: "Describe your ideal school and we'll create a profile and find the 10 closest real matches.",
+    description: "Describe your ideal school and we'll find the 10 closest real matches.",
     icon: Wand2,
     color: "from-purple-500 to-pink-500",
-    available: true,
+    category: "Discovery",
+  },
+  // Preparation
+  {
+    id: "ssat",
+    title: "SSAT Practice",
+    description: "AI-generated practice questions with explanations. Track scores and identify weak areas.",
+    icon: Brain,
+    color: "from-orange-500 to-amber-500",
+    category: "Preparation",
   },
   {
     id: "interview",
     title: "Interview Coach",
-    description: "Practice with AI-generated questions, get feedback on clarity and confidence, and track your progress.",
+    description: "Practice with AI-generated questions, get feedback on clarity and confidence.",
     icon: MessageSquare,
     color: "from-blue-500 to-cyan-500",
-    available: true,
+    category: "Preparation",
   },
   {
     id: "improve",
     title: "Improve Your Chances",
-    description: "Get strategic insights for any school: what they value, recommended activities, and preparation timelines.",
+    description: "Get strategic insights: what schools value, recommended activities, and timelines.",
     icon: TrendingUp,
     color: "from-emerald-500 to-green-500",
-    available: true,
+    category: "Preparation",
   },
-  {
-    id: "ssat",
-    title: "SSAT Practice",
-    description: "AI-generated practice questions with explanations. Track scores and identify areas for improvement.",
-    icon: Brain,
-    color: "from-orange-500 to-amber-500",
-    available: true,
-  },
+  // Application
   {
     id: "assistant",
     title: "Application Assistant",
     description: "Essay brainstorming, draft improvement, activity lists, resumes, and email templates.",
     icon: FileText,
     color: "from-indigo-500 to-violet-500",
-    available: true,
+    category: "Application",
+  },
+  {
+    id: "parent-letters",
+    title: "Parent Letter Writer",
+    description: "Generate polished recommendation requests, thank-you notes, follow-ups, and aid appeals.",
+    icon: Mail,
+    color: "from-rose-500 to-pink-500",
+    category: "Application",
+    isNew: true,
+  },
+  // Planning
+  {
+    id: "timeline",
+    title: "Admissions Timeline",
+    description: "Get a personalized month-by-month preparation plan based on your target schools.",
+    icon: Calendar,
+    color: "from-violet-500 to-purple-600",
+    category: "Planning",
+    isNew: true,
+  },
+  {
+    id: "visit-prep",
+    title: "School Visit Prep",
+    description: "Get personalized questions, checklists, and observation tips for campus visits.",
+    icon: MapPin,
+    color: "from-sky-500 to-blue-600",
+    category: "Planning",
+    isNew: true,
+  },
+  {
+    id: "financial-aid",
+    title: "Financial Aid Advisor",
+    description: "Get personalized scholarship recommendations, aid strategies, and estimated costs.",
+    icon: DollarSign,
+    color: "from-emerald-500 to-green-600",
+    category: "Planning",
+    isNew: true,
   },
 ];
+
+const categories = ["Discovery", "Preparation", "Application", "Planning"];
+const categoryIcons: Record<string, React.ElementType> = {
+  Discovery: Target,
+  Preparation: Brain,
+  Application: FileText,
+  Planning: Calendar,
+};
 
 export default function AITools() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            AI-Powered Tools for Success
+
+      {/* Hero */}
+      <div className="border-b bg-gradient-to-b from-primary/5 to-background">
+        <div className="container mx-auto px-4 py-12 text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <Sparkles className="h-4 w-4" />
+            10 AI-Powered Tools
+          </div>
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+            Your AI Admissions Toolkit
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Our suite of AI tools guides you through every step of the high school admissions process.
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            From finding the right school to submitting polished applications — AI guidance at every step.
           </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tools.map((tool) => (
-            <Card key={tool.id} className={`group transition-all duration-300 ${tool.available ? 'hover:shadow-xl hover:-translate-y-2' : 'opacity-70'}`}>
-              <CardHeader>
-                <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${tool.color} text-white shadow-lg mb-4`}>
-                  <tool.icon className="h-7 w-7" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <CardTitle className="font-display">{tool.title}</CardTitle>
-                  {!tool.available && (
-                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">Coming Soon</span>
-                  )}
-                </div>
-                <CardDescription>{tool.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {tool.available ? (
-                  <Link to={`/ai-tools/${tool.id}`}>
-                    <Button variant="outline" className="w-full group-hover:bg-secondary group-hover:text-secondary-foreground group-hover:border-secondary transition-colors">
-                      Launch Tool
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+      <div className="container mx-auto px-4 py-10">
+        {categories.map((category) => {
+          const categoryTools = tools.filter((t) => t.category === category);
+          const CatIcon = categoryIcons[category];
+          return (
+            <div key={category} className="mb-10">
+              <div className="flex items-center gap-2 mb-5">
+                <CatIcon className="h-5 w-5 text-primary" />
+                <h2 className="font-display text-xl font-semibold text-foreground">{category}</h2>
+                <Badge variant="secondary" className="ml-1 text-xs">{categoryTools.length}</Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {categoryTools.map((tool) => (
+                  <Link key={tool.id} to={`/ai-tools/${tool.id}`} className="group">
+                    <Card className="h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-border/50 hover:border-primary/30">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${tool.color} text-white shadow-md`}>
+                            <tool.icon className="h-5 w-5" />
+                          </div>
+                          {tool.isNew && (
+                            <Badge className="bg-secondary text-secondary-foreground text-[10px] px-2">NEW</Badge>
+                          )}
+                        </div>
+                        <CardTitle className="font-display text-base mt-3">{tool.title}</CardTitle>
+                        <CardDescription className="text-xs leading-relaxed">{tool.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex items-center text-sm font-medium text-primary group-hover:gap-2 transition-all">
+                          Launch Tool <ArrowRight className="ml-1 h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </CardContent>
+                    </Card>
                   </Link>
-                ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    Coming Soon
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <Footer />

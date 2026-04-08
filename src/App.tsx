@@ -19,6 +19,10 @@ import SSATPractice from "./pages/SSATPractice";
 import Dashboard from "./pages/Dashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import ApplicationAssistant from "./pages/ApplicationAssistant";
+import FinancialAidAdvisor from "./pages/FinancialAidAdvisor";
+import SchoolVisitPrep from "./pages/SchoolVisitPrep";
+import ParentLetterWriter from "./pages/ParentLetterWriter";
+import TimelinePlanner from "./pages/TimelinePlanner";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import BetaForSchools from "./pages/BetaForSchools";
@@ -55,6 +59,10 @@ const App = () => (
             <Route path="/ai-tools/improve" element={<ProtectedRoute><ImproveChances /></ProtectedRoute>} />
             <Route path="/ai-tools/ssat" element={<ProtectedRoute><SSATPractice /></ProtectedRoute>} />
             <Route path="/ai-tools/assistant" element={<ProtectedRoute><ApplicationAssistant /></ProtectedRoute>} />
+            <Route path="/ai-tools/financial-aid" element={<ProtectedRoute><FinancialAidAdvisor /></ProtectedRoute>} />
+            <Route path="/ai-tools/visit-prep" element={<ProtectedRoute><SchoolVisitPrep /></ProtectedRoute>} />
+            <Route path="/ai-tools/parent-letters" element={<ProtectedRoute><ParentLetterWriter /></ProtectedRoute>} />
+            <Route path="/ai-tools/timeline" element={<ProtectedRoute><TimelinePlanner /></ProtectedRoute>} />
             <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
             <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
             <Route path="/beta" element={<ProtectedRoute><BetaForSchools /></ProtectedRoute>} />
