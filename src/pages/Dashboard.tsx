@@ -24,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 interface ChatMessage {
   role: "user" | "assistant";
