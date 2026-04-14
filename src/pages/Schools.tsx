@@ -8,11 +8,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
 import { SchoolFilters, defaultFilters, sortOptions, SortOption } from "@/types/school";
-import { getGradeColor, getOverallGradeColor, calculateOverallGrade, GRADE_OPTIONS } from "@/lib/grading";
-import { SaveSchoolButton } from "@/components/SaveSchoolButton";
+import { GRADE_OPTIONS } from "@/lib/grading";
+import { SchoolCard } from "@/components/SchoolCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Search, MapPin, ExternalLink, GraduationCap, Loader2, Home, Users, Filter, X, Star, BookOpen, Trophy, Building2, BedDouble, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, GraduationCap, Loader2, Filter, X, BookOpen, Trophy, Building2, BedDouble, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
