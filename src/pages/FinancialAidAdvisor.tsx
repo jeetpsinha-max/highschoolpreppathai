@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,18 +6,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, DollarSign, Copy, Check } from "lucide-react";
+import { Loader2, DollarSign, Copy, Check, Sparkles } from "lucide-react";
 import { streamAIResponse } from "@/lib/streamAI";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 export default function FinancialAidAdvisor() {
+  const { preferences } = useUserPreferences();
   const [familyInfo, setFamilyInfo] = useState("");
   const [schoolNames, setSchoolNames] = useState("");
   const [questions, setQuestions] = useState("");
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Pre-fill context from user preferences
+  useEffect(() => {
+    if (preferences?.grade_level && !familyInfo) {
+      const ctx = [`Student in ${preferences.grade_level} grade`];
+      if (preferences.application_year) ctx.push(`applying for ${preferences.application_year}`);
+      if (preferences.boarding_preference === 'boarding') ctx.push('interested in boarding schools');
+      if (preferences.priorities?.length) ctx.push(`priorities: ${preferences.priorities.join(', ')}`);
+      setFamilyInfo(ctx.join('. ') + '.');
+    }
+  }, [preferences]);
 
   const handleSubmit = async () => {
     if (!familyInfo.trim()) { toast.error("Please describe your family's situation."); return; }
