@@ -187,7 +187,6 @@ export default function Schools() {
               <SchoolCard key={school.id} school={school} />
             ))}
           </div>
-          </div>
         )}
       </div>
 
