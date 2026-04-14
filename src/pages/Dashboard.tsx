@@ -112,6 +112,13 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  // Show onboarding for new users
+  useEffect(() => {
+    if (user && !prefsLoading && !preferences?.onboarding_completed) {
+      setShowOnboarding(true);
+    }
+  }, [user, prefsLoading, preferences]);
+
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
@@ -245,6 +252,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-8">
