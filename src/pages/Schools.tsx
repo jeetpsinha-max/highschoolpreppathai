@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useSchools } from "@/hooks/useSchools";
 import { SchoolFilters, defaultFilters, sortOptions, SortOption } from "@/types/school";
 import { GRADE_OPTIONS } from "@/lib/grading";
