@@ -176,9 +176,16 @@ export default function AITools() {
                           <div className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${tool.color} text-white shadow-md`}>
                             <tool.icon className="h-5 w-5" />
                           </div>
-                          {tool.isNew && (
-                            <Badge className="bg-secondary text-secondary-foreground text-[10px] px-2">NEW</Badge>
-                          )}
+                          <div className="flex gap-1">
+                            {recommended.includes(tool.id) && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 border-primary/40 text-primary">
+                                <Star className="h-2.5 w-2.5 mr-0.5" /> For You
+                              </Badge>
+                            )}
+                            {tool.isNew && (
+                              <Badge className="bg-secondary text-secondary-foreground text-[10px] px-2">NEW</Badge>
+                            )}
+                          </div>
                         </div>
                         <CardTitle className="font-display text-base mt-3">{tool.title}</CardTitle>
                         <CardDescription className="text-xs leading-relaxed">{tool.description}</CardDescription>
