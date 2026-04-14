@@ -4,9 +4,10 @@ import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { 
   Target, MessageSquare, FileText, TrendingUp, Brain, Wand2, ArrowRight,
-  DollarSign, MapPin, Mail, Calendar, Trophy, Sparkles
+  DollarSign, MapPin, Mail, Calendar, Trophy, Sparkles, Star
 } from "lucide-react";
 
 interface ToolDef {
@@ -118,7 +119,21 @@ const categoryIcons: Record<string, React.ElementType> = {
   Planning: Calendar,
 };
 
+function getRecommendedToolIds(prefs: any): string[] {
+  if (!prefs) return [];
+  const recs: string[] = [];
+  if (prefs.test_prep_status === "not_started" || prefs.test_prep_status === "studying") recs.push("ssat");
+  if (prefs.priorities?.includes("Financial aid")) recs.push("financial-aid");
+  if (prefs.interests?.includes("Athletics")) recs.push("sports-rankings");
+  if (!prefs.application_year) recs.push("school-matcher");
+  recs.push("timeline-planner", "improve-chances");
+  return [...new Set(recs)];
+}
+
 export default function AITools() {
+  const { preferences } = useUserPreferences();
+  const recommended = getRecommendedToolIds(preferences);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -128,13 +143,15 @@ export default function AITools() {
         <div className="container mx-auto px-4 py-12 text-center">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
             <Sparkles className="h-4 w-4" />
-            10 AI-Powered Tools
+            {preferences?.grade_level ? `Tools for ${preferences.grade_level} Graders` : '10 AI-Powered Tools'}
           </div>
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
             Your AI Admissions Toolkit
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            From finding the right school to submitting polished applications — AI guidance at every step.
+            {preferences?.onboarding_completed
+              ? `Personalized for your ${preferences.application_year || ''} application journey.`
+              : 'From finding the right school to submitting polished applications — AI guidance at every step.'}
           </p>
         </div>
       </div>
