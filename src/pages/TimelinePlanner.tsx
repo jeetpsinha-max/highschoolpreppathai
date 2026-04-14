@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +11,10 @@ import { Loader2, Calendar, Copy, Check } from "lucide-react";
 import { streamAIResponse } from "@/lib/streamAI";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 export default function TimelinePlanner() {
+  const { preferences } = useUserPreferences();
   const [currentGrade, setCurrentGrade] = useState("");
   const [targetSchools, setTargetSchools] = useState("");
   const [applicationYear, setApplicationYear] = useState("");
@@ -20,6 +22,15 @@ export default function TimelinePlanner() {
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Pre-fill from preferences
+  useEffect(() => {
+    if (preferences) {
+      if (preferences.grade_level && !currentGrade) setCurrentGrade(preferences.grade_level);
+      if (preferences.application_year && !applicationYear) setApplicationYear(preferences.application_year);
+      if (preferences.priorities?.length && !priorities) setPriorities(preferences.priorities.join(', '));
+    }
+  }, [preferences]);
 
   const handleSubmit = async () => {
     if (!currentGrade) { toast.error("Please select your current grade."); return; }
