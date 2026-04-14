@@ -71,6 +71,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const { preferences, isLoading: prefsLoading } = useUserPreferences();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [savedSchools, setSavedSchools] = useState<SavedSchool[]>([]);
   const [matcherResults, setMatcherResults] = useState<MatcherResult[]>([]);
