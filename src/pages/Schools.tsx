@@ -18,14 +18,6 @@ export default function Schools() {
     setFilters({ ...filters, search });
   };
 
-  const getCompetitivenessColor = (level: string | null) => {
-    switch (level) {
-      case "Highly Selective": return "competitive";
-      case "Selective": return "teal";
-      default: return "secondary";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
