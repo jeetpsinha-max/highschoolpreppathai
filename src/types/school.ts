@@ -43,6 +43,7 @@ export interface School {
   college_prep_grade: string | null;
   facilities_grade: string | null;
   faculty_grade: string | null;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }

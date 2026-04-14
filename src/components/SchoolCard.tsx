@@ -23,40 +23,21 @@ import {
   Star,
 } from "lucide-react";
 
-// Generate a deterministic campus image URL based on school name
-function getCampusImageUrl(school: School): string {
-  const query = encodeURIComponent(`${school.name} campus building`);
-  // Use a hash of the school name to pick a consistent Unsplash image
+// Get campus image - prefer DB image_url, fallback to curated Unsplash
+function getCampusImageUrl(school: School & { image_url?: string | null }): string {
+  if (school.image_url) return school.image_url;
+  // Fallback: deterministic Unsplash image based on school name hash
   const seed = school.name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const imageId = seed % 50;
-  return `https://images.unsplash.com/photo-${getUnsplashId(imageId)}?auto=format&fit=crop&w=600&h=300&q=60`;
-}
-
-// Curated list of campus/school building Unsplash photo IDs
-function getUnsplashId(index: number): string {
   const ids = [
-    "1562774053-44a2aca2fb49",
-    "1541339907198-e08756dedf3f",
-    "1523050854058-8df90110c9f1",
-    "1580537659466-0a9bfa916a54",
-    "1607237138185-eedd9c632b0b",
-    "1592280771190-3e2e4d571952",
-    "1498243691581-b145c3f54a5a",
-    "1519452635265-7b1fbfd1e4e0",
-    "1564981797816-1043664bf78d",
-    "1571260899304-425eee4c7efc",
-    "1559136555-9303baea8ebd",
-    "1574958269340-fa927503f3dd",
-    "1509062522246-3755977927d7",
-    "1562516710-724a0a39ff9a",
-    "1544531586-fde5298cdd40",
-    "1497366216548-37526070297c",
-    "1541829070764-84a7d30dd3f3",
-    "1551836022-d5d88e9218df",
-    "1580582932707-520aed937b7b",
-    "1576495199011-eb94736d05d4",
+    "1562774053-44a2aca2fb49", "1541339907198-e08756dedf3f", "1523050854058-8df90110c9f1",
+    "1580537659466-0a9bfa916a54", "1607237138185-eedd9c632b0b", "1592280771190-3e2e4d571952",
+    "1498243691581-b145c3f54a5a", "1519452635265-7b1fbfd1e4e0", "1564981797816-1043664bf78d",
+    "1571260899304-425eee4c7efc", "1559136555-9303baea8ebd", "1574958269340-fa927503f3dd",
+    "1509062522246-3755977927d7", "1562516710-724a0a39ff9a", "1544531586-fde5298cdd40",
+    "1497366216548-37526070297c", "1541829070764-84a7d30dd3f3", "1551836022-d5d88e9218df",
+    "1580582932707-520aed937b7b", "1576495199011-eb94736d05d4",
   ];
-  return ids[index % ids.length];
+  return `https://images.unsplash.com/photo-${ids[seed % ids.length]}?auto=format&fit=crop&w=600&h=300&q=60`;
 }
 
 function getCompetitivenessColor(level: string | null) {

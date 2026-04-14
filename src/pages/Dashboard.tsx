@@ -24,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -69,6 +71,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const { preferences, isLoading: prefsLoading } = useUserPreferences();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [savedSchools, setSavedSchools] = useState<SavedSchool[]>([]);
   const [matcherResults, setMatcherResults] = useState<MatcherResult[]>([]);
@@ -107,6 +111,13 @@ const Dashboard = () => {
       fetchDashboardData();
     }
   }, [user]);
+
+  // Show onboarding for new users
+  useEffect(() => {
+    if (user && !prefsLoading && !preferences?.onboarding_completed) {
+      setShowOnboarding(true);
+    }
+  }, [user, prefsLoading, preferences]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -241,6 +252,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-8">

@@ -388,6 +388,7 @@ export type Database = {
           facilities_grade: string | null
           faculty_grade: string | null
           id: string
+          image_url: string | null
           name: string
           notes: string | null
           size: string | null
@@ -413,6 +414,7 @@ export type Database = {
           facilities_grade?: string | null
           faculty_grade?: string | null
           id?: string
+          image_url?: string | null
           name: string
           notes?: string | null
           size?: string | null
@@ -438,6 +440,7 @@ export type Database = {
           facilities_grade?: string | null
           faculty_grade?: string | null
           id?: string
+          image_url?: string | null
           name?: string
           notes?: string | null
           size?: string | null
@@ -478,6 +481,60 @@ export type Database = {
           score?: number | null
           section?: string
           time_spent?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          academic_strengths: string[] | null
+          application_year: string | null
+          boarding_preference: string | null
+          budget_range: string | null
+          created_at: string
+          extracurriculars: string[] | null
+          grade_level: string | null
+          id: string
+          interests: string[] | null
+          onboarding_completed: boolean | null
+          priorities: string[] | null
+          target_states: string[] | null
+          test_prep_status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          academic_strengths?: string[] | null
+          application_year?: string | null
+          boarding_preference?: string | null
+          budget_range?: string | null
+          created_at?: string
+          extracurriculars?: string[] | null
+          grade_level?: string | null
+          id?: string
+          interests?: string[] | null
+          onboarding_completed?: boolean | null
+          priorities?: string[] | null
+          target_states?: string[] | null
+          test_prep_status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          academic_strengths?: string[] | null
+          application_year?: string | null
+          boarding_preference?: string | null
+          budget_range?: string | null
+          created_at?: string
+          extracurriculars?: string[] | null
+          grade_level?: string | null
+          id?: string
+          interests?: string[] | null
+          onboarding_completed?: boolean | null
+          priorities?: string[] | null
+          target_states?: string[] | null
+          test_prep_status?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
