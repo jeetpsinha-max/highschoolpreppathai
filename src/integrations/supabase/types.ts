@@ -374,6 +374,7 @@ export type Database = {
       schools: {
         Row: {
           academics_grade: string | null
+          acceptance_rate: number | null
           admission_type: string | null
           arts_grade: string | null
           boarding: boolean | null
@@ -385,8 +386,10 @@ export type Database = {
           created_at: string
           diversity_grade: string | null
           dorms_grade: string | null
+          enrollment: number | null
           facilities_grade: string | null
           faculty_grade: string | null
+          founded_year: number | null
           id: string
           image_url: string | null
           name: string
@@ -394,12 +397,14 @@ export type Database = {
           size: string | null
           sports_grade: string | null
           state: string | null
+          tuition: number | null
           type: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
           academics_grade?: string | null
+          acceptance_rate?: number | null
           admission_type?: string | null
           arts_grade?: string | null
           boarding?: boolean | null
@@ -411,8 +416,10 @@ export type Database = {
           created_at?: string
           diversity_grade?: string | null
           dorms_grade?: string | null
+          enrollment?: number | null
           facilities_grade?: string | null
           faculty_grade?: string | null
+          founded_year?: number | null
           id?: string
           image_url?: string | null
           name: string
@@ -420,12 +427,14 @@ export type Database = {
           size?: string | null
           sports_grade?: string | null
           state?: string | null
+          tuition?: number | null
           type?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
           academics_grade?: string | null
+          acceptance_rate?: number | null
           admission_type?: string | null
           arts_grade?: string | null
           boarding?: boolean | null
@@ -437,8 +446,10 @@ export type Database = {
           created_at?: string
           diversity_grade?: string | null
           dorms_grade?: string | null
+          enrollment?: number | null
           facilities_grade?: string | null
           faculty_grade?: string | null
+          founded_year?: number | null
           id?: string
           image_url?: string | null
           name?: string
@@ -446,6 +457,7 @@ export type Database = {
           size?: string | null
           sports_grade?: string | null
           state?: string | null
+          tuition?: number | null
           type?: string | null
           updated_at?: string
           website?: string | null
