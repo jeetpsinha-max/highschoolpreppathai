@@ -58,6 +58,14 @@ export function useSchools(filters?: SchoolFilters) {
       if (filters?.minDormsGrade) {
         schools = schools.filter(s => s.boarding && meetsMinimumGrade(s.dorms_grade, filters.minDormsGrade));
       }
+
+      if (filters?.maxTuition != null) {
+        schools = schools.filter(s => s.tuition != null && s.tuition <= filters.maxTuition!);
+      }
+
+      if (filters?.maxAcceptanceRate != null) {
+        schools = schools.filter(s => s.acceptance_rate != null && s.acceptance_rate <= filters.maxAcceptanceRate!);
+      }
       
       // Client-side sorting using grading utilities
       const sortBy = filters?.sortBy || 'name';

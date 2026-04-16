@@ -642,7 +642,7 @@ function SummaryStats({ data, filtered }: { data: any; filtered: SchoolRow[] }) 
   }
   const topSports = [...sportCounts.entries()]
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+    .slice(0, 8);
 
   // States with most A-rated schools
   const stateCounts = new Map<string, number>();
@@ -653,64 +653,126 @@ function SummaryStats({ data, filtered }: { data: any; filtered: SchoolRow[] }) 
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
+  // Top 5 spotlight programs (highest composite score)
+  const spotlight = allRows
+    .filter(s => s.compositeScore > 0)
+    .sort((a, b) => b.compositeScore - a.compositeScore)
+    .slice(0, 5);
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <Card>
-        <CardContent className="pt-4 pb-3 text-center">
-          <Star className="h-5 w-5 mx-auto text-primary mb-1" />
-          <div className="text-2xl font-bold">{aRated}</div>
-          <div className="text-xs text-muted-foreground">A-Rated Schools</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="pt-4 pb-3 text-center">
-          <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
-          <div className="text-2xl font-bold">{bRated}</div>
-          <div className="text-xs text-muted-foreground">B-Rated Schools</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="pt-4 pb-3 text-center">
-          <Activity className="h-5 w-5 mx-auto text-primary mb-1" />
-          <div className="text-2xl font-bold">{withDetail}</div>
-          <div className="text-xs text-muted-foreground">With Sport Details</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="pt-4 pb-3 text-center">
-          <Trophy className="h-5 w-5 mx-auto text-primary mb-1" />
-          <div className="text-2xl font-bold">{data.availableSports?.length || 0}</div>
-          <div className="text-xs text-muted-foreground">Sports Tracked</div>
-        </CardContent>
-      </Card>
-      {topSports.length > 0 && (
-        <Card className="col-span-2">
-          <CardContent className="pt-4 pb-3">
-            <div className="text-xs font-medium text-muted-foreground mb-2">Most Popular Sports</div>
-            <div className="flex flex-wrap gap-1.5">
-              {topSports.map(([sport, count]) => (
-                <Badge key={sport} variant="secondary" className="text-xs">
-                  {sport} ({count})
-                </Badge>
+    <div className="space-y-6 mb-6">
+      {/* Key Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-4 pb-3 text-center">
+            <Star className="h-5 w-5 mx-auto text-primary mb-1" />
+            <div className="text-2xl font-bold">{aRated}</div>
+            <div className="text-xs text-muted-foreground">A-Rated Schools</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-3 text-center">
+            <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
+            <div className="text-2xl font-bold">{bRated}</div>
+            <div className="text-xs text-muted-foreground">B-Rated Schools</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-3 text-center">
+            <Activity className="h-5 w-5 mx-auto text-primary mb-1" />
+            <div className="text-2xl font-bold">{withDetail}</div>
+            <div className="text-xs text-muted-foreground">With Sport Details</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-3 text-center">
+            <Trophy className="h-5 w-5 mx-auto text-primary mb-1" />
+            <div className="text-2xl font-bold">{data.availableSports?.length || 0}</div>
+            <div className="text-xs text-muted-foreground">Sports Tracked</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Spotlight: Top Programs */}
+      {spotlight.length > 0 && (
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" />
+              🏆 Top Athletic Programs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+              {spotlight.map((school, i) => (
+                <Link key={school.id} to={`/schools/${school.id}`} className="group">
+                  <div className={`relative p-3 rounded-lg border transition-all hover:shadow-md hover:-translate-y-0.5 ${
+                    i === 0 ? 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800' :
+                    i === 1 ? 'bg-slate-50 dark:bg-slate-900/10 border-slate-200 dark:border-slate-800' :
+                    i === 2 ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800' :
+                    'bg-card'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg font-bold text-muted-foreground">#{i + 1}</span>
+                      <Badge className={`${getGradeColor(school.sports_grade)} font-bold text-xs`}>
+                        {school.sports_grade}
+                      </Badge>
+                    </div>
+                    <div className="text-sm font-medium group-hover:text-primary transition-colors line-clamp-1">
+                      {school.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{school.state}</div>
+                    <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                      {school.top_sports.slice(0, 2).map((s, j) => (
+                        <Badge key={j} variant="outline" className="text-[9px] px-1 py-0">
+                          {s.sport}
+                        </Badge>
+                      ))}
+                      {school.total_sports > 0 && (
+                        <span className="text-[10px] text-muted-foreground">{school.total_sports} sports</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           </CardContent>
         </Card>
       )}
-      {topStates.length > 0 && (
-        <Card className="col-span-2">
-          <CardContent className="pt-4 pb-3">
-            <div className="text-xs font-medium text-muted-foreground mb-2">Top States (A-Rated)</div>
-            <div className="flex flex-wrap gap-1.5">
-              {topStates.map(([state, count]) => (
-                <Badge key={state} variant="outline" className="text-xs">
-                  {state} ({count})
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
+      {/* Sport popularity and state leaders */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {topSports.length > 0 && (
+          <Card>
+            <CardContent className="pt-4 pb-3">
+              <div className="text-xs font-medium text-muted-foreground mb-3">Browse by Sport</div>
+              <div className="flex flex-wrap gap-2">
+                {topSports.map(([sport, count]) => (
+                  <Link key={sport} to={`/sports-rankings/${encodeURIComponent(sport)}`}>
+                    <Badge variant="secondary" className="cursor-pointer hover:bg-primary/10 transition-colors">
+                      {sport} <span className="ml-1 text-muted-foreground">({count})</span>
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {topStates.length > 0 && (
+          <Card>
+            <CardContent className="pt-4 pb-3">
+              <div className="text-xs font-medium text-muted-foreground mb-3">Top States for Athletics</div>
+              <div className="flex flex-wrap gap-2">
+                {topStates.map(([state, count]) => (
+                  <Badge key={state} variant="outline" className="text-xs">
+                    {state} <span className="ml-1 font-bold text-primary">{count} A-rated</span>
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

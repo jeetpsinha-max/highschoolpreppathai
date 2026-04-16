@@ -21,6 +21,8 @@ import {
   Wrench,
   BedDouble,
   Star,
+  DollarSign,
+  Percent,
 } from "lucide-react";
 
 // Get campus image - prefer DB image_url, fallback to curated Unsplash
@@ -154,11 +156,6 @@ export function SchoolCard({ school }: SchoolCardProps) {
               {school.type}
             </Badge>
           )}
-          {school.admission_type && (
-            <Badge variant="outline" className="text-[10px]">
-              {school.admission_type}
-            </Badge>
-          )}
           {school.notes?.includes("girls") && (
             <Badge variant="girls-only" className="text-[10px]">Girls</Badge>
           )}
@@ -176,6 +173,28 @@ export function SchoolCard({ school }: SchoolCardProps) {
           )}
           {school.notes?.includes("STEM") && (
             <Badge variant="secondary" className="text-[10px]">STEM</Badge>
+          )}
+        </div>
+
+        {/* Quick Stats Row */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          {school.tuition != null && (
+            <span className="flex items-center gap-1">
+              <DollarSign className="h-3 w-3" />
+              {school.tuition === 0 ? "Free" : `${(school.tuition / 1000).toFixed(0)}k/yr`}
+            </span>
+          )}
+          {school.acceptance_rate != null && (
+            <span className="flex items-center gap-1">
+              <Percent className="h-3 w-3" />
+              {Math.round(school.acceptance_rate)}% accept
+            </span>
+          )}
+          {school.enrollment != null && (
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              {school.enrollment.toLocaleString()}
+            </span>
           )}
         </div>
 
