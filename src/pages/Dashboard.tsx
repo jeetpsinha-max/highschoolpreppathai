@@ -360,6 +360,11 @@ const Dashboard = () => {
           </Card>
         </div>
 
+        {/* Recommended Schools */}
+        <div className="mb-8">
+          <RecommendedSchools />
+        </div>
+
         <Tabs defaultValue="essays" className="space-y-6">
           <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="essays">Essays</TabsTrigger>
