@@ -44,6 +44,10 @@ export interface School {
   facilities_grade: string | null;
   faculty_grade: string | null;
   image_url: string | null;
+  tuition: number | null;
+  acceptance_rate: number | null;
+  enrollment: number | null;
+  founded_year: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -73,6 +77,9 @@ export interface SchoolFilters {
   minSportsGrade: string;
   minCampusGrade: string;
   minDormsGrade: string;
+  maxTuition: number | null;
+  minAcceptanceRate: number | null;
+  maxAcceptanceRate: number | null;
   sortBy: SortOption;
   sortDesc: boolean;
 }
@@ -88,6 +95,9 @@ export const defaultFilters: SchoolFilters = {
   minSportsGrade: '',
   minCampusGrade: '',
   minDormsGrade: '',
+  maxTuition: null,
+  minAcceptanceRate: null,
+  maxAcceptanceRate: null,
   sortBy: 'name',
   sortDesc: false,
 };
