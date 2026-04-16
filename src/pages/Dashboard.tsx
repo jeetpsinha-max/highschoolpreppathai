@@ -26,6 +26,7 @@ import { Footer } from "@/components/layout/Footer";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { RecommendedSchools } from "@/components/RecommendedSchools";
 
 interface ChatMessage {
   role: "user" | "assistant";
