@@ -258,8 +258,16 @@ const Dashboard = () => {
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Your Dashboard</h1>
-          <p className="text-muted-foreground">Track your application progress and preparation</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {preferences?.grade_level
+              ? `Welcome back, ${preferences.grade_level} Grader! 👋`
+              : 'Your Dashboard'}
+          </h1>
+          <p className="text-muted-foreground">
+            {preferences?.application_year
+              ? `Preparing for your ${preferences.application_year} application journey`
+              : 'Track your application progress and preparation'}
+          </p>
         </div>
 
         {/* Deadline Alerts */}
