@@ -51,16 +51,16 @@ export default function Schools() {
   const suggestedStates = preferences?.target_states || [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 md:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
+        <div className="mb-4 md:mb-8">
+          <h1 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1 md:mb-2">
             Find Your Perfect School
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Browse and filter {schools?.length ? `${schools.length.toLocaleString()} schools` : 'our database of top high schools'}
           </p>
         </div>
@@ -123,12 +123,12 @@ export default function Schools() {
             </div>
           )}
 
-          {/* Filter Bar */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Filter Bar - scrollable on mobile */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap scrollbar-hide">
             {/* Grade Filters */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
               <Filter className="h-4 w-4" />
-              <span>Min:</span>
+              <span className="hidden sm:inline">Min:</span>
             </div>
 
             <Select
@@ -383,7 +383,7 @@ export default function Schools() {
             <p className="text-muted-foreground">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {schools?.map((school) => (
               <SchoolCard key={school.id} school={school} />
             ))}

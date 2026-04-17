@@ -287,14 +287,14 @@ export default function SportsRankings() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-20 md:pb-0">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Trophy className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Sports Rankings</h1>
-            <p className="text-muted-foreground">
+      <main className="flex-grow container mx-auto px-3 sm:px-4 py-4 md:py-8">
+        <div className="flex items-center gap-3 mb-4 md:mb-6">
+          <Trophy className="h-7 w-7 md:h-8 md:w-8 text-primary shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-3xl font-bold truncate">Sports Rankings</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               {data ? `${filteredOverall.length.toLocaleString()} schools ranked` : 'Loading...'}
             </p>
           </div>
