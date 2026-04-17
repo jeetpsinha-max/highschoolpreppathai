@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { getGradeColor, getOverallGradeColor, calculateOverallGrade } from "@/lib/grading";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { scoreSchoolForUser } from "@/lib/personalization";
 import type { School } from "@/types/school";
 import {
   MapPin,
@@ -73,6 +75,8 @@ interface SchoolCardProps {
 export function SchoolCard({ school }: SchoolCardProps) {
   const overallGrade = calculateOverallGrade(school);
   const imageUrl = getCampusImageUrl(school);
+  const { preferences } = useUserPreferences();
+  const match = scoreSchoolForUser(school, preferences);
 
   // Filter to only show grades that exist
   const visibleGrades = gradeCategories.filter(
