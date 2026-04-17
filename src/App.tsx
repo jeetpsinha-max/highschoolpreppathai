@@ -34,6 +34,7 @@ import SportsRankings from "./pages/SportsRankings";
 import SportDetail from "./pages/SportDetail";
 import ImportSchools from "./pages/ImportSchools";
 import NotFound from "./pages/NotFound";
+import { MobileBottomNav } from "./components/layout/MobileBottomNav";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/admin/import-schools" element={<ProtectedRoute><ImportSchools /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <MobileBottomNav />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

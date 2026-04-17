@@ -134,21 +134,28 @@ export default function AITools() {
   const { preferences } = useUserPreferences();
   const recommended = getRecommendedToolIds(preferences);
 
+  // Sort tools so recommended ones appear first within each category (subtle)
+  const sortByRecommendation = (a: ToolDef, b: ToolDef) => {
+    const aRec = recommended.includes(a.id) ? 1 : 0;
+    const bRec = recommended.includes(b.id) ? 1 : 0;
+    return bRec - aRec;
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Navbar />
 
       {/* Hero */}
       <div className="border-b bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4 py-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+        <div className="container mx-auto px-4 py-8 md:py-12 text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 md:px-4 rounded-full text-xs md:text-sm font-medium mb-3 md:mb-4">
             <Sparkles className="h-4 w-4" />
             {preferences?.grade_level ? `Tools for ${preferences.grade_level} Graders` : '10 AI-Powered Tools'}
           </div>
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+          <h1 className="font-display text-2xl md:text-4xl font-bold text-foreground mb-2 md:mb-3">
             Your AI Admissions Toolkit
           </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-muted-foreground max-w-xl mx-auto text-sm md:text-base">
             {preferences?.onboarding_completed
               ? `Personalized for your ${preferences.application_year || ''} application journey.`
               : 'From finding the right school to submitting polished applications — AI guidance at every step.'}
@@ -156,18 +163,18 @@ export default function AITools() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-4 py-6 md:py-10">
         {categories.map((category) => {
-          const categoryTools = tools.filter((t) => t.category === category);
+          const categoryTools = tools.filter((t) => t.category === category).sort(sortByRecommendation);
           const CatIcon = categoryIcons[category];
           return (
-            <div key={category} className="mb-10">
-              <div className="flex items-center gap-2 mb-5">
+            <div key={category} className="mb-8 md:mb-10">
+              <div className="flex items-center gap-2 mb-4 md:mb-5">
                 <CatIcon className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-xl font-semibold text-foreground">{category}</h2>
+                <h2 className="font-display text-lg md:text-xl font-semibold text-foreground">{category}</h2>
                 <Badge variant="secondary" className="ml-1 text-xs">{categoryTools.length}</Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                 {categoryTools.map((tool) => (
                   <Link key={tool.id} to={`/ai-tools/${tool.id}`} className="group">
                     <Card className="h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-border/50 hover:border-primary/30">

@@ -181,4 +181,13 @@
   .animate-ticker:hover {
     animation-play-state: paused;
   }
+
+  /* Hide scrollbar but keep scrolling functional (for mobile filter bars) */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

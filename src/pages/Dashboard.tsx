@@ -252,18 +252,18 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background pb-20 md:pb-0">
       {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
       <Navbar />
       
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+      <main className="flex-grow container mx-auto px-3 sm:px-4 py-4 md:py-8">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
             {preferences?.grade_level
               ? `Welcome back, ${preferences.grade_level} Grader! 👋`
               : 'Your Dashboard'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             {preferences?.application_year
               ? `Preparing for your ${preferences.application_year} application journey`
               : 'Track your application progress and preparation'}
@@ -374,15 +374,17 @@ const Dashboard = () => {
         </div>
 
         <Tabs defaultValue="essays" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="essays">Essays</TabsTrigger>
-            <TabsTrigger value="checklist">Checklist</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="schools">Schools</TabsTrigger>
-            <TabsTrigger value="matcher">Matcher</TabsTrigger>
-            <TabsTrigger value="interview">Interview</TabsTrigger>
-            <TabsTrigger value="ssat">SSAT</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+            <TabsList className="inline-flex md:grid w-max md:w-full md:grid-cols-7 min-w-full md:min-w-0">
+              <TabsTrigger value="essays">Essays</TabsTrigger>
+              <TabsTrigger value="checklist">Checklist</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="schools">Schools</TabsTrigger>
+              <TabsTrigger value="matcher">Matcher</TabsTrigger>
+              <TabsTrigger value="interview">Interview</TabsTrigger>
+              <TabsTrigger value="ssat">SSAT</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Essays Tab */}
           <TabsContent value="essays">

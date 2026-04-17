@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { getGradeColor, getOverallGradeColor, calculateOverallGrade } from "@/lib/grading";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { scoreSchoolForUser } from "@/lib/personalization";
 import type { School } from "@/types/school";
 import {
   MapPin,
@@ -73,6 +75,8 @@ interface SchoolCardProps {
 export function SchoolCard({ school }: SchoolCardProps) {
   const overallGrade = calculateOverallGrade(school);
   const imageUrl = getCampusImageUrl(school);
+  const { preferences } = useUserPreferences();
+  const match = scoreSchoolForUser(school, preferences);
 
   // Filter to only show grades that exist
   const visibleGrades = gradeCategories.filter(
@@ -116,6 +120,26 @@ export function SchoolCard({ school }: SchoolCardProps) {
         <div className="absolute top-3 left-3">
           <SaveSchoolButton schoolId={school.id} />
         </div>
+
+        {/* For You badge - centered top */}
+        {match.isMatch && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-secondary/95 text-secondary-foreground text-[10px] font-semibold px-2 py-1 rounded-full shadow-md backdrop-blur-sm cursor-default">
+                <Star className="h-3 w-3 fill-current" />
+                For You
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p className="font-medium mb-1">Why this matches you:</p>
+              <ul className="text-xs space-y-0.5">
+                {match.reasons.slice(0, 3).map((r) => (
+                  <li key={r}>• {r}</li>
+                ))}
+              </ul>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
         {/* School Name & Location - bottom of image */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
