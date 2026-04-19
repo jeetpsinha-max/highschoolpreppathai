@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, Target, Sparkles, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { GraduationCap, Target, Sparkles, ChevronRight, ChevronLeft, Check, MapPin, Compass } from "lucide-react";
 
-const STEPS = ["About You", "Interests", "Goals"];
+const STEPS = ["About You", "Location & Budget", "Interests", "Goals", "Aspirations"];
 
 const INTEREST_OPTIONS = [
   "Academics", "Athletics", "Arts", "STEM", "Music", "Theater",
@@ -33,6 +33,22 @@ const STRENGTH_OPTIONS = [
   "Computer Science", "Visual Arts", "Performing Arts", "Physical Education",
 ];
 
+const STATES = [
+  "CA", "NY", "MA", "CT", "NJ", "PA", "VA", "MD", "DC", "TX", "FL", "IL",
+  "OH", "MI", "GA", "NC", "WA", "CO", "NH", "RI", "VT", "ME", "TN", "MN",
+];
+
+const COLLEGE_GOAL_OPTIONS = [
+  "Ivy League", "Top 20 University", "Liberal Arts College",
+  "STEM-focused (MIT, Caltech)", "State Flagship", "Service Academy",
+  "Arts Conservatory", "Open / Exploring",
+];
+
+const LEARNING_STYLE_OPTIONS = [
+  "Hands-on / Project-based", "Discussion-driven", "Lecture & Notes",
+  "Independent Study", "Collaborative / Team", "Research-focused",
+];
+
 interface OnboardingWizardProps {
   onComplete: () => void;
 }
@@ -42,10 +58,14 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [gradeLevel, setGradeLevel] = useState("");
   const [applicationYear, setApplicationYear] = useState("");
   const [boardingPref, setBoardingPref] = useState("no_preference");
+  const [budgetRange, setBudgetRange] = useState("");
+  const [targetStates, setTargetStates] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
   const [extracurriculars, setExtracurriculars] = useState<string[]>([]);
   const [priorities, setPriorities] = useState<string[]>([]);
   const [strengths, setStrengths] = useState<string[]>([]);
+  const [collegeGoals, setCollegeGoals] = useState<string[]>([]);
+  const [learningStyles, setLearningStyles] = useState<string[]>([]);
   const [testPrep, setTestPrep] = useState("");
   const { savePreferences, isSaving } = useUserPreferences();
   const { toast } = useToast();
@@ -56,42 +76,53 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
   const handleFinish = async () => {
     try {
+      // Merge college goals + learning styles into priorities/notes via priorities array
+      // (DB schema: store extra signals inside existing arrays)
+      const enrichedPriorities = [
+        ...priorities,
+        ...collegeGoals.map(g => `Goal: ${g}`),
+        ...learningStyles.map(s => `Style: ${s}`),
+      ];
+
       await savePreferences({
         grade_level: gradeLevel || null,
         application_year: applicationYear || null,
         boarding_preference: boardingPref,
+        budget_range: budgetRange || null,
+        target_states: targetStates,
         interests,
         extracurriculars,
-        priorities,
+        priorities: enrichedPriorities,
         academic_strengths: strengths,
         test_prep_status: testPrep || null,
         onboarding_completed: true,
       });
-      toast({ title: "Profile saved!", description: "Your experience is now personalized." });
+      toast({ title: "You're all set!", description: "Your experience is now personalized." });
       onComplete();
     } catch {
       toast({ title: "Error", description: "Failed to save preferences.", variant: "destructive" });
     }
   };
 
+  const stepIcon = [GraduationCap, MapPin, Sparkles, Target, Compass][step];
+  const StepIcon = stepIcon;
+
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-2xl border-primary/20">
-        <CardHeader className="text-center pb-2">
+    <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg shadow-2xl border-primary/20 max-h-[90vh] overflow-hidden flex flex-col">
+        <CardHeader className="text-center pb-2 shrink-0">
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            {step === 0 && <GraduationCap className="h-6 w-6 text-primary" />}
-            {step === 1 && <Sparkles className="h-6 w-6 text-primary" />}
-            {step === 2 && <Target className="h-6 w-6 text-primary" />}
+            <StepIcon className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-xl">{STEPS[step]}</CardTitle>
           <CardDescription>Step {step + 1} of {STEPS.length}</CardDescription>
           <div className="flex gap-1 justify-center mt-2">
             {STEPS.map((_, i) => (
-              <div key={i} className={`h-1.5 w-8 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-muted'}`} />
+              <div key={i} className={`h-1.5 w-6 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-muted'}`} />
             ))}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 overflow-y-auto flex-1">
           {step === 0 && (
             <>
               <div>
@@ -117,17 +148,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Boarding Preference</label>
-                <Select value={boardingPref} onValueChange={setBoardingPref}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="no_preference">No Preference</SelectItem>
-                    <SelectItem value="boarding">Prefer Boarding</SelectItem>
-                    <SelectItem value="day">Prefer Day School</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
                 <label className="text-sm font-medium mb-1.5 block">Test Prep Status</label>
                 <Select value={testPrep} onValueChange={setTestPrep}>
                   <SelectTrigger><SelectValue placeholder="SSAT/ISEE status" /></SelectTrigger>
@@ -145,7 +165,54 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           {step === 1 && (
             <>
               <div>
-                <label className="text-sm font-medium mb-2 block">What interests you? (select all)</label>
+                <label className="text-sm font-medium mb-1.5 block">Boarding Preference</label>
+                <Select value={boardingPref} onValueChange={setBoardingPref}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no_preference">No Preference</SelectItem>
+                    <SelectItem value="boarding_only">Boarding only</SelectItem>
+                    <SelectItem value="day_only">Day only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Tuition Budget</label>
+                <Select value={budgetRange} onValueChange={setBudgetRange}>
+                  <SelectTrigger><SelectValue placeholder="What can you afford?" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="under_20k">Under $20k</SelectItem>
+                    <SelectItem value="20k_40k">$20k – $40k</SelectItem>
+                    <SelectItem value="40k_60k">$40k – $60k</SelectItem>
+                    <SelectItem value="60k_plus">$60k+</SelectItem>
+                    <SelectItem value="financial_aid">Need financial aid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Target States (pick any)</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {STATES.map(s => (
+                    <Badge
+                      key={s}
+                      variant={targetStates.includes(s) ? "default" : "outline"}
+                      className="cursor-pointer transition-colors"
+                      onClick={() => toggleItem(targetStates, setTargetStates, s)}
+                    >
+                      {s}
+                    </Badge>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Leave empty if you're open to anywhere.
+                </p>
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <div>
+                <label className="text-sm font-medium mb-2 block">What interests you?</label>
                 <div className="flex flex-wrap gap-1.5">
                   {INTEREST_OPTIONS.map(item => (
                     <Badge
@@ -160,7 +227,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Extracurriculars</label>
+                <label className="text-sm font-medium mb-2 block">Extracurriculars you do (or want to)</label>
                 <div className="flex flex-wrap gap-1.5">
                   {EXTRACURRICULAR_OPTIONS.map(item => (
                     <Badge
@@ -192,9 +259,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div>
-              <label className="text-sm font-medium mb-2 block">What matters most to you? (pick top 5)</label>
+              <label className="text-sm font-medium mb-2 block">What matters most? (pick top 5)</label>
               <div className="flex flex-wrap gap-1.5">
                 {PRIORITY_OPTIONS.map(item => (
                   <Badge
@@ -217,7 +284,43 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          <div className="flex justify-between pt-2">
+          {step === 4 && (
+            <>
+              <div>
+                <label className="text-sm font-medium mb-2 block">College aspirations</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {COLLEGE_GOAL_OPTIONS.map(item => (
+                    <Badge
+                      key={item}
+                      variant={collegeGoals.includes(item) ? "default" : "outline"}
+                      className="cursor-pointer transition-colors"
+                      onClick={() => toggleItem(collegeGoals, setCollegeGoals, item)}
+                    >
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">How do you learn best?</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {LEARNING_STYLE_OPTIONS.map(item => (
+                    <Badge
+                      key={item}
+                      variant={learningStyles.includes(item) ? "default" : "outline"}
+                      className="cursor-pointer transition-colors"
+                      onClick={() => toggleItem(learningStyles, setLearningStyles, item)}
+                    >
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+        <div className="border-t p-4 shrink-0 bg-card">
+          <div className="flex justify-between gap-2">
             <Button variant="ghost" onClick={() => setStep(s => s - 1)} disabled={step === 0}>
               <ChevronLeft className="h-4 w-4 mr-1" /> Back
             </Button>
@@ -231,10 +334,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               </Button>
             )}
           </div>
-          <button onClick={onComplete} className="w-full text-xs text-muted-foreground hover:underline mt-1">
+          <button onClick={onComplete} className="w-full text-xs text-muted-foreground hover:underline mt-2">
             Skip for now
           </button>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
