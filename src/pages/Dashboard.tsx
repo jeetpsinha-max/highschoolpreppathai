@@ -113,12 +113,8 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  // Show onboarding for new users
-  useEffect(() => {
-    if (user && !prefsLoading && !preferences?.onboarding_completed) {
-      setShowOnboarding(true);
-    }
-  }, [user, prefsLoading, preferences]);
+  // Onboarding is triggered globally via <GlobalOnboarding /> in App.tsx
+
 
   const fetchDashboardData = async () => {
     setLoading(true);

@@ -36,6 +36,7 @@ import ImportSchools from "./pages/ImportSchools";
 import NotFound from "./pages/NotFound";
 import { MobileBottomNav } from "./components/layout/MobileBottomNav";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import { GlobalOnboarding } from "./components/GlobalOnboarding";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
           </Routes>
           <MobileBottomNav />
           <PWAInstallPrompt />
+          <GlobalOnboarding />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
