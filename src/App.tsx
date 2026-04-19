@@ -35,6 +35,7 @@ import SportDetail from "./pages/SportDetail";
 import ImportSchools from "./pages/ImportSchools";
 import NotFound from "./pages/NotFound";
 import { MobileBottomNav } from "./components/layout/MobileBottomNav";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <MobileBottomNav />
+          <PWAInstallPrompt />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
