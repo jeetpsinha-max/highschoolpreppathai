@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,23 +7,30 @@ import { useSchools } from "@/hooks/useSchools";
 import { SchoolFilters, defaultFilters, sortOptions, SortOption, usStates, competitivenessLevels, schoolTypes, schoolSizes } from "@/types/school";
 import { GRADE_OPTIONS } from "@/lib/grading";
 import { SchoolCard } from "@/components/SchoolCard";
+import { SchoolCardSkeleton } from "@/components/SchoolCardSkeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { scoreSchoolForUser } from "@/lib/personalization";
 import {
   Search, GraduationCap, Loader2, Filter, X, BookOpen, Trophy,
   Building2, BedDouble, ArrowUpDown, ArrowUp, ArrowDown,
   DollarSign, Users, ChevronDown, MapPin, Sparkles
 } from "lucide-react";
 
+const PAGE_SIZE = 24;
+
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [personalizedFirst, setPersonalizedFirst] = useState(true);
   const { data: schools, isLoading } = useSchools(filters);
   const { preferences } = useUserPreferences();
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (search: string) => {
     setFilters({ ...filters, search });
