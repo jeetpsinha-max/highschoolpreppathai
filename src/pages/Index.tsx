@@ -100,6 +100,23 @@ export default function Index() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       </section>
 
+      {/* Soft nudge for signed-in users who haven't completed onboarding */}
+      {user && !isOnboarded && (
+        <section className="bg-secondary/5 border-b border-secondary/20">
+          <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Sparkles className="h-4 w-4 text-secondary shrink-0" />
+              <span>Finish your profile to unlock personalized school matches.</span>
+            </div>
+            <Link to="/dashboard">
+              <Button variant="secondary" size="sm" className="gap-1">
+                Complete profile <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* Personalized recommendations for signed-in onboarded users */}
       {user && isOnboarded && (
         <section className="bg-background py-8 md:py-10 border-b">
