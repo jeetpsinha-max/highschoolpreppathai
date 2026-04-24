@@ -62,7 +62,8 @@ export function Navbar() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary shadow-md group-hover:shadow-lg transition-shadow">
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-bold text-foreground">Highschool PrepPath AI<span className="text-secondary">Path</span>
+            <span className="font-display text-xl font-bold text-foreground">
+              PrepPath<span className="text-secondary">AI</span>
             </span>
           </Link>
 
