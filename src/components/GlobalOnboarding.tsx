@@ -4,7 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 
-const SKIP_PATHS = ["/auth", "/~oauth"];
+// Don't auto-open onboarding on the marketing home page or auth routes —
+// users need to be able to browse before being asked to fill out 5 steps.
+const SKIP_PATHS = ["/auth", "/~oauth", "/about", "/contact", "/pilot", "/beta-for-schools"];
+const SKIP_EXACT = ["/"];
 const SESSION_DISMISS_KEY = "onboarding-dismissed-session";
 
 /**
