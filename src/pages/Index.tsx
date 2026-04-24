@@ -79,10 +79,10 @@ export default function Index() {
                 </>
               ) : (
                 <>
-                  <Link to="/ai-tools/school-matcher">
+                  <Link to="/auth?mode=signup">
                     <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto">
-                      <Target className="h-5 w-5" />
-                      Try School Matcher
+                      <GraduationCap className="h-5 w-5" />
+                      Get Started Free
                     </Button>
                   </Link>
                   <Link to="/schools">
