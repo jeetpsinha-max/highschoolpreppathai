@@ -411,23 +411,57 @@ export default function Schools() {
           </div>
         )}
 
+        {/* Personalization toggle */}
+        {preferences?.onboarding_completed && schools && schools.length > 0 && (
+          <div className="flex items-center justify-between mb-4 px-1">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-medium text-foreground">{Math.min(visibleCount, orderedSchools.length)}</span>
+              {' '}of {orderedSchools.length.toLocaleString()}
+            </p>
+            <Button
+              variant={personalizedFirst ? "secondary" : "outline"}
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setPersonalizedFirst((v) => !v)}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {personalizedFirst ? "Personalized" : "Default order"}
+            </Button>
+          </div>
+        )}
+
         {/* Results */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-secondary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SchoolCardSkeleton key={i} />
+            ))}
           </div>
-        ) : schools?.length === 0 ? (
+        ) : orderedSchools.length === 0 ? (
           <div className="text-center py-20">
             <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="font-display text-xl font-semibold mb-2">No schools found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
+            {activeFilterCount > 0 && (
+              <Button variant="outline" onClick={clearAllFilters}>
+                <X className="h-4 w-4 mr-1" /> Clear all filters
+              </Button>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {schools?.map((school) => (
-              <SchoolCard key={school.id} school={school} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {orderedSchools.slice(0, visibleCount).map((school) => (
+                <SchoolCard key={school.id} school={school} />
+              ))}
+            </div>
+            {/* Sentinel for infinite scroll */}
+            {visibleCount < orderedSchools.length && (
+              <div ref={sentinelRef} className="flex items-center justify-center py-10">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            )}
+          </>
         )}
       </div>
 
