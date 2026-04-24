@@ -27,6 +27,7 @@ export function GlobalOnboarding() {
       return;
     }
     if (SKIP_PATHS.some(p => location.pathname.startsWith(p))) return;
+    if (SKIP_EXACT.includes(location.pathname)) return;
     if (preferences?.onboarding_completed) return;
     if (sessionStorage.getItem(SESSION_DISMISS_KEY)) return;
 

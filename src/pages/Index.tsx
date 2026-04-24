@@ -14,12 +14,12 @@ import {
 } from "lucide-react";
 
 const features = [
-  { icon: Search, title: "School Finder", description: "Search and filter 350+ top schools", link: "/schools" },
+  { icon: Search, title: "School Finder", description: "Search and filter 1,750+ schools nationwide", link: "/schools" },
+  { icon: Trophy, title: "Sports Rankings", description: "Compare athletic programs by sport & state", link: "/sports-rankings" },
   { icon: Target, title: "AI Matcher", description: "Get personalized school recommendations", link: "/ai-tools/school-matcher" },
   { icon: MessageSquare, title: "Interview Coach", description: "Practice with AI-powered feedback", link: "/ai-tools/interview" },
   { icon: FileText, title: "Application Assistant", description: "Essays, resumes, and more", link: "/ai-tools/assistant" },
   { icon: Brain, title: "SSAT Practice", description: "AI-generated practice tests", link: "/ai-tools/ssat" },
-  { icon: Sparkles, title: "Improve Your Chances", description: "Strategic admission insights", link: "/ai-tools/improve" },
 ];
 
 export default function Index() {
@@ -156,10 +156,10 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
             {[
-              { value: "350+", label: "Schools" },
+              { value: "1,750+", label: "Schools" },
               { value: "50", label: "States Covered" },
+              { value: "275+", label: "Boarding Schools" },
               { value: "10", label: "AI Tools" },
-              { value: "100%", label: "Free to Start" },
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="font-display text-2xl md:text-4xl font-bold text-secondary mb-1 md:mb-2">{stat.value}</div>
