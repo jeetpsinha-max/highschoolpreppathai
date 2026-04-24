@@ -51,7 +51,7 @@ export function MobileBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0)" }}
       aria-label="Bottom navigation"
     >
-      <div className="grid grid-cols-5">
+      <div className={cn("grid", user ? "grid-cols-5" : "grid-cols-4")}>
         {navItems.map((item) => (
           <NavLink
             key={item.href}
