@@ -45,9 +45,12 @@ export function useUserRole() {
           setLinkedStudentId(parentRole.linked_student_id);
         }
       } else {
-        // Create default role based on user metadata
-        const metaRole = user.user_metadata?.role || 'student';
-        await createUserRole(metaRole as AppRole);
+        // SECURITY: Never trust user_metadata.role for initial assignment.
+        // Only allow 'student' or 'parent'; default to 'student'. Admin must be granted server-side.
+        const metaRole = user.user_metadata?.role;
+        const safeRole: AppRole =
+          metaRole === 'parent' ? 'parent' : 'student';
+        await createUserRole(safeRole);
       }
     } catch (error) {
       console.error('Error fetching user roles:', error);
@@ -84,27 +87,18 @@ export function useUserRole() {
     if (!user) return { error: new Error('Not authenticated') };
 
     try {
-      // Find student by email in profiles
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('email', studentEmail)
-        .maybeSingle();
+      // SECURITY: linked_student_id can no longer be self-assigned via direct UPDATE.
+      // Use the SECURITY DEFINER RPC which verifies the caller is a parent.
+      const { data: studentId, error } = await supabase.rpc(
+        'link_parent_to_student' as any,
+        { _student_email: studentEmail }
+      );
 
-      if (profileError) throw profileError;
-      if (!profileData) return { error: new Error('Student not found with that email') };
+      if (error) throw error;
+      if (!studentId) return { error: new Error('Student not found with that email') };
 
-      // Update parent's role with linked student
-      const { error: updateError } = await supabase
-        .from('user_roles')
-        .update({ linked_student_id: profileData.user_id })
-        .eq('user_id', user.id)
-        .eq('role', 'parent');
-
-      if (updateError) throw updateError;
-
-      setLinkedStudentId(profileData.user_id);
-      return { error: null, studentId: profileData.user_id };
+      setLinkedStudentId(studentId as string);
+      return { error: null, studentId: studentId as string };
     } catch (error) {
       console.error('Error linking student:', error);
       return { error };
