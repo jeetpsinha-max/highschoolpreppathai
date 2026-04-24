@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -113,7 +113,20 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  // Onboarding is triggered globally via <GlobalOnboarding /> in App.tsx
+  // Auto-open the onboarding wizard when arriving from the home-page CTA
+  // (e.g. /dashboard?onboarding=1). Cleans the query param afterwards.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("onboarding") === "1") {
+      setShowOnboarding(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("onboarding");
+      next.delete("step");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Onboarding is also triggered globally via <GlobalOnboarding /> in App.tsx
 
 
   const fetchDashboardData = async () => {
