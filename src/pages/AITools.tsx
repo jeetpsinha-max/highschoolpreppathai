@@ -120,13 +120,18 @@ const categoryIcons: Record<string, React.ElementType> = {
 };
 
 function getRecommendedToolIds(prefs: any): string[] {
-  if (!prefs) return [];
+  if (!prefs?.onboarding_completed) return [];
   const recs: string[] = [];
   if (prefs.test_prep_status === "not_started" || prefs.test_prep_status === "studying") recs.push("ssat");
   if (prefs.priorities?.includes("Financial aid")) recs.push("financial-aid");
-  if (prefs.interests?.includes("Athletics")) recs.push("sports-rankings");
+  if (prefs.priorities?.includes("College placement")) recs.push("improve");
   if (!prefs.application_year) recs.push("school-matcher");
-  recs.push("timeline-planner", "improve-chances");
+  // Always-useful for onboarded users
+  recs.push("timeline", "improve");
+  // Grade-specific nudges
+  if (prefs.grade_level === "8th" || prefs.grade_level === "9th") recs.push("school-matcher", "ssat");
+  if (prefs.grade_level === "10th" || prefs.grade_level === "11th") recs.push("interview", "assistant");
+  if (prefs.grade_level === "12th") recs.push("assistant", "financial-aid");
   return [...new Set(recs)];
 }
 

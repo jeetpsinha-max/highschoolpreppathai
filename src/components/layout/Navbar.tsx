@@ -79,7 +79,7 @@ export function Navbar() {
             {user ? <>
                 {isAdmin && (
                   <Link to="/admin/status">
-                    <Button variant="ghost" size="sm" className="gap-2 text-amber-600 hover:text-amber-700">
+                    <Button variant="ghost" size="sm" className="gap-2 text-secondary hover:text-secondary/80">
                       <Shield className="h-4 w-4" />
                       Admin
                     </Button>
@@ -121,7 +121,7 @@ export function Navbar() {
                 {user ? <>
                     {isAdmin && (
                       <Link to="/admin/status" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="outline" className="w-full gap-2 text-amber-600 border-amber-300">
+                        <Button variant="outline" className="w-full gap-2 text-secondary border-secondary/30">
                           <Shield className="h-4 w-4" />
                           Admin Status
                         </Button>

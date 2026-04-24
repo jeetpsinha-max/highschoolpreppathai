@@ -27,21 +27,41 @@ import {
   Percent,
 } from "lucide-react";
 
-// Get campus image - prefer DB image_url, fallback to curated Unsplash
+// Get campus image - prefer DB image_url, fallback to a pretty SVG initials card
+function getInitials(name: string): string {
+  const words = name.replace(/\b(The|of|and|at)\b/gi, "").trim().split(/\s+/);
+  return words.slice(0, 3).map((w) => w[0]?.toUpperCase() ?? "").join("") || "?";
+}
+
+function getInitialsPlaceholder(school: School): string {
+  // Two brand-flavoured palettes, picked deterministically per school
+  const palettes = [
+    { from: "hsl(213, 56%, 23%)", to: "hsl(173, 54%, 39%)" }, // primary → teal
+    { from: "hsl(173, 54%, 35%)", to: "hsl(213, 56%, 30%)" }, // teal → primary
+    { from: "hsl(213, 56%, 18%)", to: "hsl(173, 54%, 45%)" },
+    { from: "hsl(213, 45%, 30%)", to: "hsl(173, 60%, 35%)" },
+  ];
+  const seed = school.name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const p = palettes[seed % palettes.length];
+  const initials = getInitials(school.name);
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 300'>
+    <defs>
+      <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+        <stop offset='0' stop-color='${p.from}'/>
+        <stop offset='1' stop-color='${p.to}'/>
+      </linearGradient>
+    </defs>
+    <rect width='600' height='300' fill='url(#g)'/>
+    <circle cx='100' cy='240' r='120' fill='rgba(255,255,255,0.06)'/>
+    <circle cx='520' cy='80' r='80' fill='rgba(255,255,255,0.08)'/>
+    <text x='50%' y='50%' font-family='Poppins, system-ui, sans-serif' font-size='110' font-weight='700' fill='rgba(255,255,255,0.95)' text-anchor='middle' dominant-baseline='central' letter-spacing='4'>${initials}</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 function getCampusImageUrl(school: School & { image_url?: string | null }): string {
   if (school.image_url) return school.image_url;
-  // Fallback: deterministic Unsplash image based on school name hash
-  const seed = school.name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const ids = [
-    "1562774053-44a2aca2fb49", "1541339907198-e08756dedf3f", "1523050854058-8df90110c9f1",
-    "1580537659466-0a9bfa916a54", "1607237138185-eedd9c632b0b", "1592280771190-3e2e4d571952",
-    "1498243691581-b145c3f54a5a", "1519452635265-7b1fbfd1e4e0", "1564981797816-1043664bf78d",
-    "1571260899304-425eee4c7efc", "1559136555-9303baea8ebd", "1574958269340-fa927503f3dd",
-    "1509062522246-3755977927d7", "1562516710-724a0a39ff9a", "1544531586-fde5298cdd40",
-    "1497366216548-37526070297c", "1541829070764-84a7d30dd3f3", "1551836022-d5d88e9218df",
-    "1580582932707-520aed937b7b", "1576495199011-eb94736d05d4",
-  ];
-  return `https://images.unsplash.com/photo-${ids[seed % ids.length]}?auto=format&fit=crop&w=600&h=300&q=60`;
+  return getInitialsPlaceholder(school);
 }
 
 function getCompetitivenessColor(level: string | null) {

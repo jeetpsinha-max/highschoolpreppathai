@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,23 +7,30 @@ import { useSchools } from "@/hooks/useSchools";
 import { SchoolFilters, defaultFilters, sortOptions, SortOption, usStates, competitivenessLevels, schoolTypes, schoolSizes } from "@/types/school";
 import { GRADE_OPTIONS } from "@/lib/grading";
 import { SchoolCard } from "@/components/SchoolCard";
+import { SchoolCardSkeleton } from "@/components/SchoolCardSkeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { scoreSchoolForUser } from "@/lib/personalization";
 import {
   Search, GraduationCap, Loader2, Filter, X, BookOpen, Trophy,
   Building2, BedDouble, ArrowUpDown, ArrowUp, ArrowDown,
   DollarSign, Users, ChevronDown, MapPin, Sparkles
 } from "lucide-react";
 
+const PAGE_SIZE = 24;
+
 export default function Schools() {
   const [filters, setFilters] = useState<SchoolFilters>(defaultFilters);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [personalizedFirst, setPersonalizedFirst] = useState(true);
   const { data: schools, isLoading } = useSchools(filters);
   const { preferences } = useUserPreferences();
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (search: string) => {
     setFilters({ ...filters, search });
@@ -49,6 +56,39 @@ export default function Schools() {
 
   // Quick state suggestions based on user preferences
   const suggestedStates = preferences?.target_states || [];
+
+  // Personalized order: matched schools first, then everyone else by current sort
+  const orderedSchools = useMemo(() => {
+    if (!schools) return [] as typeof schools;
+    if (!personalizedFirst || !preferences?.onboarding_completed) return schools;
+    const scored = schools.map((s) => ({
+      s,
+      m: scoreSchoolForUser(s, preferences),
+    }));
+    scored.sort((a, b) => b.m.score - a.m.score);
+    return scored.map((x) => x.s);
+  }, [schools, preferences, personalizedFirst]);
+
+  // Reset visible count whenever filters/sort change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filters, personalizedFirst]);
+
+  // Infinite scroll: load more when sentinel comes into view
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const el = sentinelRef.current;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((n) => n + PAGE_SIZE);
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [orderedSchools?.length]);
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -371,23 +411,57 @@ export default function Schools() {
           </div>
         )}
 
+        {/* Personalization toggle */}
+        {preferences?.onboarding_completed && schools && schools.length > 0 && (
+          <div className="flex items-center justify-between mb-4 px-1">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-medium text-foreground">{Math.min(visibleCount, orderedSchools.length)}</span>
+              {' '}of {orderedSchools.length.toLocaleString()}
+            </p>
+            <Button
+              variant={personalizedFirst ? "secondary" : "outline"}
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setPersonalizedFirst((v) => !v)}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {personalizedFirst ? "Personalized" : "Default order"}
+            </Button>
+          </div>
+        )}
+
         {/* Results */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-secondary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SchoolCardSkeleton key={i} />
+            ))}
           </div>
-        ) : schools?.length === 0 ? (
+        ) : orderedSchools.length === 0 ? (
           <div className="text-center py-20">
             <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="font-display text-xl font-semibold mb-2">No schools found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
+            {activeFilterCount > 0 && (
+              <Button variant="outline" onClick={clearAllFilters}>
+                <X className="h-4 w-4 mr-1" /> Clear all filters
+              </Button>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {schools?.map((school) => (
-              <SchoolCard key={school.id} school={school} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {orderedSchools.slice(0, visibleCount).map((school) => (
+                <SchoolCard key={school.id} school={school} />
+              ))}
+            </div>
+            {/* Sentinel for infinite scroll */}
+            {visibleCount < orderedSchools.length && (
+              <div ref={sentinelRef} className="flex items-center justify-center py-10">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            )}
+          </>
         )}
       </div>
 
