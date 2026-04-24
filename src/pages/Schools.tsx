@@ -57,6 +57,39 @@ export default function Schools() {
   // Quick state suggestions based on user preferences
   const suggestedStates = preferences?.target_states || [];
 
+  // Personalized order: matched schools first, then everyone else by current sort
+  const orderedSchools = useMemo(() => {
+    if (!schools) return [] as typeof schools;
+    if (!personalizedFirst || !preferences?.onboarding_completed) return schools;
+    const scored = schools.map((s) => ({
+      s,
+      m: scoreSchoolForUser(s, preferences),
+    }));
+    scored.sort((a, b) => b.m.score - a.m.score);
+    return scored.map((x) => x.s);
+  }, [schools, preferences, personalizedFirst]);
+
+  // Reset visible count whenever filters/sort change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filters, personalizedFirst]);
+
+  // Infinite scroll: load more when sentinel comes into view
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const el = sentinelRef.current;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((n) => n + PAGE_SIZE);
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [orderedSchools?.length]);
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Navbar />
