@@ -244,6 +244,8 @@ export default function ImportSchools() {
             <BulkStateImporter />
             <BulkSportsLoader />
           </div>
+
+          <BulkDataVerifier />
         </div>
       </main>
 
