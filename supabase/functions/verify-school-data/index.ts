@@ -153,7 +153,7 @@ async function extractWithAI(
     `- boarding: ${school.boarding ?? "unknown"}\n\n` +
     `For each field, provide the verified value, the source name, the source URL it came from, ` +
     `and a confidence 0-100. tuition = annual USD integer (boarding tuition if boarding). ` +
-    `acceptance_rate = decimal between 0 and 1 (e.g. 0.18 for 18%). enrollment = integer total students. ` +
+    `acceptance_rate = percentage number between 0 and 100 (e.g. 18 for 18%). enrollment = integer total students. ` +
     `founded_year = 4-digit year. Only include fields you can actually support from the sources.\n\n` +
     `=== SOURCES ===\n${context || "(no sources retrieved)"}`;
 
