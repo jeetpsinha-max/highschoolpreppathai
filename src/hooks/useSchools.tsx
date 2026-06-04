@@ -41,7 +41,7 @@ export function useSchools(filters?: SchoolFilters) {
       if (error) throw error;
       
       // Client-side filtering for grades using grading utilities
-      let schools = data as School[];
+      let schools = data as unknown as School[];
       
       if (filters?.minAcademicsGrade) {
         schools = schools.filter(s => meetsMinimumGrade(s.academics_grade, filters.minAcademicsGrade));
@@ -117,7 +117,7 @@ export function useSchool(id: string) {
         .maybeSingle();
 
       if (error) throw error;
-      return data as School | null;
+      return data as unknown as School | null;
     },
     enabled: !!id,
   });
@@ -135,7 +135,7 @@ export function useSchoolsByIds(ids: string[]) {
         .in("id", ids);
 
       if (error) throw error;
-      return data as School[];
+      return data as unknown as School[];
     },
     enabled: ids.length > 0,
   });

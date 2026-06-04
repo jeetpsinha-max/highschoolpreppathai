@@ -13,6 +13,7 @@ import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { EnhancedGradesPanel } from "@/components/EnhancedGradesPanel";
 import { SportsOverviewPanel } from "@/components/SportsOverviewPanel";
+import { VerifiedStatsGrid, DataVerificationBadge } from "@/components/DataProvenance";
 import { 
   MapPin, 
   ExternalLink, 
@@ -154,6 +155,7 @@ export default function SchoolProfile() {
                   {hasLDSupport && <Badge variant="outline">LD Support</Badge>}
                   {isSTEM && <Badge variant="outline">STEM Focus</Badge>}
                   {isArts && <Badge variant="outline">Arts Focus</Badge>}
+                  <DataVerificationBadge school={school} />
                 </div>
               </div>
               
@@ -210,6 +212,12 @@ export default function SchoolProfile() {
                       <div className="font-medium">{school.boarding ? "Yes, offers boarding" : "Day school only"}</div>
                     </div>
                   </div>
+
+                  <div className="mt-6 pt-6 border-t">
+                    <VerifiedStatsGrid school={school} />
+                  </div>
+                  
+
                   
                   {school.notes && (
                     <div className="mt-4 pt-4 border-t">
