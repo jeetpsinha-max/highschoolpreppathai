@@ -160,10 +160,10 @@ async function extractWithAI(
   const fieldSchema = {
     type: "object",
     properties: {
-      value: { type: ["string", "number", "boolean", "null"] },
-      source: { type: ["string", "null"] },
-      source_url: { type: ["string", "null"] },
-      confidence: { type: "number", minimum: 0, maximum: 100 },
+      value: { type: "string", description: "The verified value as a string, or empty string if not found." },
+      source: { type: "string", description: "Source name, e.g. Niche, US News, school website." },
+      source_url: { type: "string", description: "URL the value came from." },
+      confidence: { type: "number", description: "0-100 confidence based on source agreement." },
     },
     required: ["value", "confidence"],
   };
