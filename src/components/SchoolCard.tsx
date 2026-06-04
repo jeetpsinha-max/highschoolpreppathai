@@ -25,6 +25,7 @@ import {
   Star,
   DollarSign,
   Percent,
+  ShieldCheck,
 } from "lucide-react";
 
 // Get campus image - prefer DB image_url, fallback to a pretty SVG initials card
