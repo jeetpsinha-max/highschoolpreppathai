@@ -13,6 +13,7 @@ import { SaveSchoolButton } from "@/components/SaveSchoolButton";
 import { AskAdmissionsChat } from "@/components/AskAdmissionsChat";
 import { EnhancedGradesPanel } from "@/components/EnhancedGradesPanel";
 import { SportsOverviewPanel } from "@/components/SportsOverviewPanel";
+import { VerifiedStatsGrid, DataVerificationBadge } from "@/components/DataProvenance";
 import { 
   MapPin, 
   ExternalLink, 
