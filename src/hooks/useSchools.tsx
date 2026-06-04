@@ -135,7 +135,7 @@ export function useSchoolsByIds(ids: string[]) {
         .in("id", ids);
 
       if (error) throw error;
-      return data as School[];
+      return data as unknown as School[];
     },
     enabled: ids.length > 0,
   });
