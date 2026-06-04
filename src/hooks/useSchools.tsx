@@ -41,7 +41,7 @@ export function useSchools(filters?: SchoolFilters) {
       if (error) throw error;
       
       // Client-side filtering for grades using grading utilities
-      let schools = data as School[];
+      let schools = data as unknown as School[];
       
       if (filters?.minAcademicsGrade) {
         schools = schools.filter(s => meetsMinimumGrade(s.academics_grade, filters.minAcademicsGrade));
