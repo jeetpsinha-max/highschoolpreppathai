@@ -48,8 +48,21 @@ export interface School {
   acceptance_rate: number | null;
   enrollment: number | null;
   founded_year: number | null;
+  verification_status?: string | null;
+  last_verified_at?: string | null;
+  data_confidence?: number | null;
+  field_sources?: Record<string, FieldSource> | null;
+  verification_notes?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface FieldSource {
+  value: string | number | boolean | null;
+  source: string | null;
+  source_url: string | null;
+  confidence: number;
+  verified_at: string;
 }
 
 export type SortOption = 
