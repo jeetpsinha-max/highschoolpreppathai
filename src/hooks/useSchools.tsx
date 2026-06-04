@@ -117,7 +117,7 @@ export function useSchool(id: string) {
         .maybeSingle();
 
       if (error) throw error;
-      return data as School | null;
+      return data as unknown as School | null;
     },
     enabled: !!id,
   });
