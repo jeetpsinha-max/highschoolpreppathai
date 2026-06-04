@@ -371,6 +371,53 @@ export type Database = {
           },
         ]
       }
+      school_data_audit: {
+        Row: {
+          changed: boolean
+          confidence: number | null
+          created_at: string
+          field: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          school_id: string
+          source: string | null
+          source_url: string | null
+        }
+        Insert: {
+          changed?: boolean
+          confidence?: number | null
+          created_at?: string
+          field: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          school_id: string
+          source?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          changed?: boolean
+          confidence?: number | null
+          created_at?: string
+          field?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          school_id?: string
+          source?: string | null
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_data_audit_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schools: {
         Row: {
           academics_grade: string | null
@@ -384,14 +431,17 @@ export type Database = {
           college_prep_grade: string | null
           competitiveness: string | null
           created_at: string
+          data_confidence: number | null
           diversity_grade: string | null
           dorms_grade: string | null
           enrollment: number | null
           facilities_grade: string | null
           faculty_grade: string | null
+          field_sources: Json
           founded_year: number | null
           id: string
           image_url: string | null
+          last_verified_at: string | null
           name: string
           notes: string | null
           size: string | null
@@ -400,6 +450,8 @@ export type Database = {
           tuition: number | null
           type: string | null
           updated_at: string
+          verification_notes: string | null
+          verification_status: string
           website: string | null
         }
         Insert: {
@@ -414,14 +466,17 @@ export type Database = {
           college_prep_grade?: string | null
           competitiveness?: string | null
           created_at?: string
+          data_confidence?: number | null
           diversity_grade?: string | null
           dorms_grade?: string | null
           enrollment?: number | null
           facilities_grade?: string | null
           faculty_grade?: string | null
+          field_sources?: Json
           founded_year?: number | null
           id?: string
           image_url?: string | null
+          last_verified_at?: string | null
           name: string
           notes?: string | null
           size?: string | null
@@ -430,6 +485,8 @@ export type Database = {
           tuition?: number | null
           type?: string | null
           updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string
           website?: string | null
         }
         Update: {
@@ -444,14 +501,17 @@ export type Database = {
           college_prep_grade?: string | null
           competitiveness?: string | null
           created_at?: string
+          data_confidence?: number | null
           diversity_grade?: string | null
           dorms_grade?: string | null
           enrollment?: number | null
           facilities_grade?: string | null
           faculty_grade?: string | null
+          field_sources?: Json
           founded_year?: number | null
           id?: string
           image_url?: string | null
+          last_verified_at?: string | null
           name?: string
           notes?: string | null
           size?: string | null
@@ -460,6 +520,8 @@ export type Database = {
           tuition?: number | null
           type?: string | null
           updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string
           website?: string | null
         }
         Relationships: []
