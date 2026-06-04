@@ -240,7 +240,15 @@ export function SchoolCard({ school }: SchoolCardProps) {
               {school.enrollment.toLocaleString()}
             </span>
           )}
+          {(school.verification_status === "web_verified" ||
+            school.verification_status === "partially_verified") && (
+            <span className="flex items-center gap-1 text-primary ml-auto" title="Cross-referenced with the web">
+              <ShieldCheck className="h-3 w-3" />
+              Verified
+            </span>
+          )}
         </div>
+
 
         {/* Grade Grid */}
         <div className="grid grid-cols-5 gap-1.5">
