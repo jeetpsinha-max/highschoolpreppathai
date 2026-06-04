@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { BulkSportsLoader } from '@/components/admin/BulkSportsLoader';
 import { BulkStateImporter } from '@/components/admin/BulkStateImporter';
+import { BulkDataVerifier } from '@/components/admin/BulkDataVerifier';
 
 interface ImportResult {
   success: boolean;
