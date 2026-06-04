@@ -233,10 +233,11 @@ function coerce(field: VerifiableField, raw: unknown): string | number | boolean
       return Number.isFinite(n) && n > 0 ? n : null;
     }
     case "acceptance_rate": {
+      // Stored as a percentage number (e.g. 13 means 13%).
       let n = typeof raw === "number" ? raw : parseFloat(String(raw).replace(/[^0-9.]/g, ""));
       if (!Number.isFinite(n)) return null;
-      if (n > 1) n = n / 100; // convert percent to decimal
-      return n > 0 && n <= 1 ? Math.round(n * 1000) / 1000 : null;
+      if (n > 0 && n <= 1) n = n * 100; // AI returned a decimal -> percent
+      return n > 0 && n <= 100 ? Math.round(n * 10) / 10 : null;
     }
     case "boarding": {
       if (typeof raw === "boolean") return raw;
