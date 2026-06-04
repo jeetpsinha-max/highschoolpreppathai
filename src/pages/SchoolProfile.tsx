@@ -155,6 +155,7 @@ export default function SchoolProfile() {
                   {hasLDSupport && <Badge variant="outline">LD Support</Badge>}
                   {isSTEM && <Badge variant="outline">STEM Focus</Badge>}
                   {isArts && <Badge variant="outline">Arts Focus</Badge>}
+                  <DataVerificationBadge school={school} />
                 </div>
               </div>
               
