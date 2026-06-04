@@ -211,6 +211,12 @@ export default function SchoolProfile() {
                       <div className="font-medium">{school.boarding ? "Yes, offers boarding" : "Day school only"}</div>
                     </div>
                   </div>
+
+                  <div className="mt-6 pt-6 border-t">
+                    <VerifiedStatsGrid school={school} />
+                  </div>
+                  
+
                   
                   {school.notes && (
                     <div className="mt-4 pt-4 border-t">
