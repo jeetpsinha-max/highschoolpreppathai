@@ -246,6 +246,8 @@ export default function ImportSchools() {
             <BulkSportsLoader />
           </div>
 
+          <GapFiller />
+
           <BulkDataVerifier />
         </div>
       </main>
