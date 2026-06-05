@@ -22,6 +22,7 @@ import {
 import { BulkSportsLoader } from '@/components/admin/BulkSportsLoader';
 import { BulkStateImporter } from '@/components/admin/BulkStateImporter';
 import { BulkDataVerifier } from '@/components/admin/BulkDataVerifier';
+import { GapFiller } from '@/components/admin/GapFiller';
 
 interface ImportResult {
   success: boolean;
