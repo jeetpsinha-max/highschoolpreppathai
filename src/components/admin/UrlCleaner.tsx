@@ -251,6 +251,14 @@ export function UrlCleaner() {
                         <span className="truncate text-foreground">{r.canonical}</span>
                       </div>
                     )}
+                    {r.success && r.locationChanges?.map((lc) => (
+                      <div key={lc.field} className="flex items-center gap-1 text-muted-foreground truncate">
+                        <span className="uppercase text-[9px] font-semibold text-teal-600 flex-shrink-0">{lc.field}</span>
+                        <span className="truncate line-through">{lc.from ?? '—'}</span>
+                        <ArrowRight className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate text-foreground">{lc.to ?? '—'}</span>
+                      </div>
+                    ))}
                     {!r.success && <p className="text-destructive truncate">{r.error}</p>}
                   </div>
                 );
