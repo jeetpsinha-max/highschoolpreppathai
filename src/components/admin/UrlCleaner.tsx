@@ -52,6 +52,7 @@ export function UrlCleaner() {
   const [limit, setLimit] = useState([100]);
   const [resolveRedirects, setResolveRedirects] = useState(true);
   const [clearInvalid, setClearInvalid] = useState(true);
+  const [normalizeLocation, setNormalizeLocation] = useState(true);
   const [progress, setProgress] = useState({ current: 0, total: 0, currentSchool: '' });
   const [results, setResults] = useState<CleanResult[]>([]);
   const [duplicates, setDuplicates] = useState<DuplicateGroup[] | null>(null);
