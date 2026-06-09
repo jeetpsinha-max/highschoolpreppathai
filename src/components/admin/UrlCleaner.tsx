@@ -13,6 +13,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface LocationChange {
+  field: string;
+  from: string | null;
+  to: string | null;
+}
+
 interface CleanResult {
   name: string;
   outcome: string;
@@ -20,6 +26,7 @@ interface CleanResult {
   canonical: string | null;
   reachable?: boolean;
   changed: boolean;
+  locationChanges?: LocationChange[];
   success: boolean;
   error?: string;
 }
