@@ -13,6 +13,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface LocationChange {
+  field: string;
+  from: string | null;
+  to: string | null;
+}
+
 interface CleanResult {
   name: string;
   outcome: string;
@@ -20,6 +26,7 @@ interface CleanResult {
   canonical: string | null;
   reachable?: boolean;
   changed: boolean;
+  locationChanges?: LocationChange[];
   success: boolean;
   error?: string;
 }
@@ -45,6 +52,7 @@ export function UrlCleaner() {
   const [limit, setLimit] = useState([100]);
   const [resolveRedirects, setResolveRedirects] = useState(true);
   const [clearInvalid, setClearInvalid] = useState(true);
+  const [normalizeLocation, setNormalizeLocation] = useState(true);
   const [progress, setProgress] = useState({ current: 0, total: 0, currentSchool: '' });
   const [results, setResults] = useState<CleanResult[]>([]);
   const [duplicates, setDuplicates] = useState<DuplicateGroup[] | null>(null);
@@ -103,7 +111,7 @@ export function UrlCleaner() {
 
       try {
         const { data, error: fnError } = await supabase.functions.invoke('clean-school-urls', {
-          body: { schoolId: school.id, resolveRedirects, clearInvalid },
+          body: { schoolId: school.id, resolveRedirects, clearInvalid, normalizeLocation },
         });
         if (fnError) throw fnError;
         if (data?.error) throw new Error(data.error);
@@ -195,6 +203,13 @@ export function UrlCleaner() {
               </div>
               <Switch checked={clearInvalid} onCheckedChange={setClearInvalid} />
             </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <p className="text-sm font-medium">Normalize location fields</p>
+                <p className="text-xs text-muted-foreground">Standardize city casing/whitespace and state codes for consistent verification</p>
+              </div>
+              <Switch checked={normalizeLocation} onCheckedChange={setNormalizeLocation} />
+            </div>
           </div>
         )}
 
@@ -236,6 +251,14 @@ export function UrlCleaner() {
                         <span className="truncate text-foreground">{r.canonical}</span>
                       </div>
                     )}
+                    {r.success && r.locationChanges?.map((lc) => (
+                      <div key={lc.field} className="flex items-center gap-1 text-muted-foreground truncate">
+                        <span className="uppercase text-[9px] font-semibold text-teal-600 flex-shrink-0">{lc.field}</span>
+                        <span className="truncate line-through">{lc.from ?? '—'}</span>
+                        <ArrowRight className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate text-foreground">{lc.to ?? '—'}</span>
+                      </div>
+                    ))}
                     {!r.success && <p className="text-destructive truncate">{r.error}</p>}
                   </div>
                 );
