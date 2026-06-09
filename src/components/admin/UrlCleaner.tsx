@@ -111,7 +111,7 @@ export function UrlCleaner() {
 
       try {
         const { data, error: fnError } = await supabase.functions.invoke('clean-school-urls', {
-          body: { schoolId: school.id, resolveRedirects, clearInvalid },
+          body: { schoolId: school.id, resolveRedirects, clearInvalid, normalizeLocation },
         });
         if (fnError) throw fnError;
         if (data?.error) throw new Error(data.error);
