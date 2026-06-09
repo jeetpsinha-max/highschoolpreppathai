@@ -59,13 +59,14 @@ function canonicalize(raw: string | null | undefined): CanonResult | null {
 
   for (const p of TRACKING_PARAMS) u.searchParams.delete(p);
 
-  // Strip trailing slash from path (but keep root as "/").
-  u.pathname = u.pathname.replace(/\/+$/, "");
+  // Strip trailing slash from path. Use a local var — assigning u.pathname = ""
+  // makes the URL object normalize it back to "/".
+  const path = u.pathname.replace(/\/+$/, "");
 
   const domainKey = host.replace(/^www\./, "");
 
   // Rebuild without an empty "?".
-  let out = `${u.protocol}//${u.hostname}${u.pathname}`;
+  let out = `${u.protocol}//${u.hostname}${path}`;
   const qs = u.searchParams.toString();
   if (qs) out += `?${qs}`;
 
