@@ -203,6 +203,13 @@ export function UrlCleaner() {
               </div>
               <Switch checked={clearInvalid} onCheckedChange={setClearInvalid} />
             </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <p className="text-sm font-medium">Normalize location fields</p>
+                <p className="text-xs text-muted-foreground">Standardize city casing/whitespace and state codes for consistent verification</p>
+              </div>
+              <Switch checked={normalizeLocation} onCheckedChange={setNormalizeLocation} />
+            </div>
           </div>
         )}
 
