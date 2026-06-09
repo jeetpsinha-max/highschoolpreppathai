@@ -110,6 +110,74 @@ async function resolveRedirects(
   }
 }
 
+// ---------- Location normalization ----------
+
+// Canonical US state -> 2-letter code (covers full names + common variants).
+const STATE_MAP: Record<string, string> = {
+  alabama: "AL", alaska: "AK", arizona: "AZ", arkansas: "AR", california: "CA",
+  colorado: "CO", connecticut: "CT", delaware: "DE", "district of columbia": "DC",
+  "washington dc": "DC", "washington d.c.": "DC", florida: "FL", georgia: "GA",
+  hawaii: "HI", idaho: "ID", illinois: "IL", indiana: "IN", iowa: "IA",
+  kansas: "KS", kentucky: "KY", louisiana: "LA", maine: "ME", maryland: "MD",
+  massachusetts: "MA", michigan: "MI", minnesota: "MN", mississippi: "MS",
+  missouri: "MO", montana: "MT", nebraska: "NE", nevada: "NV",
+  "new hampshire": "NH", "new jersey": "NJ", "new mexico": "NM", "new york": "NY",
+  "north carolina": "NC", "north dakota": "ND", ohio: "OH", oklahoma: "OK",
+  oregon: "OR", pennsylvania: "PA", "rhode island": "RI", "south carolina": "SC",
+  "south dakota": "SD", tennessee: "TN", texas: "TX", utah: "UT", vermont: "VT",
+  virginia: "VA", washington: "WA", "west virginia": "WV", wisconsin: "WI",
+  wyoming: "WY", "puerto rico": "PR", guam: "GU", "virgin islands": "VI",
+};
+
+const VALID_CODES = new Set(Object.values(STATE_MAP));
+
+/** Normalize a state value to a canonical 2-letter uppercase code, or null if unknown. */
+function normalizeState(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = String(raw).trim().replace(/\s+/g, " ");
+  if (!s) return null;
+  const upper = s.toUpperCase();
+  if (upper.length === 2 && VALID_CODES.has(upper)) return upper;
+  const mapped = STATE_MAP[s.toLowerCase().replace(/\./g, "")];
+  return mapped ?? null;
+}
+
+// Small connector words kept lowercase when not the first token.
+const SMALL_WORDS = new Set(["of", "the", "and", "on", "by", "del", "de", "la", "le"]);
+
+function capPart(p: string): string {
+  if (!p) return p;
+  const lower = p.toLowerCase();
+  // Mc / Mac names: McLean, MacArthur
+  if (/^mc[a-z]/.test(lower)) return "Mc" + lower.charAt(2).toUpperCase() + lower.slice(3);
+  if (/^o'[a-z]/.test(lower)) return "O'" + lower.charAt(2).toUpperCase() + lower.slice(3);
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
+/** Trim, collapse whitespace, and title-case a city while preserving St./Mc/hyphens/apostrophes. */
+function normalizeCity(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  let s = String(raw).trim().replace(/\s+/g, " ");
+  if (!s) return null;
+  // Drop a trailing ", ST" or ", State" that sometimes leaks into the city field.
+  s = s.replace(/,\s*[A-Za-z. ]+$/, "").trim();
+  if (!s) return null;
+
+  const words = s.split(" ");
+  return words
+    .map((word, idx) => {
+      const lower = word.toLowerCase().replace(/\./g, "");
+      if (idx > 0 && SMALL_WORDS.has(lower)) return lower;
+      // Preserve "St." / "Mt." / "Ft." with the period.
+      if (["st", "mt", "ft"].includes(lower)) {
+        return lower.charAt(0).toUpperCase() + lower.slice(1) + ".";
+      }
+      return word.split("-").map(capPart).join("-");
+    })
+    .join(" ");
+}
+
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
