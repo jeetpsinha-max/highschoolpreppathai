@@ -23,6 +23,7 @@ import { BulkSportsLoader } from '@/components/admin/BulkSportsLoader';
 import { BulkStateImporter } from '@/components/admin/BulkStateImporter';
 import { BulkDataVerifier } from '@/components/admin/BulkDataVerifier';
 import { GapFiller } from '@/components/admin/GapFiller';
+import { UrlCleaner } from '@/components/admin/UrlCleaner';
 
 interface ImportResult {
   success: boolean;
@@ -247,6 +248,8 @@ export default function ImportSchools() {
           </div>
 
           <GapFiller />
+
+          <UrlCleaner />
 
           <BulkDataVerifier />
         </div>
