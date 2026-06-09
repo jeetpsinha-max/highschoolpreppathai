@@ -231,114 +231,146 @@ serve(async (req) => {
     const schoolId: string | undefined = body.schoolId;
     const resolve: boolean = body.resolveRedirects ?? true;
     const clearInvalid: boolean = body.clearInvalid ?? true;
+    const normalizeLocation: boolean = body.normalizeLocation ?? true;
     if (!schoolId) throw new Error("schoolId is required");
 
     const { data: school, error: schoolErr } = await supabase
       .from("schools")
-      .select("id,name,website,field_sources")
+      .select("id,name,city,state,website,field_sources")
       .eq("id", schoolId)
       .single();
     if (schoolErr || !school) throw new Error("School not found");
 
+    // Shared accumulators applied in a single DB write at the end.
+    const update: Record<string, unknown> = {};
+    const fieldSources = (school.field_sources as Record<string, unknown>) ?? {};
+    const auditRows: Record<string, unknown>[] = [];
+    const locationChanges: { field: string; from: string | null; to: string | null }[] = [];
+
+    // ----- Location normalization (independent of website outcome) -----
+    if (normalizeLocation) {
+      const normCity = normalizeCity(school.city);
+      const normState = normalizeState(school.state);
+
+      if (normCity !== null && normCity !== school.city) {
+        update.city = normCity;
+        fieldSources.city = {
+          value: normCity,
+          source: "Location normalization",
+          source_url: null,
+          confidence: 90,
+          verified_at: new Date().toISOString(),
+        };
+        auditRows.push({
+          school_id: school.id, field: "city",
+          old_value: school.city, new_value: normCity,
+          source: "Location normalization", source_url: null, confidence: 90, changed: true,
+        });
+        locationChanges.push({ field: "city", from: school.city, to: normCity });
+      }
+
+      // Only overwrite state if we mapped to a confident, different canonical code.
+      if (normState !== null && normState !== school.state) {
+        update.state = normState;
+        fieldSources.state = {
+          value: normState,
+          source: "Location normalization",
+          source_url: null,
+          confidence: 95,
+          verified_at: new Date().toISOString(),
+        };
+        auditRows.push({
+          school_id: school.id, field: "state",
+          old_value: school.state, new_value: normState,
+          source: "Location normalization", source_url: null, confidence: 95, changed: true,
+        });
+        locationChanges.push({ field: "state", from: school.state, to: normState });
+      }
+    }
+
     const original = school.website;
     const canon = canonicalize(original);
 
-    // Junk / unparseable website.
-    if (!canon) {
-      if (original && clearInvalid) {
-        await supabase.from("schools").update({ website: null }).eq("id", school.id);
-        await supabase.from("school_data_audit").insert({
-          school_id: school.id,
-          field: "website",
-          old_value: original,
-          new_value: null,
-          source: "URL cleaning",
-          source_url: null,
-          confidence: 100,
-          changed: true,
-        });
-        return new Response(
-          JSON.stringify({
-            success: true,
-            name: school.name,
-            outcome: "cleared_invalid",
-            original,
-            canonical: null,
-            changed: true,
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
-      return new Response(
-        JSON.stringify({
-          success: true,
-          name: school.name,
-          outcome: original ? "invalid" : "empty",
-          original,
-          canonical: null,
-          changed: false,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    let finalCanonical = canon.canonical;
+    let outcome: string;
+    let finalCanonical: string | null = null;
     let reachable = false;
     let statusCode: number | null = null;
 
-    if (resolve) {
-      const r = await resolveRedirects(canon.canonical);
-      reachable = r.reachable;
-      statusCode = r.status;
-      if (r.finalUrl) {
-        const reCanon = canonicalize(r.finalUrl);
-        // Only adopt the redirect target if it canonicalizes cleanly and stays on a real domain.
-        if (reCanon) finalCanonical = reCanon.canonical;
+    if (!canon) {
+      // Junk / unparseable website.
+      if (original && clearInvalid) {
+        update.website = null;
+        auditRows.push({
+          school_id: school.id, field: "website",
+          old_value: original, new_value: null,
+          source: "URL cleaning", source_url: null, confidence: 100, changed: true,
+        });
+        outcome = "cleared_invalid";
+      } else {
+        outcome = original ? "invalid" : "empty";
+      }
+    } else {
+      finalCanonical = canon.canonical;
+      if (resolve) {
+        const r = await resolveRedirects(canon.canonical);
+        reachable = r.reachable;
+        statusCode = r.status;
+        if (r.finalUrl) {
+          const reCanon = canonicalize(r.finalUrl);
+          if (reCanon) finalCanonical = reCanon.canonical;
+        }
+      }
+
+      if ((original ?? "") !== finalCanonical) {
+        const src = reachable
+          ? "URL cleaning (redirect-resolved)"
+          : "URL cleaning (canonicalized)";
+        const conf = reachable ? 95 : 80;
+        update.website = finalCanonical;
+        fieldSources.website = {
+          value: finalCanonical, source: src, source_url: finalCanonical,
+          confidence: conf, verified_at: new Date().toISOString(),
+        };
+        auditRows.push({
+          school_id: school.id, field: "website",
+          old_value: original, new_value: finalCanonical,
+          source: src, source_url: finalCanonical, confidence: conf, changed: true,
+        });
+        outcome = "cleaned";
+      } else {
+        outcome = "already_clean";
       }
     }
 
-    const changed = (original ?? "") !== finalCanonical;
+    const websiteChanged = "website" in update;
+    // Persist field_sources whenever any provenance entry was added.
+    if (websiteChanged || locationChanges.length > 0) update.field_sources = fieldSources;
 
+    const changed = Object.keys(update).length > 0;
     if (changed) {
-      const fieldSources = (school.field_sources as Record<string, unknown>) ?? {};
-      fieldSources.website = {
-        value: finalCanonical,
-        source: reachable ? "URL cleaning (redirect-resolved)" : "URL cleaning (canonicalized)",
-        source_url: finalCanonical,
-        confidence: reachable ? 95 : 80,
-        verified_at: new Date().toISOString(),
-      };
-
-      await supabase
-        .from("schools")
-        .update({ website: finalCanonical, field_sources: fieldSources })
-        .eq("id", school.id);
-
-      await supabase.from("school_data_audit").insert({
-        school_id: school.id,
-        field: "website",
-        old_value: original,
-        new_value: finalCanonical,
-        source: reachable ? "URL cleaning (redirect-resolved)" : "URL cleaning (canonicalized)",
-        source_url: finalCanonical,
-        confidence: reachable ? 95 : 80,
-        changed: true,
-      });
+      const { error: updErr } = await supabase.from("schools").update(update).eq("id", school.id);
+      if (updErr) throw new Error(`Failed to update school: ${updErr.message}`);
+    }
+    if (auditRows.length) {
+      const { error: auditErr } = await supabase.from("school_data_audit").insert(auditRows);
+      if (auditErr) console.error("Audit insert failed", auditErr.message);
     }
 
     return new Response(
       JSON.stringify({
         success: true,
         name: school.name,
-        outcome: changed ? "cleaned" : "already_clean",
+        outcome,
         original,
         canonical: finalCanonical,
         reachable,
         statusCode,
+        locationChanges,
         changed,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
+
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("clean-school-urls error:", message);
