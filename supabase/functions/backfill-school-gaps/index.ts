@@ -180,6 +180,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    await requireAdmin(req);
     const { schoolId, minConfidence = 60 } = await req.json();
     if (!schoolId) throw new Error("schoolId is required");
 

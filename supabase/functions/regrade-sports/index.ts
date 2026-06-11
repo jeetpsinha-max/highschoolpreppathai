@@ -211,6 +211,7 @@ serve(async (req) => {
   }
 
   try {
+    await requireAdmin(req);
     const { schoolIds, dryRun = false } = await req.json();
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;

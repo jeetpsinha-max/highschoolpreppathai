@@ -183,6 +183,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    await requireAdmin(req);
     const body = await req.json().catch(() => ({}));
     const action: string = body.action ?? "clean";
 

@@ -161,6 +161,7 @@ serve(async (req) => {
   }
 
   try {
+    await requireAdmin(req);
     const { state, limit = 25 } = await req.json();
     
     if (!state) {

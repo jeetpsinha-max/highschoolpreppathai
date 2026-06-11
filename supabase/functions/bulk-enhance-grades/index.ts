@@ -193,6 +193,7 @@ serve(async (req) => {
   }
 
   try {
+    await requireAdmin(req);
     const { schoolIds, delayMs = 2000, batchSize = 3 } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
