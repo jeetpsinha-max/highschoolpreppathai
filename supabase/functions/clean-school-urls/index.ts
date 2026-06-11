@@ -376,8 +376,11 @@ serve(async (req) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("clean-school-urls error:", message);
+    const status = error instanceof AuthError
+      ? error.status
+      : message === "RATE_LIMIT" ? 429 : message === "CREDITS_EXHAUSTED" ? 402 : 500;
     return new Response(JSON.stringify({ error: message }), {
-      status: 500,
+      status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
