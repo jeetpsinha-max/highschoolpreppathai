@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireAdmin, AuthError } from "../_shared/adminAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -179,8 +180,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { schoolId, minConfidence = 60 } = await req.json();
+    await requireAdmin(req);
+    const { schoolId, minConfidence = 60, target } = await req.json();
     if (!schoolId) throw new Error("schoolId is required");
+    // When a specific target field is requested, only that field is written.
+    const onlyField: string | null =
+      target === "image_url" || target === "website" || target === "notes" ? target : null;
 
     const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -206,9 +211,19 @@ serve(async (req) => {
     const needsImage = !s.image_url || s.image_url.trim() === "";
     const needsNotes = !s.notes || s.notes.trim() === "";
 
+    // Which fields we are allowed to write (respecting an optional target).
+    const wantWebsite = !onlyField || onlyField === "website";
+    const wantImage = !onlyField || onlyField === "image_url";
+    const wantNotes = !onlyField || onlyField === "notes";
+
     const filledFields: string[] = [];
 
-    if (!needsWebsite && !needsImage && !needsNotes) {
+    const hasTargetGap =
+      (needsWebsite && wantWebsite) ||
+      (needsImage && wantImage) ||
+      (needsNotes && wantNotes);
+
+    if (!hasTargetGap) {
       return new Response(
         JSON.stringify({ success: true, schoolId: s.id, status: "complete", filledFields: [], message: "No gaps to fill" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -239,7 +254,7 @@ serve(async (req) => {
     if (website) {
       scraped = await firecrawlScrape(website, FIRECRAWL_API_KEY);
     }
-    if (!scraped && (needsImage || needsNotes)) {
+    if (!scraped && ((needsImage && wantImage) || (needsNotes && wantNotes))) {
       // Fall back to a search result page if direct site scrape failed.
       const results = await firecrawlSearch(`${s.name} ${locality} private school`, FIRECRAWL_API_KEY, 3);
       for (const r of results) {
@@ -256,7 +271,7 @@ serve(async (req) => {
     const nowIso = new Date().toISOString();
 
     // Website
-    if (needsWebsite && website && websiteSource) {
+    if (needsWebsite && wantWebsite && website && websiteSource) {
       update.website = website;
       fieldSources.website = {
         value: website,
@@ -273,7 +288,7 @@ serve(async (req) => {
     }
 
     // Image
-    if (needsImage && scraped) {
+    if (needsImage && wantImage && scraped) {
       const imageCandidate = isValidImageUrl(scraped.ogImage)
         ? scraped.ogImage
         : isValidImageUrl(scraped.logo)
@@ -297,7 +312,7 @@ serve(async (req) => {
     }
 
     // Notes / description
-    if (needsNotes && scraped) {
+    if (needsNotes && wantNotes && scraped) {
       const desc = await generateDescription(s, scraped, LOVABLE_API_KEY);
       if (desc && desc.confidence >= minConfidence) {
         update.notes = desc.description;
@@ -341,7 +356,9 @@ serve(async (req) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("backfill-school-gaps error:", message);
-    const status = message === "RATE_LIMIT" ? 429 : message === "CREDITS_EXHAUSTED" ? 402 : 500;
+    const status = error instanceof AuthError
+      ? error.status
+      : message === "RATE_LIMIT" ? 429 : message === "CREDITS_EXHAUSTED" ? 402 : 500;
     return new Response(JSON.stringify({ error: message }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireAdmin, AuthError } from "../_shared/adminAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -261,6 +262,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    await requireAdmin(req);
     const { schoolId, minConfidence = 60 } = await req.json();
     if (!schoolId) throw new Error("schoolId is required");
 
@@ -394,7 +396,9 @@ serve(async (req) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("verify-school-data error:", message);
-    const status = message === "RATE_LIMIT" ? 429 : message === "CREDITS_EXHAUSTED" ? 402 : 500;
+    const status = error instanceof AuthError
+      ? error.status
+      : message === "RATE_LIMIT" ? 429 : message === "CREDITS_EXHAUSTED" ? 402 : 500;
     return new Response(JSON.stringify({ error: message }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

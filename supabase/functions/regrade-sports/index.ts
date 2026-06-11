@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { requireAdmin, AuthError } from "../_shared/adminAuth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -210,6 +211,7 @@ serve(async (req) => {
   }
 
   try {
+    await requireAdmin(req);
     const { schoolIds, dryRun = false } = await req.json();
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -298,8 +300,9 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error('Error in regrade-sports function:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
+    const status = error instanceof AuthError ? error.status : 500;
     return new Response(JSON.stringify({ error: message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });

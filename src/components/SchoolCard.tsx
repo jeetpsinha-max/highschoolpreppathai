@@ -287,8 +287,13 @@ export function SchoolCard({ school }: SchoolCardProps) {
             </Button>
           </Link>
           {school.website && (
-            <a href={school.website} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="px-3">
+            <a
+              href={school.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Visit ${school.name} website (opens in a new tab)`}
+            >
+              <Button variant="outline" size="sm" className="px-3" aria-label={`Visit ${school.name} website`}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </a>

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { requireAdmin, AuthError } from "../_shared/adminAuth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -160,6 +161,7 @@ serve(async (req) => {
   }
 
   try {
+    await requireAdmin(req);
     const { state, limit = 25 } = await req.json();
     
     if (!state) {
@@ -257,8 +259,9 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error('Error in import-niche-schools function:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
+    const status = error instanceof AuthError ? error.status : 500;
     return new Response(JSON.stringify({ error: message }), {
-      status: 500,
+      status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

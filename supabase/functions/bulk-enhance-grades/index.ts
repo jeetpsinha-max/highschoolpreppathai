@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { requireAdmin, AuthError } from "../_shared/adminAuth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -192,6 +193,7 @@ serve(async (req) => {
   }
 
   try {
+    await requireAdmin(req);
     const { schoolIds, delayMs = 2000, batchSize = 3 } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -330,8 +332,9 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error('Error in bulk-enhance-grades function:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
+    const status = error instanceof AuthError ? error.status : 500;
     return new Response(JSON.stringify({ error: message }), {
-      status: 500,
+      status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

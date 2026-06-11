@@ -104,7 +104,7 @@ function SourceTooltip({ source }: { source?: FieldSource }) {
             </a>
           )}
           <p className="text-xs mt-1 opacity-80">
-            Confidence {Math.round(source.confidence)}%{verified ? ` · ${verified}` : ""}
+            Confidence {Math.round(Number(source.confidence) || 0)}%{verified ? ` · ${verified}` : ""}
           </p>
         </TooltipContent>
       </Tooltip>

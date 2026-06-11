@@ -77,25 +77,28 @@ export function BulkSportsLoader() {
       if (error) throw error;
 
       const enhancedIds: string[] = [];
+      const processedCount = Number(data?.processed) || 0;
+      const skippedCount = Number(data?.skipped) || 0;
+      const errorCount = Number(data?.errors) || 0;
 
-      if (data.results) {
+      if (Array.isArray(data?.results)) {
         setResults(data.results.map((r: { schoolId: string; schoolName: string; status: 'success' | 'error'; error?: string }) => {
           if (r.status === 'success') enhancedIds.push(r.schoolId);
           return { schoolName: r.schoolName, status: r.status, error: r.error };
         }));
-        setProgress(prev => ({
-          ...prev,
-          processed: data.processed + data.skipped,
-          current: 'Enhancement complete',
-        }));
       }
+      setProgress(prev => ({
+        ...prev,
+        processed: processedCount + skippedCount,
+        current: 'Enhancement complete',
+      }));
 
-      toast.success(`Enhanced ${data.processed} schools, ${data.skipped} cached, ${data.errors} errors`);
+      toast.success(`Enhanced ${processedCount} schools, ${skippedCount} cached, ${errorCount} errors`);
 
       queryClient.invalidateQueries({ queryKey: ['enhancement-stats'] });
 
       // Auto-trigger regrade after enhancement
-      if (data.processed > 0 || data.skipped > 0) {
+      if (processedCount > 0 || skippedCount > 0) {
         toast.info('Now regrading sports based on new data...');
         await triggerRegrade();
       } else {
@@ -176,7 +179,7 @@ export function BulkSportsLoader() {
         {results.length > 0 && (
           <div className="space-y-3">
             <div className="flex gap-4">
-              <Badge variant="default" className="bg-primary">
+              <Badge variant="default">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 {successCount} Enhanced
               </Badge>
@@ -218,7 +221,7 @@ export function BulkSportsLoader() {
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline">{regradeResult.total} Schools</Badge>
               <Badge variant="outline">{regradeResult.changed} Changed</Badge>
-              <Badge variant="default" className="bg-emerald-600">{regradeResult.upgrades} Upgrades</Badge>
+              <Badge variant="default">{regradeResult.upgrades} Upgrades</Badge>
               {regradeResult.downgrades > 0 && (
                 <Badge variant="destructive">{regradeResult.downgrades} Downgrades</Badge>
               )}
