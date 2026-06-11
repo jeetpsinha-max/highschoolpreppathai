@@ -181,8 +181,11 @@ serve(async (req) => {
 
   try {
     await requireAdmin(req);
-    const { schoolId, minConfidence = 60 } = await req.json();
+    const { schoolId, minConfidence = 60, target } = await req.json();
     if (!schoolId) throw new Error("schoolId is required");
+    // When a specific target field is requested, only that field is written.
+    const onlyField: string | null =
+      target === "image_url" || target === "website" || target === "notes" ? target : null;
 
     const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -208,9 +211,19 @@ serve(async (req) => {
     const needsImage = !s.image_url || s.image_url.trim() === "";
     const needsNotes = !s.notes || s.notes.trim() === "";
 
+    // Which fields we are allowed to write (respecting an optional target).
+    const wantWebsite = !onlyField || onlyField === "website";
+    const wantImage = !onlyField || onlyField === "image_url";
+    const wantNotes = !onlyField || onlyField === "notes";
+
     const filledFields: string[] = [];
 
-    if (!needsWebsite && !needsImage && !needsNotes) {
+    const hasTargetGap =
+      (needsWebsite && wantWebsite) ||
+      (needsImage && wantImage) ||
+      (needsNotes && wantNotes);
+
+    if (!hasTargetGap) {
       return new Response(
         JSON.stringify({ success: true, schoolId: s.id, status: "complete", filledFields: [], message: "No gaps to fill" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
