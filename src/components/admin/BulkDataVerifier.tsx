@@ -32,6 +32,7 @@ export function BulkDataVerifier() {
     setIsStopping(false);
     stopRef.current = false;
     setResults([]);
+    let processed = 0;
 
     // Prioritise never-verified / stalest schools first.
     const { data: schools, error } = await supabase
@@ -46,11 +47,18 @@ export function BulkDataVerifier() {
       return;
     }
 
+    if (schools.length === 0) {
+      toast.success('No schools available to verify.');
+      setIsRunning(false);
+      return;
+    }
+
     setProgress({ current: 0, total: schools.length, currentSchool: '' });
 
     for (let i = 0; i < schools.length; i++) {
       if (stopRef.current) break;
       const school = schools[i];
+      processed = i + 1;
       setProgress({ current: i + 1, total: schools.length, currentSchool: school.name });
 
       let retries = 0;
@@ -104,7 +112,7 @@ export function BulkDataVerifier() {
 
     queryClient.invalidateQueries({ queryKey: ['schools'] });
     if (stopRef.current) {
-      toast.info(`Stopped after ${progress.current} schools.`);
+      toast.info(`Stopped after ${processed} schools.`);
     } else {
       toast.success('Verification run complete.');
     }
