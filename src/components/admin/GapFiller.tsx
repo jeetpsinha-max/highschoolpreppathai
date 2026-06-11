@@ -41,6 +41,7 @@ export function GapFiller() {
     setIsStopping(false);
     stopRef.current = false;
     setResults([]);
+    let processed = 0;
 
     // Prioritise schools that are missing the chosen field.
     const { data: schools, error } = await supabase
@@ -67,6 +68,7 @@ export function GapFiller() {
     for (let i = 0; i < schools.length; i++) {
       if (stopRef.current) break;
       const school = schools[i];
+      processed = i + 1;
       setProgress({ current: i + 1, total: schools.length, currentSchool: school.name });
 
       let retries = 0;
@@ -76,7 +78,7 @@ export function GapFiller() {
       while (!done && retries < maxRetries && !stopRef.current) {
         try {
           const { data, error: fnError } = await supabase.functions.invoke('backfill-school-gaps', {
-            body: { schoolId: school.id },
+            body: { schoolId: school.id, target },
           });
           if (fnError) throw fnError;
           if (data?.error) {
@@ -117,7 +119,7 @@ export function GapFiller() {
 
     queryClient.invalidateQueries({ queryKey: ['schools'] });
     if (stopRef.current) {
-      toast.info(`Stopped after ${progress.current} schools.`);
+      toast.info(`Stopped after ${processed} schools.`);
     } else {
       toast.success('Gap-fill run complete.');
     }
