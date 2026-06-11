@@ -77,20 +77,23 @@ export function BulkSportsLoader() {
       if (error) throw error;
 
       const enhancedIds: string[] = [];
+      const processedCount = Number(data?.processed) || 0;
+      const skippedCount = Number(data?.skipped) || 0;
+      const errorCount = Number(data?.errors) || 0;
 
-      if (data.results) {
+      if (Array.isArray(data?.results)) {
         setResults(data.results.map((r: { schoolId: string; schoolName: string; status: 'success' | 'error'; error?: string }) => {
           if (r.status === 'success') enhancedIds.push(r.schoolId);
           return { schoolName: r.schoolName, status: r.status, error: r.error };
         }));
-        setProgress(prev => ({
-          ...prev,
-          processed: data.processed + data.skipped,
-          current: 'Enhancement complete',
-        }));
       }
+      setProgress(prev => ({
+        ...prev,
+        processed: processedCount + skippedCount,
+        current: 'Enhancement complete',
+      }));
 
-      toast.success(`Enhanced ${data.processed} schools, ${data.skipped} cached, ${data.errors} errors`);
+      toast.success(`Enhanced ${processedCount} schools, ${skippedCount} cached, ${errorCount} errors`);
 
       queryClient.invalidateQueries({ queryKey: ['enhancement-stats'] });
 
