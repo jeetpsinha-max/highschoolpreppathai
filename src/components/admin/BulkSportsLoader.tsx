@@ -98,7 +98,7 @@ export function BulkSportsLoader() {
       queryClient.invalidateQueries({ queryKey: ['enhancement-stats'] });
 
       // Auto-trigger regrade after enhancement
-      if (data.processed > 0 || data.skipped > 0) {
+      if (processedCount > 0 || skippedCount > 0) {
         toast.info('Now regrading sports based on new data...');
         await triggerRegrade();
       } else {
@@ -179,7 +179,7 @@ export function BulkSportsLoader() {
         {results.length > 0 && (
           <div className="space-y-3">
             <div className="flex gap-4">
-              <Badge variant="default" className="bg-primary">
+              <Badge variant="default">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 {successCount} Enhanced
               </Badge>
@@ -221,7 +221,7 @@ export function BulkSportsLoader() {
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline">{regradeResult.total} Schools</Badge>
               <Badge variant="outline">{regradeResult.changed} Changed</Badge>
-              <Badge variant="default" className="bg-emerald-600">{regradeResult.upgrades} Upgrades</Badge>
+              <Badge variant="default">{regradeResult.upgrades} Upgrades</Badge>
               {regradeResult.downgrades > 0 && (
                 <Badge variant="destructive">{regradeResult.downgrades} Downgrades</Badge>
               )}
