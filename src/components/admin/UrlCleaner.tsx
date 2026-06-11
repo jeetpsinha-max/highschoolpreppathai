@@ -83,6 +83,7 @@ export function UrlCleaner() {
     setIsStopping(false);
     stopRef.current = false;
     setResults([]);
+    let processed = 0;
 
     const { data: schools, error } = await supabase
       .from('schools')
@@ -107,6 +108,7 @@ export function UrlCleaner() {
     for (let i = 0; i < schools.length; i++) {
       if (stopRef.current) break;
       const school = schools[i];
+      processed = i + 1;
       setProgress({ current: i + 1, total: schools.length, currentSchool: school.name });
 
       try {
@@ -135,7 +137,7 @@ export function UrlCleaner() {
 
     queryClient.invalidateQueries({ queryKey: ['schools'] });
     toast[stopRef.current ? 'info' : 'success'](
-      stopRef.current ? `Stopped after ${progress.current} schools.` : 'URL cleaning complete.',
+      stopRef.current ? `Stopped after ${processed} schools.` : 'URL cleaning complete.',
     );
     setIsRunning(false);
     setIsStopping(false);
