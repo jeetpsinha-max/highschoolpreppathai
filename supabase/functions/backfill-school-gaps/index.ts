@@ -254,7 +254,7 @@ serve(async (req) => {
     if (website) {
       scraped = await firecrawlScrape(website, FIRECRAWL_API_KEY);
     }
-    if (!scraped && (needsImage || needsNotes)) {
+    if (!scraped && ((needsImage && wantImage) || (needsNotes && wantNotes))) {
       // Fall back to a search result page if direct site scrape failed.
       const results = await firecrawlSearch(`${s.name} ${locality} private school`, FIRECRAWL_API_KEY, 3);
       for (const r of results) {
@@ -271,7 +271,7 @@ serve(async (req) => {
     const nowIso = new Date().toISOString();
 
     // Website
-    if (needsWebsite && website && websiteSource) {
+    if (needsWebsite && wantWebsite && website && websiteSource) {
       update.website = website;
       fieldSources.website = {
         value: website,
@@ -288,7 +288,7 @@ serve(async (req) => {
     }
 
     // Image
-    if (needsImage && scraped) {
+    if (needsImage && wantImage && scraped) {
       const imageCandidate = isValidImageUrl(scraped.ogImage)
         ? scraped.ogImage
         : isValidImageUrl(scraped.logo)
@@ -312,7 +312,7 @@ serve(async (req) => {
     }
 
     // Notes / description
-    if (needsNotes && scraped) {
+    if (needsNotes && wantNotes && scraped) {
       const desc = await generateDescription(s, scraped, LOVABLE_API_KEY);
       if (desc && desc.confidence >= minConfidence) {
         update.notes = desc.description;
