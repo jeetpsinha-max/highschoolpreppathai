@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminRoute } from "@/components/AdminRoute";
 import { MobileBottomNav } from "./components/layout/MobileBottomNav";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { GlobalOnboarding } from "./components/GlobalOnboarding";
@@ -97,9 +98,9 @@ const App = () => (
               <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
 
               {/* Admin */}
-              <Route path="/admin/bulk-enhancement" element={<ProtectedRoute><BulkEnhancement /></ProtectedRoute>} />
-              <Route path="/admin/status" element={<ProtectedRoute><AdminStatus /></ProtectedRoute>} />
-              <Route path="/admin/import-schools" element={<ProtectedRoute><ImportSchools /></ProtectedRoute>} />
+              <Route path="/admin/bulk-enhancement" element={<AdminRoute><BulkEnhancement /></AdminRoute>} />
+              <Route path="/admin/status" element={<AdminRoute><AdminStatus /></AdminRoute>} />
+              <Route path="/admin/import-schools" element={<AdminRoute><ImportSchools /></AdminRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
