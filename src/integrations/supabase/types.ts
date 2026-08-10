@@ -439,11 +439,17 @@ export type Database = {
           faculty_grade: string | null
           field_sources: Json
           founded_year: number | null
+          grade_coverage: number | null
+          grade_percentile: number | null
+          graded_at: string | null
+          grading_version: number
           id: string
           image_url: string | null
           last_verified_at: string | null
           name: string
           notes: string | null
+          overall_grade: string | null
+          overall_score: number | null
           size: string | null
           sports_grade: string | null
           state: string | null
@@ -474,11 +480,17 @@ export type Database = {
           faculty_grade?: string | null
           field_sources?: Json
           founded_year?: number | null
+          grade_coverage?: number | null
+          grade_percentile?: number | null
+          graded_at?: string | null
+          grading_version?: number
           id?: string
           image_url?: string | null
           last_verified_at?: string | null
           name: string
           notes?: string | null
+          overall_grade?: string | null
+          overall_score?: number | null
           size?: string | null
           sports_grade?: string | null
           state?: string | null
@@ -509,11 +521,17 @@ export type Database = {
           faculty_grade?: string | null
           field_sources?: Json
           founded_year?: number | null
+          grade_coverage?: number | null
+          grade_percentile?: number | null
+          graded_at?: string | null
+          grading_version?: number
           id?: string
           image_url?: string | null
           last_verified_at?: string | null
           name?: string
           notes?: string | null
+          overall_grade?: string | null
+          overall_score?: number | null
           size?: string | null
           sports_grade?: string | null
           state?: string | null
