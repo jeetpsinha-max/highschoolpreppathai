@@ -79,6 +79,9 @@ const SSATPractice = () => {
     });
 
     const calculatedScore = Math.round((correct / practiceData.questions.length) * 100);
+    const scaledScore = Math.min(800, Math.max(500, Math.round(500 + (correct / practiceData.questions.length) * 300)));
+    const estimatedPercentile = Math.min(99, Math.max(25, Math.round(30 + (correct / practiceData.questions.length) * 68)));
+
     setScore(calculatedScore);
     setSubmitted(true);
 
@@ -98,8 +101,8 @@ const SSATPractice = () => {
     }
 
     toast({
-      title: "Practice Complete!",
-      description: `You scored ${correct}/${practiceData.questions.length} (${calculatedScore}%)`,
+      title: "SSAT Session Complete!",
+      description: `Raw Score: ${correct}/${practiceData.questions.length} | Scaled: ${scaledScore}/800 (Est. ${estimatedPercentile}th Percentile)`,
     });
   };
 

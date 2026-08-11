@@ -73,6 +73,15 @@ const tools: ToolDef[] = [
     category: "Application",
   },
   {
+    id: "essay-coach",
+    title: "AI Essay Coach",
+    description: "Evaluates essays against Peddie, Andover, Exeter & Choate prompts with rubric scoring and line edits.",
+    icon: Sparkles,
+    color: "from-amber-500 to-indigo-600",
+    category: "Application",
+    isNew: true,
+  },
+  {
     id: "parent-letters",
     title: "Parent Letter Writer",
     description: "Generate polished recommendation requests, thank-you notes, follow-ups, and aid appeals.",

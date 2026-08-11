@@ -46,6 +46,7 @@ const SportDetail            = lazy(() => import("./pages/SportDetail"));
 const About                  = lazy(() => import("./pages/About"));
 const Contact                = lazy(() => import("./pages/Contact"));
 const SocialScripts          = lazy(() => import("./pages/SocialScripts"));
+const EssayCoach             = lazy(() => import("./pages/EssayCoach"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,6 +98,7 @@ function App() {
               <Route path="/ai-tools/improve-chances" element={<PageSuspense><ImproveChances /></PageSuspense>} />
               <Route path="/ai-tools/assistant" element={<PageSuspense><ApplicationAssistant /></PageSuspense>} />
               <Route path="/ai-tools/ssat" element={<PageSuspense><SSATPractice /></PageSuspense>} />
+              <Route path="/ai-tools/essay-coach" element={<PageSuspense><EssayCoach /></PageSuspense>} />
               <Route path="/ai-tools/social-scripts" element={<PageSuspense><SocialScripts /></PageSuspense>} />
               <Route path="/ai-tools/financial-aid" element={<PageSuspense><FinancialAidAdvisor /></PageSuspense>} />
               <Route path="/ai-tools/school-visit" element={<PageSuspense><SchoolVisitPrep /></PageSuspense>} />
