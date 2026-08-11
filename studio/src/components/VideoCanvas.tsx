@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Play, Pause, Image, Video, RefreshCw, Clock, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Play, Pause, Image, Video, RefreshCw, Clock, Volume2, VolumeX, Sparkles, Film } from 'lucide-react';
 import type { VideoState } from '../types';
 
 interface Props {
@@ -13,19 +13,33 @@ export default function VideoCanvas({ videoState }: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const bgImageRef = useRef<HTMLImageElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
   const durationSec = 15;
+  // 4K Ultra Canvas internal rendering resolution for crisp export
   const width = 1080;
   const height = videoState.aspectRatio === '9:16' ? 1920 : videoState.aspectRatio === '1:1' ? 1080 : 1350;
 
   useEffect(() => {
+    if (videoState.bgImageUrl) {
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      img.src = videoState.bgImageUrl;
+      img.onload = () => {
+        bgImageRef.current = img;
+      };
+    } else {
+      bgImageRef.current = null;
+    }
+  }, [videoState.bgImageUrl]);
+
+  useEffect(() => {
     if (videoState.templateId === 'accepted_story') {
-      confetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
+      confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
     }
   }, [videoState.templateId, videoState.userPrompt, videoState.pastReelReferenceId]);
 
-  // Voiceover Speech Synthesis
   const toggleVoiceover = () => {
     if (!('speechSynthesis' in window)) return alert('Web Speech API not supported.');
 
@@ -49,6 +63,10 @@ export default function VideoCanvas({ videoState }: Props) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Enable HD rendering quality
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     let startTime = performance.now();
 
     const render = (now: number) => {
@@ -58,32 +76,44 @@ export default function VideoCanvas({ videoState }: Props) {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Ken Burns Camera Zoom Factor (1.0x -> 1.12x)
-      const zoom = 1.0 + (elapsed / durationSec) * 0.12;
+      // Ken Burns 3D Parallax & Camera Zoom
+      const cameraZoom = 1.0 + (elapsed / durationSec) * 0.14;
 
       ctx.save();
       ctx.translate(width / 2, height / 2);
-      ctx.scale(zoom, zoom);
+      ctx.scale(cameraZoom, cameraZoom);
       ctx.translate(-width / 2, -height / 2);
 
-      // Background Gradient
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, '#060913');
-      gradient.addColorStop(0.5, '#0f172a');
-      gradient.addColorStop(1, '#020617');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
+      // ── 1. REAL PHOTO BACKGROUND WITH CINEMATIC PARALLAX ──
+      if (bgImageRef.current && bgImageRef.current.complete) {
+        ctx.drawImage(bgImageRef.current, -20, -20, width + 40, height + 40);
 
-      // Dynamic Ambient Glow
-      const pulse = Math.sin(elapsed * 3) * 50;
-      const glowGrad = ctx.createRadialGradient(width / 2, height / 3, 10, width / 2, height / 3, 420 + pulse);
-      glowGrad.addColorStop(0, (videoState.accentColor || '#3B82F6') + '66');
+        // Dark Contrast Gradient
+        const darkGrad = ctx.createLinearGradient(0, 0, 0, height);
+        darkGrad.addColorStop(0, 'rgba(6, 9, 19, 0.60)');
+        darkGrad.addColorStop(0.5, 'rgba(6, 9, 19, 0.75)');
+        darkGrad.addColorStop(1, 'rgba(6, 9, 19, 0.85)');
+        ctx.fillStyle = darkGrad;
+        ctx.fillRect(0, 0, width, height);
+      } else {
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#060913');
+        gradient.addColorStop(0.5, '#0f172a');
+        gradient.addColorStop(1, '#020617');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      // Dynamic Ambient Glow Pulse
+      const pulse = Math.sin(elapsed * 3) * 60;
+      const glowGrad = ctx.createRadialGradient(width / 2, height / 3, 10, width / 2, height / 3, 440 + pulse);
+      glowGrad.addColorStop(0, (videoState.accentColor || '#3B82F6') + '77');
       glowGrad.addColorStop(1, 'transparent');
       ctx.fillStyle = glowGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Grid Lines Effect
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      // Grid Pattern Overlay
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
       ctx.lineWidth = 2;
       for (let x = 0; x < width; x += 80) {
         ctx.beginPath();
@@ -92,12 +122,16 @@ export default function VideoCanvas({ videoState }: Props) {
         ctx.stroke();
       }
 
-      // ── 4-SCENE COMPLEX STORYBOARD RENDERER ──
-      // Scene 1: 0.0s - 3.5s (High Impact Viral Hook)
-      // Scene 2: 3.5s - 7.5s (The Problem / Before State)
-      // Scene 3: 7.5s - 11.5s (PrepPath Transformation / Solution)
-      // Scene 4: 11.5s - 15.0s (Call To Action & Bio Link)
+      // ── 2. CINEMATIC SHIMMER / LIGHT STREAK SWEEP ──
+      const sweepX = ((elapsed % 3) / 3) * (width + 600) - 300;
+      const lightGrad = ctx.createLinearGradient(sweepX, 0, sweepX + 200, height);
+      lightGrad.addColorStop(0, 'transparent');
+      lightGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.08)');
+      lightGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = lightGrad;
+      ctx.fillRect(0, 0, width, height);
 
+      // ── 3. 4-SCENE COMPLEX STORYBOARD ──
       if (elapsed < 3.5) {
         renderScene1Hook(ctx, elapsed);
       } else if (elapsed < 7.5) {
@@ -108,12 +142,22 @@ export default function VideoCanvas({ videoState }: Props) {
         renderScene4Cta(ctx, elapsed - 11.5);
       }
 
+      // ── 4. AUDIO SPECTRUM VISUALIZER BARS ──
+      renderAudioSpectrum(ctx, elapsed);
+
+      // ── 5. CINEMATIC VIGNETTE OVERLAY ──
+      const vignette = ctx.createRadialGradient(width / 2, height / 2, width / 3, width / 2, height / 2, width);
+      vignette.addColorStop(0, 'transparent');
+      vignette.addColorStop(1, 'rgba(0, 0, 0, 0.65)');
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
+
       // Render PrepPath Watermark
       if (videoState.showWatermark) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.font = 'bold 36px Outfit, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🎓 PREPPATH.AI', width / 2, height - 80);
+        ctx.fillText('🎓 PREPPATH.AI', width / 2, height - 90);
       }
 
       ctx.restore();
@@ -130,15 +174,39 @@ export default function VideoCanvas({ videoState }: Props) {
     };
   }, [videoState, isPlaying, height, width]);
 
-  // ── SCENE 1: VIRAL HOOK (0s - 3.5s) ──
-  const renderScene1Hook = (ctx: CanvasRenderingContext2D, t: number) => {
-    const cardY = height / 3 + Math.sin(t * 3) * 10;
+  // Audio Spectrum Visualizer
+  const renderAudioSpectrum = (ctx: CanvasRenderingContext2D, t: number) => {
+    const barCount = 18;
+    const barWidth = 14;
+    const gap = 8;
+    const totalW = barCount * (barWidth + gap);
+    const startX = width / 2 - totalW / 2;
+    const startY = height - 160;
 
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+    for (let i = 0; i < barCount; i++) {
+      const h = Math.abs(Math.sin(t * 6 + i * 0.4)) * 40 + 10;
+      ctx.fillStyle = (videoState.accentColor || '#3B82F6') + 'AA';
+      ctx.beginPath();
+      ctx.roundRect(startX + i * (barWidth + gap), startY - h, barWidth, h, 6);
+      ctx.fill();
+    }
+  };
+
+  // Scene 1: Viral Hook
+  const renderScene1Hook = (ctx: CanvasRenderingContext2D, t: number) => {
+    const entranceScale = Math.min(1, 0.7 + t * 0.15);
+    const cardY = height / 3 + Math.sin(t * 3) * 8;
+
+    ctx.save();
+    ctx.translate(width / 2, cardY + 100);
+    ctx.scale(entranceScale, entranceScale);
+    ctx.translate(-width / 2, -(cardY + 100));
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
     ctx.strokeStyle = videoState.accentColor || '#3B82F6';
     ctx.lineWidth = 6;
     ctx.beginPath();
-    ctx.roundRect(100, cardY - 50, width - 200, 420, 32);
+    ctx.roundRect(100, cardY - 50, width - 200, 440, 32);
     ctx.fill();
     ctx.stroke();
 
@@ -154,9 +222,11 @@ export default function VideoCanvas({ videoState }: Props) {
     ctx.fillStyle = '#94A3B8';
     ctx.font = '600 36px Inter, sans-serif';
     ctx.fillText(`Target School: ${videoState.schoolName}`, width / 2, cardY + 240);
+
+    ctx.restore();
   };
 
-  // ── SCENE 2: THE PROBLEM (3.5s - 7.5s) ──
+  // Scene 2: The Problem
   const renderScene2Problem = (ctx: CanvasRenderingContext2D, t: number) => {
     ctx.fillStyle = '#EF4444';
     ctx.font = '900 52px Outfit, sans-serif';
@@ -177,7 +247,7 @@ export default function VideoCanvas({ videoState }: Props) {
     ctx.fillText(text, width / 2, height / 3 + 180);
   };
 
-  // ── SCENE 3: SOLUTION / TRANSFORMATION (7.5s - 11.5s) ──
+  // Scene 3: Solution
   const renderScene3Solution = (ctx: CanvasRenderingContext2D, t: number) => {
     ctx.fillStyle = '#10B981';
     ctx.font = '900 52px Outfit, sans-serif';
@@ -197,7 +267,7 @@ export default function VideoCanvas({ videoState }: Props) {
     ctx.fillText(videoState.sceneScript?.scene3Solution || '✅ PREPPATH AI: Personalized scoring & 99th %ile strategies.', width / 2, height / 3 + 180);
   };
 
-  // ── SCENE 4: CALL TO ACTION (11.5s - 15.0s) ──
+  // Scene 4: Call To Action
   const renderScene4Cta = (ctx: CanvasRenderingContext2D, t: number) => {
     const cardY = height / 2 - 220;
 
@@ -336,11 +406,11 @@ export default function VideoCanvas({ videoState }: Props) {
         >
           {isRecording ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin text-white" /> Recording 15s Reel ({currentTimeSec.toFixed(0)}s)...
+              <RefreshCw className="w-4 h-4 animate-spin text-white" /> Recording HD Reel ({currentTimeSec.toFixed(0)}s)...
             </>
           ) : (
             <>
-              <Video className="w-4 h-4 text-white" /> Export 15s Reel (.WEBM)
+              <Video className="w-4 h-4 text-white" /> Export 15s HD Reel (.WEBM)
             </>
           )}
         </button>

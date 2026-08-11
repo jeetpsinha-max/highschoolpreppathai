@@ -20,6 +20,8 @@ export interface VideoState {
   accentColor: string;
   showWatermark: boolean;
   userPrompt: string;
+  bgImageUrl?: string; // High-res internet photo background
+  bgImageOverlayOpacity?: number;
   pastReelReferenceId?: string;
   brainMeta?: {
     emotionalAngle: string;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Film, Zap, Award, Camera, Cpu } from 'lucide-react';
+import { Film, Zap, Award, Camera, Cpu, Globe } from 'lucide-react';
 import type { VideoState } from './types';
 import TemplateSelector from './components/TemplateSelector';
 import VideoCanvas from './components/VideoCanvas';
@@ -8,6 +8,7 @@ import AiPromptBar from './components/AiPromptBar';
 import CreditsBar from './components/CreditsBar';
 import SaaSBillingModal from './components/SaaSBillingModal';
 import BrandMemory from './components/BrandMemory';
+import MediaSearchModal from './components/MediaSearchModal';
 import { runPrepPathBrain, PastReelReference } from './utils/brainEngine';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
     accentColor: '#3B82F6',
     showWatermark: true,
     userPrompt: 'Create a 15-second viral reel about getting accepted into Peddie School',
+    bgImageUrl: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80',
     brainMeta: {
       emotionalAngle: 'Aspirational Triumph & Confetti Reveal',
       pacingStyle: 'Ken Burns Scale & Particle Pulse',
@@ -44,12 +46,12 @@ export default function App() {
   });
 
   const [isBillingOpen, setIsBillingOpen] = useState(false);
+  const [isMediaSearchOpen, setIsMediaSearchOpen] = useState(false);
 
   const handleStateChange = async (newState: Partial<VideoState>) => {
     setVideoState((prev) => ({ ...prev, ...newState }));
 
     if (newState.userPrompt) {
-      // Run the AI Brain Decision Engine
       const brainDecision = runPrepPathBrain(newState.userPrompt);
       setVideoState((prev) => ({
         ...prev,
@@ -85,7 +87,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#060911] text-slate-100 p-4 md:p-8 font-sans selection:bg-indigo-500 selection:text-white">
-      {/* SaaS Header */}
+      {/* Header */}
       <header className="mb-6 border-b border-slate-800/80 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-amber-400 flex items-center justify-center shadow-lg shadow-purple-500/20">
@@ -93,9 +95,9 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight text-white flex items-center gap-3">
-              PREPPATH STUDIO <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">AI BRAIN ENGINE v4.0</span>
+              PREPPATH STUDIO <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">WEB MEDIA ENGINE v5.0</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">AI Storyboard Brain, Past Video Pattern Memory & 4-Scene 15s Reel Generator</p>
+            <p className="text-xs text-slate-400 mt-0.5">Web Campus Photography Search, AI Storyboard Brain & 15s Reel Generator</p>
           </div>
         </div>
 
@@ -107,15 +109,31 @@ export default function App() {
         />
       </header>
 
-      {/* AI Prompt Input Bar */}
+      {/* AI Prompt Bar */}
       <div className="mb-6">
         <AiPromptBar onGenerate={handleStateChange} />
       </div>
 
-      {/* Workspace Grid */}
+      {/* Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Brand Memory & Preset Selectors (4 cols) */}
+        {/* Left Column (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
+          <div className="studio-card p-4 flex items-center justify-between border-slate-800">
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-indigo-400" />
+              <div>
+                <div className="text-xs font-bold text-white">Campus Photo Background</div>
+                <div className="text-[10px] text-slate-400">High-res photos from Unsplash & Web</div>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsMediaSearchOpen(true)}
+              className="px-3 py-1.5 rounded-lg studio-btn-primary text-xs font-semibold"
+            >
+              Browse Photos
+            </button>
+          </div>
+
           <BrandMemory
             activeReferenceId={videoState.pastReelReferenceId}
             onSelectReference={handleSelectPastReelReference}
@@ -124,12 +142,12 @@ export default function App() {
           <TemplateSelector videoState={videoState} onChange={handleStateChange} />
         </div>
 
-        {/* Middle Column: Interactive 4-Scene Canvas Preview (4 cols) */}
+        {/* Middle Column (4 cols) */}
         <div className="lg:col-span-4 flex flex-col items-center">
           <div className="studio-card p-5 w-full flex flex-col items-center border-slate-800 space-y-4">
             <div className="flex items-center justify-between w-full border-b border-slate-800 pb-2">
               <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Film className="w-4 h-4 text-indigo-400" /> 15-Sec AI Brain Reel
+                <Film className="w-4 h-4 text-indigo-400" /> 15-Sec Web Photo Reel
               </span>
               <span className="text-[11px] font-mono text-indigo-400">{videoState.aspectRatio}</span>
             </div>
@@ -138,11 +156,18 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right Column: AI Caption Generator (4 cols) */}
+        {/* Right Column (4 cols) */}
         <div className="lg:col-span-4">
           <CaptionPanel templateId={videoState.templateId} schoolName={videoState.schoolName} />
         </div>
       </div>
+
+      <MediaSearchModal
+        isOpen={isMediaSearchOpen}
+        onClose={() => setIsMediaSearchOpen(false)}
+        currentBgUrl={videoState.bgImageUrl}
+        onSelectImage={(bgImageUrl) => handleStateChange({ bgImageUrl })}
+      />
 
       <SaaSBillingModal
         isOpen={isBillingOpen}
