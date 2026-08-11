@@ -28,9 +28,13 @@ export default function Auth() {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
-  // Get the intended destination from navigation state
+  // Get the intended destination from the `next` query param or navigation state
   const state = location.state as LocationState;
-  const from = state?.from?.pathname || null;
+  const rawNext = searchParams.get("next");
+  const nextParam =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+  const from = nextParam || state?.from?.pathname || null;
+
 
   useEffect(() => {
     if (user) {

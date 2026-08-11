@@ -48,6 +48,8 @@ const Contact                = lazy(() => import("./pages/Contact"));
 const SocialScripts          = lazy(() => import("./pages/SocialScripts"));
 const EssayCoach             = lazy(() => import("./pages/EssayCoach"));
 const ApplicationTracker     = lazy(() => import("./pages/ApplicationTracker"));
+const OAuthConsent           = lazy(() => import("./pages/OAuthConsent"));
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +79,8 @@ function App() {
               {/* Public */}
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/.lovable/oauth/consent" element={<PageSuspense><OAuthConsent /></PageSuspense>} />
+
               <Route path="/about" element={<PageSuspense><About /></PageSuspense>} />
               <Route path="/contact" element={<PageSuspense><Contact /></PageSuspense>} />
               <Route path="/beta-for-schools" element={<PageSuspense><BetaForSchools /></PageSuspense>} />
