@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://tqtljccgtkuicyobjwon.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "preppath-ai",
+      "version": "0.1.0",
+      "title": "PrepPath AI"
+    },
+    "tools": [
+      {
+        "name": "search_schools",
+        "title": "Search schools",
+        "description": "Search the high school directory by name, city, state, type, boarding status, and max tuition.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Text to match against the school name."
+            },
+            "state": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "description": "Two-letter US state code, e.g. NY."
+            },
+            "city": {
+              "type": "string",
+              "description": "City name."
+            },
+            "type": {
+              "type": "string",
+              "description": "School type, e.g. Private, Magnet, Boarding."
+            },
+            "boarding": {
+              "type": "boolean",
+              "description": "Only boarding schools when true."
+            },
+            "maxTuition": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Maximum annual tuition in USD."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "description": "Max results to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_school",
+        "title": "Get school profile",
+        "description": "Fetch the full profile for one school by its id, including grades, stats, and verification status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "School id."
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_saved_schools",
+        "title": "List saved schools",
+        "description": "List the schools the signed-in user has saved to their list.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "Filter by list category, e.g. reach, target, safety."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "save_school",
+        "title": "Save a school",
+        "description": "Add a school to the signed-in user's saved list, optionally with a category.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "school_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "School id to save."
+            },
+            "category": {
+              "type": "string",
+              "description": "Optional list category, e.g. reach, target, safety."
+            }
+          },
+          "required": [
+            "school_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "remove_saved_school",
+        "title": "Remove a saved school",
+        "description": "Remove a school from the signed-in user's saved list.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "school_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "School id to remove."
+            }
+          },
+          "required": [
+            "school_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
