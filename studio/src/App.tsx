@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Film, Zap, Award, Camera, Cpu, Globe } from 'lucide-react';
+import { Film, Zap, Award, Camera, Cpu, Globe, Flame } from 'lucide-react';
 import type { VideoState } from './types';
 import TemplateSelector from './components/TemplateSelector';
 import VideoCanvas from './components/VideoCanvas';
@@ -9,6 +9,7 @@ import CreditsBar from './components/CreditsBar';
 import SaaSBillingModal from './components/SaaSBillingModal';
 import BrandMemory from './components/BrandMemory';
 import MediaSearchModal from './components/MediaSearchModal';
+import ViralViewOptimizer from './components/ViralViewOptimizer';
 import { runPrepPathBrain, PastReelReference } from './utils/brainEngine';
 
 export default function App() {
@@ -90,14 +91,14 @@ export default function App() {
       {/* Header */}
       <header className="mb-6 border-b border-slate-800/80 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-amber-400 flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <Cpu className="w-6 h-6 text-white animate-pulse" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-indigo-600 to-amber-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <Flame className="w-6 h-6 text-white animate-pulse" />
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight text-white flex items-center gap-3">
-              PREPPATH STUDIO <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">WEB MEDIA ENGINE v5.0</span>
+              PREPPATH STUDIO <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">GEMINI OMNI VIRAL v6.0</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">Web Campus Photography Search, AI Storyboard Brain & 15s Reel Generator</p>
+            <p className="text-xs text-slate-400 mt-0.5">Instagram Scraper, Gemini Omni Multimodal Engine & Organic View Maximizer</p>
           </div>
         </div>
 
@@ -112,6 +113,15 @@ export default function App() {
       {/* AI Prompt Bar */}
       <div className="mb-6">
         <AiPromptBar onGenerate={handleStateChange} />
+      </div>
+
+      {/* Instagram Scraper & Viral View Optimizer Banner */}
+      <div className="mb-6">
+        <ViralViewOptimizer
+          schoolName={videoState.schoolName}
+          templateId={videoState.templateId}
+          userPrompt={videoState.userPrompt}
+        />
       </div>
 
       {/* Grid */}
@@ -147,7 +157,7 @@ export default function App() {
           <div className="studio-card p-5 w-full flex flex-col items-center border-slate-800 space-y-4">
             <div className="flex items-center justify-between w-full border-b border-slate-800 pb-2">
               <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Film className="w-4 h-4 text-indigo-400" /> 15-Sec Web Photo Reel
+                <Film className="w-4 h-4 text-indigo-400" /> 15-Sec Viral Reel Preview
               </span>
               <span className="text-[11px] font-mono text-indigo-400">{videoState.aspectRatio}</span>
             </div>
