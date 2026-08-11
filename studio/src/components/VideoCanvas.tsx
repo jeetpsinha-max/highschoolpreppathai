@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Play, Pause, Image, Video, RefreshCw, Clock, Volume2, VolumeX, Sparkles, Film } from 'lucide-react';
+import { Play, Pause, Image, Video, RefreshCw, Clock, Volume2, VolumeX, Sparkles, Film, Download } from 'lucide-react';
 import type { VideoState } from '../types';
 
 interface Props {
@@ -13,11 +13,11 @@ export default function VideoCanvas({ videoState }: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'webm' | 'png'>('webm');
   const bgImageRef = useRef<HTMLImageElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
   const durationSec = 15;
-  // 4K Ultra Canvas internal rendering resolution for crisp export
   const width = 1080;
   const height = videoState.aspectRatio === '9:16' ? 1920 : videoState.aspectRatio === '1:1' ? 1080 : 1350;
 
@@ -63,7 +63,6 @@ export default function VideoCanvas({ videoState }: Props) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Enable HD rendering quality
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
@@ -84,11 +83,10 @@ export default function VideoCanvas({ videoState }: Props) {
       ctx.scale(cameraZoom, cameraZoom);
       ctx.translate(-width / 2, -height / 2);
 
-      // ── 1. REAL PHOTO BACKGROUND WITH CINEMATIC PARALLAX ──
+      // Photo Background
       if (bgImageRef.current && bgImageRef.current.complete) {
         ctx.drawImage(bgImageRef.current, -20, -20, width + 40, height + 40);
 
-        // Dark Contrast Gradient
         const darkGrad = ctx.createLinearGradient(0, 0, 0, height);
         darkGrad.addColorStop(0, 'rgba(6, 9, 19, 0.60)');
         darkGrad.addColorStop(0.5, 'rgba(6, 9, 19, 0.75)');
@@ -104,7 +102,7 @@ export default function VideoCanvas({ videoState }: Props) {
         ctx.fillRect(0, 0, width, height);
       }
 
-      // Dynamic Ambient Glow Pulse
+      // Glow Pulse
       const pulse = Math.sin(elapsed * 3) * 60;
       const glowGrad = ctx.createRadialGradient(width / 2, height / 3, 10, width / 2, height / 3, 440 + pulse);
       glowGrad.addColorStop(0, (videoState.accentColor || '#3B82F6') + '77');
@@ -112,7 +110,7 @@ export default function VideoCanvas({ videoState }: Props) {
       ctx.fillStyle = glowGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Grid Pattern Overlay
+      // Grid Pattern
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
       ctx.lineWidth = 2;
       for (let x = 0; x < width; x += 80) {
@@ -122,7 +120,7 @@ export default function VideoCanvas({ videoState }: Props) {
         ctx.stroke();
       }
 
-      // ── 2. CINEMATIC SHIMMER / LIGHT STREAK SWEEP ──
+      // Shimmer Streak Sweep
       const sweepX = ((elapsed % 3) / 3) * (width + 600) - 300;
       const lightGrad = ctx.createLinearGradient(sweepX, 0, sweepX + 200, height);
       lightGrad.addColorStop(0, 'transparent');
@@ -131,7 +129,7 @@ export default function VideoCanvas({ videoState }: Props) {
       ctx.fillStyle = lightGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // ── 3. 4-SCENE COMPLEX STORYBOARD ──
+      // 4-Scene Storyboard
       if (elapsed < 3.5) {
         renderScene1Hook(ctx, elapsed);
       } else if (elapsed < 7.5) {
@@ -142,17 +140,17 @@ export default function VideoCanvas({ videoState }: Props) {
         renderScene4Cta(ctx, elapsed - 11.5);
       }
 
-      // ── 4. AUDIO SPECTRUM VISUALIZER BARS ──
+      // Audio Spectrum
       renderAudioSpectrum(ctx, elapsed);
 
-      // ── 5. CINEMATIC VIGNETTE OVERLAY ──
+      // Vignette Overlay
       const vignette = ctx.createRadialGradient(width / 2, height / 2, width / 3, width / 2, height / 2, width);
       vignette.addColorStop(0, 'transparent');
       vignette.addColorStop(1, 'rgba(0, 0, 0, 0.65)');
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, width, height);
 
-      // Render PrepPath Watermark
+      // Watermark
       if (videoState.showWatermark) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.font = 'bold 36px Outfit, sans-serif';
@@ -174,7 +172,6 @@ export default function VideoCanvas({ videoState }: Props) {
     };
   }, [videoState, isPlaying, height, width]);
 
-  // Audio Spectrum Visualizer
   const renderAudioSpectrum = (ctx: CanvasRenderingContext2D, t: number) => {
     const barCount = 18;
     const barWidth = 14;
@@ -192,7 +189,6 @@ export default function VideoCanvas({ videoState }: Props) {
     }
   };
 
-  // Scene 1: Viral Hook
   const renderScene1Hook = (ctx: CanvasRenderingContext2D, t: number) => {
     const entranceScale = Math.min(1, 0.7 + t * 0.15);
     const cardY = height / 3 + Math.sin(t * 3) * 8;
@@ -226,7 +222,6 @@ export default function VideoCanvas({ videoState }: Props) {
     ctx.restore();
   };
 
-  // Scene 2: The Problem
   const renderScene2Problem = (ctx: CanvasRenderingContext2D, t: number) => {
     ctx.fillStyle = '#EF4444';
     ctx.font = '900 52px Outfit, sans-serif';
@@ -247,7 +242,6 @@ export default function VideoCanvas({ videoState }: Props) {
     ctx.fillText(text, width / 2, height / 3 + 180);
   };
 
-  // Scene 3: Solution
   const renderScene3Solution = (ctx: CanvasRenderingContext2D, t: number) => {
     ctx.fillStyle = '#10B981';
     ctx.font = '900 52px Outfit, sans-serif';
@@ -267,7 +261,6 @@ export default function VideoCanvas({ videoState }: Props) {
     ctx.fillText(videoState.sceneScript?.scene3Solution || '✅ PREPPATH AI: Personalized scoring & 99th %ile strategies.', width / 2, height / 3 + 180);
   };
 
-  // Scene 4: Call To Action
   const renderScene4Cta = (ctx: CanvasRenderingContext2D, t: number) => {
     const cardY = height / 2 - 220;
 
@@ -406,7 +399,7 @@ export default function VideoCanvas({ videoState }: Props) {
         >
           {isRecording ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin text-white" /> Recording HD Reel ({currentTimeSec.toFixed(0)}s)...
+              <RefreshCw className="w-4 h-4 animate-spin text-white" /> Recording 15s HD Reel ({currentTimeSec.toFixed(0)}s)...
             </>
           ) : (
             <>
