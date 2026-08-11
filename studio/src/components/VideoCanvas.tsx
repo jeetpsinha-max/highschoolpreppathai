@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Play, Pause, Image, Video, RefreshCw, Clock, Volume2, VolumeX, Sparkles, Film, Download } from 'lucide-react';
+import { Play, Pause, Image, Video, RefreshCw, Clock, Volume2, VolumeX } from 'lucide-react';
 import type { VideoState } from '../types';
 
 interface Props {

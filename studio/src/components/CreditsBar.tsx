@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Crown, ShieldCheck } from 'lucide-react';
+import { Zap, Crown } from 'lucide-react';
 
 interface Props {
   plan: string;

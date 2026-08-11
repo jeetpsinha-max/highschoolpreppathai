@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Image as ImageIcon, Search, Check, Sparkles, Globe } from 'lucide-react';
+import { X, Search, Globe } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;

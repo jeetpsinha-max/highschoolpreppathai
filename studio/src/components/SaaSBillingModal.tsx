@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Zap, ShieldCheck, Crown, Sparkles } from 'lucide-react';
+import { X, Check, Crown } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;

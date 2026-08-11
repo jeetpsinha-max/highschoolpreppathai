@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, Flame, Zap, ShieldCheck, Sparkles, Hash, Eye } from 'lucide-react';
+import { Flame, Eye } from 'lucide-react';
 import { analyzeReelForViralViews, INSTAGRAM_VIRAL_TRENDS } from '../utils/instagramScraperEngine';
 
 interface Props {

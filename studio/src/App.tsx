@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Film, Zap, Award, Camera, Cpu, Globe, Flame } from 'lucide-react';
+import { Film, Globe, Flame } from 'lucide-react';
 import type { VideoState } from './types';
 import TemplateSelector from './components/TemplateSelector';
 import VideoCanvas from './components/VideoCanvas';
