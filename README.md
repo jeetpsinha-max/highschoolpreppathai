@@ -1,303 +1,62 @@
-# PrepPath AI
+# 🎓 PrepPath AI — Private & Boarding School Admissions Platform
 
-Build a full, production-ready web application named High School PrepPath.
-This platform helps middle-school and high-school students explore, match with, and apply to private, boarding, magnet, and selective public high schools.
-Use a clean, academic, modern design with a blue/teal/white palette, rounded cards, Poppins/Inter fonts, and highly organized layouts.
+![React](https://img.shields.io/badge/React-18.3-61DAFB.svg?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6.svg?logo=typescript)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38BDF8.svg?logo=tailwindcss)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E.svg?logo=supabase)
+![PWA](https://img.shields.io/badge/PWA-Ready-1D3557.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-1. DATA INGESTION (REQUIRED FIRST STEP)
+**PrepPath AI** is an end-to-end AI-powered discovery, SSAT test prep, and application management platform designed for middle and high school students applying to top private, boarding, magnet, and selective secondary schools (*The Peddie School, Phillips Andover, Phillips Exeter Academy, Choate Rosemary Hall, The Lawrenceville School*).
 
-Import the full school dataset from the provided file:
-“PrepPath AI Data - Sheet1 (2).pdf” 
+---
 
-PrepPath AI Data - Sheet1 (2)
+## 🌟 Core AI Tools & Feature Modules
 
-Parse every row into a database table named schools with the fields:
+### 🎯 1. Upper Level SSAT 2400-Point Practice Engine (`/ai-tools/ssat`)
+- **Official 1500–2400 Score Scale:** Predicts section scaled scores (500–800 for Verbal, Math, Reading) and composite score with national percentile ranking estimations (1%–99%).
+- **Authentic Question Bank:** Real SSAT synonyms, analogies (*Architect : Building :: Composer : Symphony*), algebra, geometry, and reading comprehension passages with detailed solution rationales.
 
-name
+### ✍️ 2. AI Admissions Essay Coach (`/ai-tools/essay-coach`)
+- **Top School Prompts:** Pre-loaded prompt presets for Peddie, Andover, Exeter, Choate, and Lawrenceville.
+- **4-Dimension Rubric Scoring:** Evaluates *Tone & Maturity (0-100)*, *School Alignment*, *Vocabulary Elevation*, and *Authenticity*.
+- **Line-by-Line Revisions:** Suggests specific vocabulary upgrades with admissions rationale.
 
-type
+### 📊 3. Admissions Command Center & Tracker (`/ai-tools/application-tracker`)
+- **Acceptance Odds Calculator:** Computes real-time acceptance probability % based on GPA, SSAT scores, and school category (Reach / Target / Safety).
+- **Status Pipeline:** Tracks applications across *Not Started ➔ Essay Drafting ➔ Interview Completed ➔ Submitted ➔ Accepted*.
 
-city
+### 💰 4. Net Price & Financial Aid Estimator (`/ai-tools/financial-aid`)
+- **Household Income Estimator Slider ($40k – $350k+):** Calculates estimated need-based grant aid ($), net out-of-pocket family cost ($), and tuition discount %.
 
-state
+### 🗺️ 5. Campus Visit Prep & Tour Guide (`/ai-tools/school-visit`)
+- **Preset Campus Checklists:** Custom tour questions, Harkness classroom observation guides, and insider admissions pro-tips.
 
-website
+---
 
-admission_type
+## 🏗️ Tech Stack
 
-boarding
+- **Frontend:** React 18, TypeScript, Tailwind CSS, Lucide Icons, Shadcn UI
+- **Backend / Database:** Supabase (Auth, Postgres, Edge Functions)
+- **Deployment:** Mobile PWA Ready (Service Workers & Web App Manifest)
 
-competitiveness
+---
 
-size
+## 🚀 Getting Started
 
-notes
+```bash
+# Clone the repository
+git clone https://github.com/jeetpsinha-max/highschoolpreppathai.git
 
-Ensure all 350+ schools populate the system.
+# Install dependencies
+cd preppath-repo
+npm install
 
-2. PLATFORM FEATURES (BUILD ALL)
-A. School Finder Engine
-
-Create a searchable, filterable interface using the dataset. Include filters for:
-
-State
-
-Competitiveness
-
-Boarding vs Day
-
-School type (private, charter, magnet, Jesuit, Quaker, STEM, LD-support, arts, girls-only, boys-only)
-
-Size
-
-Residential public
-
-Selective public
-
-Specialized schools
-
-Display results as school cards with:
-
-Name
-
-City/State
-
-Competitiveness
-
-Boarding/day
-
-Website button
-
-Tags (girls’, Jesuit, STEM, LD, etc.)
-
-B. School Profile Pages (Template Auto-Generated)
-
-For each school entry, generate a full page containing:
-
-Name, address, website
-
-Competitiveness, admission type, size
-
-Notes (girls’ school, LD support, etc.)
-
-AI-generated sections:
-
-“What this school excels at”
-
-“Student experience overview”
-
-“Is this school a good fit for you?”
-
-Button: Run Improve Your Chances AI
-
-3. AI TOOL SUITE (ALL TOOLS MUST BE BUILT)
-A. AI School Matcher
-
-A 12–15 question assessment for students:
-Academic interests, competitiveness preference, location, boarding/day, extracurriculars, school size preference, diversity values, STEM/arts focus, learning style.
-
-AI outputs:
-
-Reach / Target / Safety lists
-
-Why each school matches
-
-Links to each school profile
-
-Data-driven matching uses the PDF dataset.
-
-B. AI School Generator
-
-User describes their ideal school.
-AI generates:
-
-Ideal school profile
-
-Comparison to real schools
-
-10 closest matches from dataset
-
-C. AI Interview Coach
-
-Features:
-
-Randomized interview questions
-
-Optional microphone input
-
-AI feedback: clarity, confidence, structure
-
-Follow-up questions
-
-Track all past attempts in student dashboard
-
-D. Improve Your Chances AI
-
-For any school:
-
-What the school values
-
-Typical accepted student profile
-
-Recommended extracurricular enhancements
-
-Suggested academic improvements
-
-Strategy for essays/interviews
-
-Legacy option toggle
-
-Timeline for preparation
-
-Link to SSAT/SAT prep where relevant
-
-E. SSAT Practice Tool
-
-AI question generator
-
-Section-based practice
-
-Explanations
-
-Score tracking in dashboard
-
-F. AI Application Assistant
-
-Essay brainstormer
-
-Draft improver
-
-Activity list builder
-
-Resume builder
-
-Email templates to admissions
-
-Parent summary mode
-
-Ensure all suggestions follow age-appropriate safety.
-
-4. AUTHENTICATION + DASHBOARD
-
-Create login/signup for:
-
-Students
-
-Parents
-
-Dashboard includes:
-
-Saved schools
-
-Matcher results
-
-Interview sessions
-
-Essays and drafts
-
-SSAT practice progress
-
-Application checklist with deadlines
-
-5. SITE ARCHITECTURE (PAGES)
-
-Build:
-
-Home Page
-
-Hero: “Find Your Best-Fit High School with AI”
-
-CTA: Try School Matcher / Explore Schools
-
-Feature grid
-
-Testimonials
-
-School ticker (use data from PDF)
-
-School Finder
-
-School Profile Template (auto-build all)
-
-AI Tools Hub
-
-Matcher
-
-Generator
-
-Interview Coach
-
-Improve Your Chances
-
-Application Assistant
-
-SSAT Practice
-
-About Page
-
-Mission
-
-Why PrepPath
-
-Powered by dataset (cite PDF)
-
-Contact Page
-
-Beta for Schools Page
-
-Invite middle schools (e.g., Millstone Middle School) to join free pilot
-
-Benefits + signup form
-
-6. BRANDING
-
-Deep Blue #1D3557
-
-Teal #2A9D8F
-
-Soft Grey #F1F1F1
-
-White #FFFFFF
-
-Round corners, modern cards
-
-Light hover animations
-
-7. SAFETY REQUIREMENTS
-
-All AI outputs must be:
-
-Age-appropriate
-
-Supportive
-
-No harmful/unsafe content
-
-No adult themes
-
-8. FINAL REQUIREMENT
-
-Generate all pages, all backend logic, database ingestion, AI endpoints, UI components, and school profiles so that the entire platform is fully functional immediately upon build.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://highschoolpreppathai.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/dd35a836-0370-4883-9809-134a6bed635c).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+# Run dev server
 npm run dev
 ```
+
+---
+
+## 📄 License
+MIT License. Created by [Jeet Sinha](https://github.com/jeetpsinha-max).
