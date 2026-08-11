@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Film, Zap, Award, Camera } from 'lucide-react';
+import { useState } from 'react';
+import { Film, Zap, Award, Camera, Cpu } from 'lucide-react';
 import type { VideoState } from './types';
 import TemplateSelector from './components/TemplateSelector';
 import VideoCanvas from './components/VideoCanvas';
@@ -7,6 +7,8 @@ import CaptionPanel from './components/CaptionPanel';
 import AiPromptBar from './components/AiPromptBar';
 import CreditsBar from './components/CreditsBar';
 import SaaSBillingModal from './components/SaaSBillingModal';
+import BrandMemory from './components/BrandMemory';
+import { runPrepPathBrain, PastReelReference } from './utils/brainEngine';
 
 export default function App() {
   const [videoState, setVideoState] = useState<VideoState>({
@@ -21,10 +23,17 @@ export default function App() {
     accentColor: '#3B82F6',
     showWatermark: true,
     userPrompt: 'Create a 15-second viral reel about getting accepted into Peddie School',
+    brainMeta: {
+      emotionalAngle: 'Aspirational Triumph & Confetti Reveal',
+      pacingStyle: 'Ken Burns Scale & Particle Pulse',
+      bgTrack: 'cinematic',
+      voiceOverScript: 'I got accepted into The Peddie School using PrepPath AI! Months of SSAT practice and essay rewrites paid off.',
+    },
     sceneScript: {
       scene1Hook: '✨ I GOT INTO THE PEDDIE SCHOOL! 🎓',
-      scene2Body: 'Months of SSAT practice, 14 essay rewrites, and mock interview prep with @preppathai paid off today!',
-      scene3Cta: '📲 Check your acceptance odds for free on PrepPath.ai!',
+      scene2Problem: '⏳ 6 Months of SSAT Practice & Essay Drafting...',
+      scene3Solution: '📈 PrepPath AI predicted a 94% acceptance probability!',
+      scene4Cta: '🔥 Check your acceptance odds for free on PrepPath.ai!',
     },
   });
 
@@ -36,93 +45,60 @@ export default function App() {
 
   const [isBillingOpen, setIsBillingOpen] = useState(false);
 
-  // Fetch live account state from Express SaaS server
-  const fetchAccount = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/saas/account');
-      const data = await res.json();
-      if (data.account) {
-        setAccount({
-          plan: data.account.plan,
-          creditsRemaining: data.account.creditsRemaining,
-          creditsTotal: data.account.creditsTotal,
-        });
-      }
-    } catch {
-      /* Fallback simulation */
-    }
-  };
-
-  useEffect(() => {
-    fetchAccount();
-  }, []);
-
   const handleStateChange = async (newState: Partial<VideoState>) => {
     setVideoState((prev) => ({ ...prev, ...newState }));
 
-    // Trigger credit reduction call on backend server
     if (newState.userPrompt) {
-      try {
-        const res = await fetch('http://localhost:8080/api/render-reel', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: newState.userPrompt,
-            aspectRatio: videoState.aspectRatio,
-            schoolName: videoState.schoolName,
-          }),
-        });
-        const data = await res.json();
-        if (data.creditsRemaining !== undefined) {
-          setAccount((prev) => ({ ...prev, creditsRemaining: data.creditsRemaining }));
-        }
-      } catch {
-        setAccount((prev) => ({ ...prev, creditsRemaining: Math.max(0, prev.creditsRemaining - 1) }));
-      }
+      // Run the AI Brain Decision Engine
+      const brainDecision = runPrepPathBrain(newState.userPrompt);
+      setVideoState((prev) => ({
+        ...prev,
+        schoolName: brainDecision.schoolName,
+        score: brainDecision.score,
+        accentColor: brainDecision.accentColor,
+        brainMeta: {
+          emotionalAngle: brainDecision.emotionalAngle,
+          pacingStyle: brainDecision.pacingStyle,
+          bgTrack: brainDecision.bgTrack,
+          voiceOverScript: brainDecision.voiceOverScript,
+        },
+        sceneScript: brainDecision.sceneScript,
+      }));
     }
   };
 
-  const handleUpgradePlan = async (plan: string) => {
-    try {
-      const res = await fetch('http://localhost:8080/api/saas/upgrade-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await res.json();
-      if (data.account) {
-        setAccount({
-          plan: data.account.plan,
-          creditsRemaining: data.account.creditsRemaining,
-          creditsTotal: data.account.creditsTotal,
-        });
-      }
-    } catch {
-      setAccount({
-        plan: plan === 'Agency' ? 'Agency / School Advisor' : 'Pro Creator',
-        creditsRemaining: plan === 'Agency' ? 999 : 100,
-        creditsTotal: plan === 'Agency' ? 999 : 100,
-      });
-    }
+  const handleSelectPastReelReference = (reel: PastReelReference) => {
+    const brainDecision = runPrepPathBrain(videoState.userPrompt, reel);
+    setVideoState((prev) => ({
+      ...prev,
+      pastReelReferenceId: reel.id,
+      accentColor: reel.accentColor,
+      brainMeta: {
+        emotionalAngle: brainDecision.emotionalAngle,
+        pacingStyle: brainDecision.pacingStyle,
+        bgTrack: brainDecision.bgTrack,
+        voiceOverScript: brainDecision.voiceOverScript,
+      },
+      sceneScript: brainDecision.sceneScript,
+    }));
   };
 
   return (
     <div className="min-h-screen bg-[#060911] text-slate-100 p-4 md:p-8 font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top SaaS Header */}
+      {/* SaaS Header */}
       <header className="mb-6 border-b border-slate-800/80 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-amber-400 flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <Camera className="w-6 h-6 text-white" />
+            <Cpu className="w-6 h-6 text-white animate-pulse" />
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight text-white flex items-center gap-3">
-              PREPPATH STUDIO <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">FULL-STACK SAAS v3.0</span>
+              PREPPATH STUDIO <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">AI BRAIN ENGINE v4.0</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">Full-Stack Express API + React AI Prompt-to-Video Engine & SaaS Billing</p>
+            <p className="text-xs text-slate-400 mt-0.5">AI Storyboard Brain, Past Video Pattern Memory & 4-Scene 15s Reel Generator</p>
           </div>
         </div>
 
-        {/* Live Credits Bar */}
         <CreditsBar
           plan={account.plan}
           creditsRemaining={account.creditsRemaining}
@@ -136,19 +112,24 @@ export default function App() {
         <AiPromptBar onGenerate={handleStateChange} />
       </div>
 
-      {/* 3-Column Studio Grid */}
+      {/* Workspace Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Template & Inputs (3 cols) */}
-        <div className="lg:col-span-3">
+        {/* Left Column: Brand Memory & Preset Selectors (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
+          <BrandMemory
+            activeReferenceId={videoState.pastReelReferenceId}
+            onSelectReference={handleSelectPastReelReference}
+            brainMeta={videoState.brainMeta ? { ...videoState.brainMeta, schoolName: videoState.schoolName, score: videoState.score, sceneScript: videoState.sceneScript } : undefined}
+          />
           <TemplateSelector videoState={videoState} onChange={handleStateChange} />
         </div>
 
-        {/* Middle Column: Interactive Video Preview (4 cols) */}
+        {/* Middle Column: Interactive 4-Scene Canvas Preview (4 cols) */}
         <div className="lg:col-span-4 flex flex-col items-center">
           <div className="studio-card p-5 w-full flex flex-col items-center border-slate-800 space-y-4">
             <div className="flex items-center justify-between w-full border-b border-slate-800 pb-2">
               <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Film className="w-4 h-4 text-indigo-400" /> 15-Sec Reel Preview
+                <Film className="w-4 h-4 text-indigo-400" /> 15-Sec AI Brain Reel
               </span>
               <span className="text-[11px] font-mono text-indigo-400">{videoState.aspectRatio}</span>
             </div>
@@ -157,8 +138,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right Column: AI Caption Generator (5 cols) */}
-        <div className="lg:col-span-5">
+        {/* Right Column: AI Caption Generator (4 cols) */}
+        <div className="lg:col-span-4">
           <CaptionPanel templateId={videoState.templateId} schoolName={videoState.schoolName} />
         </div>
       </div>
@@ -167,7 +148,7 @@ export default function App() {
         isOpen={isBillingOpen}
         onClose={() => setIsBillingOpen(false)}
         currentPlan={account.plan}
-        onUpgrade={handleUpgradePlan}
+        onUpgrade={(plan) => setAccount((p) => ({ ...p, plan }))}
       />
     </div>
   );

@@ -8,22 +8,10 @@ export type TemplateId =
   | 'interview_simulator'
   | 'custom_prompt';
 
-export interface StudioTemplate {
-  id: TemplateId;
-  title: string;
-  category: 'Reels' | 'Carousels' | 'Stories';
-  description: string;
-  accentColor: string;
-  defaultHeadline: string;
-  defaultSubheadline: string;
-  defaultSchool: string;
-  previewGradient: string;
-}
-
 export interface VideoState {
   templateId: TemplateId;
   aspectRatio: AspectRatio;
-  durationSec: number; // 15 seconds
+  durationSec: number;
   headline: string;
   subheadline: string;
   schoolName: string;
@@ -32,10 +20,18 @@ export interface VideoState {
   accentColor: string;
   showWatermark: boolean;
   userPrompt: string;
+  pastReelReferenceId?: string;
+  brainMeta?: {
+    emotionalAngle: string;
+    pacingStyle: string;
+    bgTrack: 'motivational' | 'lofi' | 'cinematic';
+    voiceOverScript: string;
+  };
   sceneScript: {
     scene1Hook: string;
-    scene2Body: string;
-    scene3Cta: string;
+    scene2Problem: string;
+    scene3Solution: string;
+    scene4Cta: string;
   };
 }
 
