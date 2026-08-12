@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, Users, ChevronLeft, ChevronRight, Star, TrendingUp, Activity } from 'lucide-react';
 import { getGradeColor, gradeToRank } from '@/lib/grading';
 import { SportProgram } from '@/hooks/useEnhancedGrades';
+import { CONFERENCES, SCHOOL_SPORTS_DATA, Conference, SchoolSportsProfile } from '@/data/sportsData';
 
 const PAGE_SIZE = 50;
 
@@ -268,6 +269,65 @@ export default function SportsRankings() {
     return result;
   }, [data, search, stateFilter, sportFilter, genderFilter, levelFilter, sportSortBy, sportSortDesc]);
 
+  // Conference Data
+  const conferencesData = useMemo(() => {
+    let result = CONFERENCES.map(conf => {
+      const schools = SCHOOL_SPORTS_DATA.filter(s => s.conference === conf.abbreviation || s.conference === conf.id || s.conference === conf.name);
+      
+      const schoolsWithData = schools.map(s => {
+        const supabaseSchool = data?.overallRows.find(or => or.name === s.schoolName);
+        return {
+          ...s,
+          schoolId: supabaseSchool?.id,
+          sports_grade: supabaseSchool?.sports_grade || null,
+          compositeScore: supabaseSchool?.compositeScore || 0,
+        };
+      });
+
+      const totalChamps = schoolsWithData.reduce((sum, s) => sum + (s.recentChampionships?.length || 0), 0);
+      const aRatedCount = schoolsWithData.filter(s => s.sports_grade?.startsWith('A')).length;
+
+      return {
+        ...conf,
+        schools: schoolsWithData.sort((a, b) => b.compositeScore - a.compositeScore),
+        totalChamps,
+        aRatedCount
+      };
+    });
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(c => 
+        c.name.toLowerCase().includes(q) || 
+        c.abbreviation.toLowerCase().includes(q) ||
+        c.schools.some(s => s.schoolName.toLowerCase().includes(q))
+      );
+    }
+    return result;
+  }, [search, data]);
+
+  // Alumni Data
+  const alumniData = useMemo(() => {
+    let result = SCHOOL_SPORTS_DATA.flatMap(school => 
+      (school.notableAlumni || []).map(alumnus => ({
+        ...alumnus,
+        schoolName: school.schoolName,
+        schoolId: data?.overallRows.find(or => or.name === school.schoolName)?.id
+      }))
+    );
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(a => 
+        a.name.toLowerCase().includes(q) || 
+        a.sport.toLowerCase().includes(q) ||
+        a.schoolName.toLowerCase().includes(q) ||
+        a.achievement.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [search, data]);
+
   const overallPaged = filteredOverall.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalOverallPages = Math.ceil(filteredOverall.length / PAGE_SIZE);
 
@@ -290,13 +350,43 @@ export default function SportsRankings() {
     <div className="min-h-screen bg-background flex flex-col pb-20 md:pb-0">
       <Navbar />
       <main className="flex-grow container mx-auto px-3 sm:px-4 py-4 md:py-8">
-        <div className="flex items-center gap-3 mb-4 md:mb-6">
-          <Trophy className="h-7 w-7 md:h-8 md:w-8 text-primary shrink-0" />
-          <div className="min-w-0">
-            <h1 className="text-2xl md:text-3xl font-bold truncate">Sports Rankings</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              {data ? `${filteredOverall.length.toLocaleString()} schools ranked` : 'Loading...'}
+        {/* Improved Hero Section */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-background border mb-8 p-6 md:p-10">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Trophy className="w-64 h-64 text-primary" />
+          </div>
+          <div className="relative z-10 max-w-3xl">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              Prep School Sports Hub
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
+              Discover the best athletic programs, explore conference rivalries, and find where top athletes started their journey.
             </p>
+            
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border px-4 py-2 rounded-full">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="font-semibold">{data ? data.overallRows.length.toLocaleString() : '1,750+'} Schools</span>
+              </div>
+              <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border px-4 py-2 rounded-full">
+                <Trophy className="h-4 w-4 text-primary" />
+                <span className="font-semibold">{data ? data.availableSports.length : '20+'} Sports Tracked</span>
+              </div>
+              <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border px-4 py-2 rounded-full">
+                <Medal className="h-4 w-4 text-primary" />
+                <span className="font-semibold">{CONFERENCES.length}+ Conferences</span>
+              </div>
+            </div>
+
+            <div className="relative max-w-xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Search schools, sports, or alumni..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(0); setSportPage(0); }}
+                className="pl-12 h-12 text-lg rounded-full shadow-sm bg-background/90 backdrop-blur-sm border-primary/20 focus-visible:ring-primary"
+              />
+            </div>
           </div>
         </div>
 
@@ -304,15 +394,6 @@ export default function SportsRankings() {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search schools or sports..."
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(0); setSportPage(0); }}
-                  className="pl-10"
-                />
-              </div>
               <Select value={stateFilter} onValueChange={(v) => { setStateFilter(v); setPage(0); setSportPage(0); }}>
                 <SelectTrigger className="w-full md:w-[180px]">
                   <SelectValue placeholder="All States" />
@@ -354,7 +435,7 @@ export default function SportsRankings() {
         </Card>
 
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); setSportPage(0); }}>
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 flex-wrap h-auto">
             <TabsTrigger value="overall" className="gap-2">
               <Trophy className="h-4 w-4" />
               Overall Rankings
@@ -362,6 +443,14 @@ export default function SportsRankings() {
             <TabsTrigger value="by-sport" className="gap-2">
               <Medal className="h-4 w-4" />
               By Sport
+            </TabsTrigger>
+            <TabsTrigger value="by-conference" className="gap-2">
+              <Users className="h-4 w-4" />
+              By Conference
+            </TabsTrigger>
+            <TabsTrigger value="alumni" className="gap-2">
+              <Star className="h-4 w-4" />
+              Notable Alumni
             </TabsTrigger>
           </TabsList>
 
@@ -595,6 +684,151 @@ export default function SportsRankings() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* By Conference Tab */}
+          <TabsContent value="by-conference" className="space-y-6">
+            {conferencesData.length === 0 ? (
+              <Card><CardContent className="py-12 text-center">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No conferences found matching your search.</p>
+              </CardContent></Card>
+            ) : (
+              conferencesData.map(conf => (
+                <Card key={conf.id} className="overflow-hidden">
+                  <CardHeader className="bg-muted/50 border-b">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <CardTitle>{conf.name}</CardTitle>
+                          <Badge variant="outline">{conf.abbreviation}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{conf.description}</p>
+                      </div>
+                      <div className="flex gap-4 text-sm shrink-0">
+                        <div className="text-center">
+                          <div className="font-bold text-lg">{conf.schools.length}</div>
+                          <div className="text-muted-foreground text-xs">Members</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-bold text-lg">{conf.totalChamps}</div>
+                          <div className="text-muted-foreground text-xs">Championships</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-bold text-lg">{conf.aRatedCount}</div>
+                          <div className="text-muted-foreground text-xs">A-Rated</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>School</TableHead>
+                          <TableHead className="text-center">Grade</TableHead>
+                          <TableHead className="hidden md:table-cell">Strongest Programs</TableHead>
+                          <TableHead className="hidden lg:table-cell">Recent Championships</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {conf.schools.map((school, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell>
+                              {school.schoolId ? (
+                                <Link to={`/schools/${school.schoolId}`} className="font-medium hover:text-primary">
+                                  {school.schoolName}
+                                </Link>
+                              ) : (
+                                <span className="font-medium">{school.schoolName}</span>
+                              )}
+                              <div className="text-xs text-muted-foreground">{school.city}, {school.state}</div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {school.sports_grade ? (
+                                <Badge className={`${getGradeColor(school.sports_grade)} font-bold`}>
+                                  {school.sports_grade}
+                                </Badge>
+                              ) : '-'}
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              <div className="flex flex-wrap gap-1">
+                                {school.strongestPrograms?.map((p, i) => (
+                                  <Badge key={i} variant="secondary" className="text-xs">{p}</Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              <div className="flex flex-col gap-1">
+                                {school.recentChampionships?.slice(0, 2).map((c, i) => (
+                                  <span key={i} className="text-xs truncate max-w-[200px]" title={`${c.year} ${c.title} (${c.sport})`}>
+                                    🏆 {c.year} {c.title} ({c.sport})
+                                  </span>
+                                ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          {/* Notable Alumni Tab */}
+          <TabsContent value="alumni">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  {alumniData.length} Notable Alumni
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {alumniData.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <Star className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">No alumni found matching your search.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {alumniData.map((alumnus, idx) => {
+                      const achievementStr = alumnus.achievement.toUpperCase();
+                      let badgeColor = 'bg-primary';
+                      if (achievementStr.includes('NFL')) badgeColor = 'bg-blue-600';
+                      else if (achievementStr.includes('NBA')) badgeColor = 'bg-orange-500';
+                      else if (achievementStr.includes('NHL')) badgeColor = 'bg-zinc-800';
+                      else if (achievementStr.includes('MLB')) badgeColor = 'bg-red-600';
+                      else if (achievementStr.includes('OLYMPIC')) badgeColor = 'bg-yellow-500';
+                      else if (achievementStr.includes('MLS')) badgeColor = 'bg-green-600';
+                      
+                      return (
+                        <div key={idx} className="flex flex-col border rounded-lg p-4 bg-card hover:border-primary/50 transition-colors">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-bold text-lg">{alumnus.name}</h3>
+                            <Badge className={badgeColor}>{alumnus.sport}</Badge>
+                          </div>
+                          <p className="text-sm font-medium mb-4 flex-grow">
+                            {alumnus.achievement}
+                          </p>
+                          <div className="pt-3 border-t mt-auto text-sm text-muted-foreground">
+                            {alumnus.schoolId ? (
+                              <Link to={`/schools/${alumnus.schoolId}`} className="hover:text-primary flex items-center gap-1">
+                                {alumnus.schoolName} <ExternalLink className="h-3 w-3" />
+                              </Link>
+                            ) : (
+                              alumnus.schoolName
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
