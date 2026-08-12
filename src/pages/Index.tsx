@@ -12,7 +12,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   GraduationCap, Search, Sparkles, MessageSquare,
   FileText, Target, Brain, ArrowRight, CheckCircle,
-  Trophy, Star, Users, Building2, TrendingUp, Zap,
+  Trophy, Star, Users, Building2, TrendingUp,
   Shield, Clock, ChevronRight
 } from "lucide-react";
 
