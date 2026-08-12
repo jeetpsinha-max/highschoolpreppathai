@@ -122,8 +122,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Football', 'Volleyball', 'Hockey', 'Crew'],
     recentChampionships: [{ year: 2023, title: 'Founders League', sport: 'Football' }],
     notableAlumni: [
-      { name: 'Hilary Knight', sport: 'Hockey', achievement: 'Olympic Hockey' },
-      { name: 'Matt Walsh', sport: 'Basketball', achievement: 'NBA' }
+      { name: 'Hilary Knight', sport: 'Hockey', achievement: 'Olympic Hockey' }
     ],
     facilitiesHighlights: ['Worthington Johnson Athletic Center', 'Remsen Arena', 'Lanterman Athletics Center'],
     sportPrograms: [
@@ -147,7 +146,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Lacrosse', 'Swimming', 'Hockey'],
     recentChampionships: [{ year: 2022, title: 'National Prep', sport: 'Lacrosse' }],
     notableAlumni: [
-      { name: 'Patrick Moran', sport: 'Lacrosse', achievement: 'Professional Lacrosse' }
+      { name: 'Alex Killorn', sport: 'Hockey', achievement: 'NHL' }
     ],
     facilitiesHighlights: ['Athletics Center', 'Koch Pool', 'Ice Rink'],
     sportPrograms: [
@@ -170,7 +169,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 32,
     strongestPrograms: ['Sailing', 'Tennis', 'Golf', 'Field Hockey'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC Class A', sport: 'Field Hockey' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Caitlin Cahow', sport: 'Hockey', achievement: 'Olympic Hockey' }
+    ],
     facilitiesHighlights: ['Forrest E. Mars Jr. Athletic Center', 'Golf Course', 'Lake Wononscopomuc Sailing Facility'],
     sportPrograms: [
       { sport: 'Sailing', gender: 'Coed', grade: 'A+', season: 'Spring', level: 'Varsity', championships: 3 },
@@ -192,9 +193,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 30,
     strongestPrograms: ['Soccer', 'Swimming', 'Track', 'Football'],
     recentChampionships: [{ year: 2022, title: 'Founders League', sport: 'Soccer' }],
-    notableAlumni: [
-      { name: 'David Emma', sport: 'Hockey', achievement: 'NHL' }
-    ],
+    notableAlumni: [],
     facilitiesHighlights: ['Erickson Athletic Complex', 'Hedges Pool', 'Pratt Field'],
     sportPrograms: [
       { sport: 'Soccer', gender: 'Boys', grade: 'A+', season: 'Fall', level: 'Varsity', record: '16-2-1', championships: 3 },
@@ -338,7 +337,10 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 21,
     strongestPrograms: ['Swimming', 'Basketball', 'Soccer'],
     recentChampionships: [{ year: 2023, title: 'Easterns', sport: 'Swimming' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Jahan Dotson', sport: 'Football', achievement: 'NFL' },
+      { name: 'Nelson Diebel', sport: 'Swimming', achievement: 'Olympic Gold Medalist' }
+    ],
     facilitiesHighlights: ['Ian H. Graham Athletic Center', 'Aquatic Center', 'Golf Course'],
     sportPrograms: [
       { sport: 'Swimming', gender: 'Coed', grade: 'A+', season: 'Winter', level: 'Varsity', record: '10-0', nationalRanking: 10, championships: 6 },
@@ -385,7 +387,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 31,
     strongestPrograms: ['Hockey', 'Water Polo', 'Field Hockey'],
     recentChampionships: [{ year: 2022, title: 'MAPL', sport: 'Field Hockey' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Lamar Hunt', sport: 'Football', achievement: 'AFL Founder & Sports Pioneer' }
+    ],
     facilitiesHighlights: ['Mercer Fieldhouse', 'Briggs Rink', 'Cunningham Pool'],
     sportPrograms: [
       { sport: 'Hockey', gender: 'Boys', grade: 'A', season: 'Winter', level: 'Varsity', record: '19-6-2' },
@@ -432,7 +436,6 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Football', 'Baseball', 'Basketball'],
     recentChampionships: [{ year: 2023, title: 'MAPL', sport: 'Football' }],
     notableAlumni: [
-      { name: 'Jason Thompson', sport: 'Basketball', achievement: 'NBA' },
       { name: 'Myron Rolle', sport: 'Football', achievement: 'NFL' }
     ],
     facilitiesHighlights: ['Breen Performing Arts Center & Athletic Center', 'Turf Field', 'Baseball Complex'],
@@ -457,7 +460,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Soccer', 'Tennis', 'Skiing', 'Football'],
     recentChampionships: [{ year: 2022, title: 'ISL', sport: 'Soccer' }],
     notableAlumni: [
-      { name: 'Ken Dryden', sport: 'Hockey', achievement: 'NHL' }
+      { name: 'Matty Beniers', sport: 'Hockey', achievement: 'NHL' }
     ],
     facilitiesHighlights: ['Athletic and Convocation Center', 'Outdoor Track', 'Tennis Courts'],
     sportPrograms: [
@@ -549,7 +552,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Basketball', 'Soccer', 'Field Hockey'],
     recentChampionships: [{ year: 2023, title: 'ISL', sport: 'Basketball' }],
     notableAlumni: [
-      { name: 'Pat Connaughton', sport: 'Basketball', achievement: 'NBA' }
+      { name: 'Charlie Davies', sport: 'Soccer', achievement: 'USMNT/MLS' }
     ],
     facilitiesHighlights: ['Athletic Center', 'Turf Fields', 'Rowing Center'],
     sportPrograms: [
@@ -594,7 +597,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 16,
     strongestPrograms: ['Wrestling', 'Hockey', 'Lacrosse', 'Crew'],
     recentChampionships: [{ year: 2023, title: 'ISL', sport: 'Hockey' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Jimmy Vesey', sport: 'Hockey', achievement: 'NHL' }
+    ],
     facilitiesHighlights: ['Jordan Athletic Center', 'Fritz Reuter Arena', 'Wrestling Room'],
     sportPrograms: [
       { sport: 'Wrestling', gender: 'Boys', grade: 'A+', season: 'Winter', level: 'Varsity', championships: 8 },
@@ -617,8 +622,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Hockey', 'Crew', 'Lacrosse'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC Elite 8', sport: 'Hockey' }],
     notableAlumni: [
-      { name: 'Kevin Hayes', sport: 'Hockey', achievement: 'NHL' },
-      { name: 'Jimmy Vesey', sport: 'Hockey', achievement: 'NHL' }
+      { name: 'Kevin Hayes', sport: 'Hockey', achievement: 'NHL' }
     ],
     facilitiesHighlights: ['Omni Rink', 'Boathouse', 'Athletic Center'],
     sportPrograms: [
@@ -702,7 +706,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
   },
   {
     schoolName: "St. George's School",
-    city: 'Newport',
+    city: 'Middletown',
     state: 'RI',
     conference: 'ISL',
     conferenceId: 'c4',
@@ -804,7 +808,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 18,
     strongestPrograms: ['Hockey', 'Lacrosse', 'Crew'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC Elite 8', sport: 'Hockey' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Mark Arcobello', sport: 'Hockey', achievement: 'NHL/Olympics' }
+    ],
     facilitiesHighlights: ['Flood Athletic Center', 'Curtis Boathouse', 'Olympic Rink'],
     sportPrograms: [
       { sport: 'Hockey', gender: 'Boys', grade: 'A+', season: 'Winter', level: 'Varsity', record: '24-4-1', championships: 6 },
@@ -826,7 +832,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 23,
     strongestPrograms: ['Hockey', 'Volleyball', 'Squash'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC Class B', sport: 'Volleyball' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Sarah Vaillancourt', sport: 'Hockey', achievement: 'Olympic Gold Medalist' }
+    ],
     facilitiesHighlights: ['Corzine Athletic Center', 'Jahn Rink', 'Blodgett Tennis Center'],
     sportPrograms: [
       { sport: 'Hockey', gender: 'Boys', grade: 'A-', season: 'Winter', level: 'Varsity', record: '16-9-2' },
@@ -872,7 +880,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 20,
     strongestPrograms: ['Skiing', 'Hockey', 'Lacrosse'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC', sport: 'Skiing' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Dennis Donahue', sport: 'Nordic Skiing', achievement: 'Olympian' }
+    ],
     facilitiesHighlights: ['Ice Arena', 'Ski Trails', 'Turf Field'],
     sportPrograms: [
       { sport: 'Skiing', gender: 'Coed', grade: 'A+', season: 'Winter', level: 'Varsity', championships: 6 },
@@ -895,7 +905,7 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Basketball', 'Soccer', 'Track'],
     recentChampionships: [{ year: 2022, title: 'NEPSAC AAA', sport: 'Basketball' }],
     notableAlumni: [
-      { name: 'Noah Locke', sport: 'Basketball', achievement: 'NCAA BB' }
+      { name: 'Spike Albrecht', sport: 'Basketball', achievement: 'NCAA Basketball' }
     ],
     facilitiesHighlights: ['Forslund Gym', 'Gordy Pavilion', 'Outdoor Track'],
     sportPrograms: [
@@ -918,7 +928,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 30,
     strongestPrograms: ['Water Polo', 'Hockey', 'Swimming'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC', sport: 'Water Polo' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Gabby Thomas', sport: 'Track & Field', achievement: 'Olympic Gold Medalist' }
+    ],
     facilitiesHighlights: ['Athletic Center', 'Lossone Rink', 'Babcock Pool'],
     sportPrograms: [
       { sport: 'Water Polo', gender: 'Coed', grade: 'A+', season: 'Fall', level: 'Varsity', record: '16-2', championships: 3 },
@@ -965,7 +977,8 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     strongestPrograms: ['Hockey', 'Basketball'],
     recentChampionships: [{ year: 2023, title: 'NEPSAC Elite 8', sport: 'Hockey' }],
     notableAlumni: [
-      { name: 'Keith Yandle', sport: 'Hockey', achievement: 'NHL' }
+      { name: 'Keith Yandle', sport: 'Hockey', achievement: 'NHL' },
+      { name: 'Meghan Duggan', sport: 'Hockey', achievement: 'Olympic Gold Medalist' }
     ],
     facilitiesHighlights: ['Watkins Field House', 'Iorio Arena', 'Quimby Field'],
     sportPrograms: [
@@ -988,7 +1001,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 24,
     strongestPrograms: ['Hockey', 'Soccer', 'Rugby'],
     recentChampionships: [{ year: 2022, title: 'NEPSAC Elite 8', sport: 'Hockey' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Nathan Knight', sport: 'Basketball', achievement: 'NBA' }
+    ],
     facilitiesHighlights: ['Akerstrom Arena', 'Carver Athletic Center', 'Pope Field'],
     sportPrograms: [
       { sport: 'Hockey', gender: 'Boys', grade: 'A+', season: 'Winter', level: 'Varsity', record: '25-3-2', championships: 5 },
@@ -1200,7 +1215,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 23,
     strongestPrograms: ['Lacrosse', 'Soccer', 'Track'],
     recentChampionships: [{ year: 2023, title: 'NYSAIS', sport: 'Lacrosse' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Chris Berman', sport: 'Sports Broadcasting', achievement: 'ESPN Legend' }
+    ],
     facilitiesHighlights: ['Johnson Center for Health and Wellness', 'Pickert Field', 'Zetkov Athletics Center'],
     sportPrograms: [
       { sport: 'Lacrosse', gender: 'Boys', grade: 'A+', season: 'Spring', level: 'Varsity', record: '15-2', championships: 3 },
@@ -1222,7 +1239,9 @@ export const SCHOOL_SPORTS_DATA: SchoolSports[] = [
     varsitySportsCount: 28,
     strongestPrograms: ['Soccer', 'Swimming', 'Tennis'],
     recentChampionships: [{ year: 2022, title: 'State Group', sport: 'Soccer' }],
-    notableAlumni: [],
+    notableAlumni: [
+      { name: 'Dan Kellner', sport: 'Fencing', achievement: 'Olympian' }
+    ],
     facilitiesHighlights: ['Bugliari Athletics Center', 'Beinecke Pool', 'Parsons Field'],
     sportPrograms: [
       { sport: 'Soccer', gender: 'Boys', grade: 'A+', season: 'Fall', level: 'Varsity', record: '18-1-2', championships: 5 },
