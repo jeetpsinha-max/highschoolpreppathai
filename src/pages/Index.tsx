@@ -255,22 +255,10 @@ export default function Index() {
               </Button>
             </div>
 
-            {/* Social proof mini-strip */}
-            <div className="flex items-center justify-center gap-2 text-white/50 text-sm animate-fade-in-up animation-delay-400">
-              <div className="flex -space-x-2">
-                {["SR", "MT", "PK", "AL", "JW"].map((init) => (
-                  <div
-                    key={init}
-                    className="w-7 h-7 rounded-full bg-teal-500/30 border-2 border-white/10 flex items-center justify-center text-[10px] font-bold text-teal-200"
-                  >
-                    {init}
-                  </div>
-                ))}
-              </div>
-              <span>2,400+ students matched this year</span>
-            </div>
-
             {/* School Ticker */}
+            <div className="mt-12 animate-fade-in animation-delay-500">
+              <SchoolTicker />
+            </div>
             <div className="mt-12 animate-fade-in animation-delay-500">
               <SchoolTicker />
             </div>
