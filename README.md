@@ -1,62 +1,136 @@
-# 🎓 PrepPath AI — Private & Boarding School Admissions Platform
+<div align="center">
+  <img src="https://via.placeholder.com/150" alt="PrepPath AI Logo" width="120" height="120" />
+  <h1>PrepPath AI</h1>
+  <p><strong>The premier AI-powered high school discovery, application, essay coaching, and sports ranking platform.</strong></p>
 
-![React](https://img.shields.io/badge/React-18.3-61DAFB.svg?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6.svg?logo=typescript)
-![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38BDF8.svg?logo=tailwindcss)
-![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E.svg?logo=supabase)
-![PWA](https://img.shields.io/badge/PWA-Ready-1D3557.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-
-**PrepPath AI** is an end-to-end AI-powered discovery, SSAT test prep, and application management platform designed for middle and high school students applying to top private, boarding, magnet, and selective secondary schools (*The Peddie School, Phillips Andover, Phillips Exeter Academy, Choate Rosemary Hall, The Lawrenceville School*).
-
----
-
-## 🌟 Core AI Tools & Feature Modules
-
-### 🎯 1. Upper Level SSAT 2400-Point Practice Engine (`/ai-tools/ssat`)
-- **Official 1500–2400 Score Scale:** Predicts section scaled scores (500–800 for Verbal, Math, Reading) and composite score with national percentile ranking estimations (1%–99%).
-- **Authentic Question Bank:** Real SSAT synonyms, analogies (*Architect : Building :: Composer : Symphony*), algebra, geometry, and reading comprehension passages with detailed solution rationales.
-
-### ✍️ 2. AI Admissions Essay Coach (`/ai-tools/essay-coach`)
-- **Top School Prompts:** Pre-loaded prompt presets for Peddie, Andover, Exeter, Choate, and Lawrenceville.
-- **4-Dimension Rubric Scoring:** Evaluates *Tone & Maturity (0-100)*, *School Alignment*, *Vocabulary Elevation*, and *Authenticity*.
-- **Line-by-Line Revisions:** Suggests specific vocabulary upgrades with admissions rationale.
-
-### 📊 3. Admissions Command Center & Tracker (`/ai-tools/application-tracker`)
-- **Acceptance Odds Calculator:** Computes real-time acceptance probability % based on GPA, SSAT scores, and school category (Reach / Target / Safety).
-- **Status Pipeline:** Tracks applications across *Not Started ➔ Essay Drafting ➔ Interview Completed ➔ Submitted ➔ Accepted*.
-
-### 💰 4. Net Price & Financial Aid Estimator (`/ai-tools/financial-aid`)
-- **Household Income Estimator Slider ($40k – $350k+):** Calculates estimated need-based grant aid ($), net out-of-pocket family cost ($), and tuition discount %.
-
-### 🗺️ 5. Campus Visit Prep & Tour Guide (`/ai-tools/school-visit`)
-- **Preset Campus Checklists:** Custom tour questions, Harkness classroom observation guides, and insider admissions pro-tips.
+  <p>
+    <img src="https://img.shields.io/badge/React-19-blue" alt="React 19" />
+    <img src="https://img.shields.io/badge/TypeScript-Ready-blue" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Vite-Fast-blueviolet" alt="Vite" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-Styled-38B2AC" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/Supabase-DB-green" alt="Supabase" />
+    <img src="https://img.shields.io/badge/Gemini_2.0_Omni-AI-orange" alt="Gemini 2.0 Omni" />
+    <img src="https://img.shields.io/badge/PWA-Enabled-success" alt="PWA" />
+  </p>
+</div>
 
 ---
 
-## 🏗️ Tech Stack
+## 🌟 Overview
 
-- **Frontend:** React 18, TypeScript, Tailwind CSS, Lucide Icons, Shadcn UI
-- **Backend / Database:** Supabase (Auth, Postgres, Edge Functions)
-- **Deployment:** Mobile PWA Ready (Service Workers & Web App Manifest)
+**Highschool PrepPath AI** is an all-in-one platform built to empower students and parents navigating the competitive private and boarding high school admissions landscape. From intelligent school matching to comprehensive essay coaching, real-time interview prep, and an industry-first high school sports ranking engine—PrepPath AI is your ultimate admissions companion.
+
+Additionally, the platform features **PrepPath Studio**, a built-in automated viral Instagram Reels creation tool designed for schools and athletes to showcase their highlights in stunning 4K HTML5 Canvas rendering.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Core Platform Features
 
-```bash
-# Clone the repository
-git clone https://github.com/jeetpsinha-max/highschoolpreppathai.git
+- 🏆 **Sports Rankings Engine**: Discover the top 50 private/boarding high schools across 13 athletic conferences (NEPSAC, MAPL, ISL, Founders, Lakes Region, etc.). Includes composite scoring, detailed conference breakdowns, and verified notable alumni tracking (NFL, NBA, NHL, and Olympians like Gabby Thomas & Jahan Dotson).
+- 📝 **AI Admissions Essay Coach**: Multi-turn, contextual AI guidance for application essays. Receive real-time feedback, grammar correction, and structural scoring to craft the perfect personal statement.
+- 🎯 **AI School Matcher**: A highly personalized discovery engine matching students against 1,750+ schools based on academic interests, sports preferences, location, and budget constraints.
+- 🎙️ **Interview Coach**: Interactive AI interview simulations. Practice answering real private school admissions questions with voice & text evaluation and actionable feedback.
+- 📚 **Upper Level SSAT Prep Engine**: Targeted practice questions, timed diagnostic tests, detailed explanations, and score prediction to boost standardized test performance.
+- 💰 **Net Price Estimator & Financial Aid Advisor**: Transparent tuition breakdowns, expected family contribution (EFC) estimation, and strategic financial planning for private high school affordability.
+- 🎬 **PrepPath Studio (Integrated)**: Generate 15-second viral video reels in a snap. Powered by the Gemini 2.0 Flash Omni API, HTML5 4K Canvas rendering, audio visualizer spectrums, 3D parallax effects, and an advanced Instagram virality prediction engine.
 
-# Install dependencies
-cd preppath-repo
-npm install
+---
 
-# Run dev server
-npm run dev
+## 💻 Tech Stack
+
+| Category | Technology |
+| --- | --- |
+| **Frontend Framework** | React 19, TypeScript, Vite |
+| **Styling** | Tailwind CSS, Framer Motion |
+| **Backend & DB** | Supabase (PostgreSQL, Auth, Storage) |
+| **AI Integration** | Google Gemini 2.0 Omni API |
+| **Media Engine** | HTML5 Canvas 4K, Web Audio API |
+| **PWA & Mobile** | Vite PWA Plugin, Workbox |
+
+---
+
+## 📁 Repository Structure
+
+```text
+preppath-repo/
+├── .github/              # CI/CD Workflows
+├── src/                  # Core Web Application Platform
+│   ├── components/       # Shared UI components
+│   ├── pages/            # Next-gen routing pages
+│   ├── hooks/            # Custom React Hooks
+│   ├── lib/              # Utility functions and API clients
+│   └── styles/           # Global styles and Tailwind configuration
+├── studio/               # PrepPath Studio - Automated Viral Video Creator
+│   ├── src/              # Studio-specific source code
+│   └── README.md         # Dedicated Studio documentation
+├── public/               # Static assets (images, icons, manifest.json)
+├── supabase/             # Supabase edge functions, migrations, and types
+├── package.json          # Workspace and dependencies
+└── README.md             # This file
 ```
 
 ---
 
-## 📄 License
-MIT License. Created by [Jeet Sinha](https://github.com/jeetpsinha-max).
+## 🛠️ Quick Start Guide
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or pnpm or yarn
+- Supabase CLI (optional, for local DB development)
+
+### 1. Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/your-username/preppath-repo.git
+cd preppath-repo
+npm install
+```
+
+### 2. Environment Variables
+
+Create a `.env` file in the root directory and populate it with your specific keys:
+
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_gemini_api_key
+```
+
+### 3. Run Development Server
+
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+Navigate to `http://localhost:5173` to view the app in your browser.
+
+### 4. Build for Production
+
+To create a production-ready optimized build:
+
+```bash
+npm run build
+```
+
+---
+
+## 📱 PWA & Mobile Support
+
+PrepPath AI is fully Progressive Web App (PWA) compliant. It can be installed directly to user devices (iOS, Android, Windows, Mac) bypassing traditional app stores. Features include:
+- Offline fallback pages.
+- Native-like app shell and performance.
+- Push notifications for interview reminders and admissions deadlines.
+
+---
+
+## 📄 License & Credits
+
+**PrepPath AI** & **PrepPath Studio**
+
+Created and maintained by **Jeet Sinha** / PrepPath AI.
+
+All rights reserved. Contact for licensing inquiries.
