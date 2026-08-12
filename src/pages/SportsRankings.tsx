@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Search, Medal, ArrowUpDown, ExternalLink, Users, ChevronLeft, ChevronRight, Star, TrendingUp, Activity } from 'lucide-react';
 import { getGradeColor, gradeToRank } from '@/lib/grading';
 import { SportProgram } from '@/hooks/useEnhancedGrades';
-import { CONFERENCES, SCHOOL_SPORTS_DATA, Conference, SchoolSportsProfile } from '@/data/sportsData';
+import { CONFERENCES, SCHOOL_SPORTS_DATA, Conference, SchoolSports } from '@/data/sportsData';
 
 const PAGE_SIZE = 50;
 
