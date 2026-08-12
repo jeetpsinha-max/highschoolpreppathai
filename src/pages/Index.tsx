@@ -72,7 +72,6 @@ const stats = [
   { value: "1,750+", label: "Schools Indexed", icon: Building2 },
   { value: "50", label: "States Covered", icon: Shield },
   { value: "< 30s", label: "To Get Matched", icon: Clock },
-  { value: "AI-First", label: "Platform", icon: Zap },
 ];
 
 const steps = [
