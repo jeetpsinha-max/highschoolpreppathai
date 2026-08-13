@@ -88,7 +88,7 @@ app.post('/api/gemini/ask', async (req: Request, res: Response) => {
   }
 });
 
-if (process.env.NODE_ENV !== 'test' && require.main === module) {
+if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`🚀 PrepPath Repo Server running on http://localhost:${PORT}`);
   });
