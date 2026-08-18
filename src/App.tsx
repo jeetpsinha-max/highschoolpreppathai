@@ -110,6 +110,24 @@ function App() {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            {/* Top Right Orange Font Build Indicator */}
+            <div 
+              id="preppath-version-marker" 
+              style={{ 
+                position: 'fixed', 
+                top: '6px', 
+                right: '10px', 
+                zIndex: 99999, 
+                color: '#f97316', 
+                fontWeight: '800', 
+                fontSize: '14px', 
+                fontFamily: 'monospace',
+                pointerEvents: 'none', 
+                userSelect: 'none' 
+              }}
+            >
+              1
+            </div>
             <AdminSecretListener />
             <GlobalOnboarding />
             <Routes>

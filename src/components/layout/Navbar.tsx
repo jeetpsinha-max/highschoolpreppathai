@@ -155,6 +155,11 @@ export function Navbar() {
                 </Button>
               </>
             )}
+
+            {/* Small Orange 1 Indicator */}
+            <span className="text-orange-500 font-extrabold text-xs ml-1 select-none font-mono tracking-tight" title="Live Build Marker: 1">
+              1
+            </span>
           </div>
 
           {/* ── Mobile hamburger ── */}
