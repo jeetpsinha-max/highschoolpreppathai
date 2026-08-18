@@ -1,7 +1,8 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useRef, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { toast } from "@/hooks/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -66,6 +67,41 @@ const PageSuspense = ({ children }: { children: React.ReactNode }) => (
   </ErrorBoundary>
 );
 
+function AdminSecretListener() {
+  const bufferRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      bufferRef.current.push(e.key);
+      if (bufferRef.current.length > 20) {
+        bufferRef.current.shift();
+      }
+
+      const seq = bufferRef.current.join('');
+      if (seq.endsWith('0729!')) {
+        sessionStorage.setItem('preppath_admin_unlocked', '0729!');
+        toast({
+          title: "🔑 Superadmin Access Unlocked",
+          description: "Secret code 0729! authenticated. Redirecting to Admin Status & Analytics..."
+        });
+        setTimeout(() => {
+          window.location.href = '/admin/status';
+        }, 1200);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  return null;
+}
+
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -74,6 +110,7 @@ function App() {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <AdminSecretListener />
             <GlobalOnboarding />
             <Routes>
               {/* Public */}
