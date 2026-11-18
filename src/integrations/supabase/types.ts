@@ -703,6 +703,10 @@ export type Database = {
         Args: { _days?: number }
         Returns: Json
       }
+      get_weekly_visitor_report: {
+        Args: { _report_key: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

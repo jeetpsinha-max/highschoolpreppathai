@@ -44,8 +44,9 @@ CREATE POLICY "Admins can read page views"
 GRANT INSERT ON public.page_views TO anon, authenticated;
 GRANT SELECT ON public.page_views TO authenticated;
 
--- Aggregated analytics for the admin dashboard.
-CREATE OR REPLACE FUNCTION public.get_site_analytics(_days integer DEFAULT 30)
+-- Aggregate builder shared by the admin dashboard and the weekly report.
+-- Not callable through the API; only the wrappers below may use it.
+CREATE OR REPLACE FUNCTION public.site_analytics_internal(_days integer)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
@@ -57,10 +58,6 @@ DECLARE
   _prev   timestamptz;
   _result jsonb;
 BEGIN
-  IF NOT public.has_role(auth.uid(), 'admin'::app_role) THEN
-    RAISE EXCEPTION 'Only admins can view site analytics' USING ERRCODE = '42501';
-  END IF;
-
   _days  := LEAST(GREATEST(COALESCE(_days, 30), 1), 365);
   _since := now() - make_interval(days => _days);
   _prev  := _since - make_interval(days => _days);
@@ -133,5 +130,47 @@ BEGIN
 END;
 $$;
 
+REVOKE ALL ON FUNCTION public.site_analytics_internal(integer) FROM PUBLIC, anon, authenticated;
+
+-- Admin dashboard: full analytics for any range, admins only.
+CREATE OR REPLACE FUNCTION public.get_site_analytics(_days integer DEFAULT 30)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.has_role(auth.uid(), 'admin'::app_role) THEN
+    RAISE EXCEPTION 'Only admins can view site analytics' USING ERRCODE = '42501';
+  END IF;
+  RETURN public.site_analytics_internal(_days);
+END;
+$$;
+
 REVOKE ALL ON FUNCTION public.get_site_analytics(integer) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_site_analytics(integer) TO authenticated, service_role;
+
+-- Weekly visitor report for the site owner's scheduled summary.
+-- Unlocked by a long random report key; only its SHA-256 fingerprint is
+-- stored here. Returns last-7-day totals only (no recent-activity feed).
+-- To rotate the key, replace the fingerprint below in a new migration.
+CREATE OR REPLACE FUNCTION public.get_weekly_visitor_report(_report_key text)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF _report_key IS NULL
+     OR encode(sha256(convert_to(_report_key, 'UTF8')), 'hex')
+        <> '95044e2d8427909bb269b1be89405ca7d60a9300eee2e299e8e73215b0e3a1b2' THEN
+    RAISE EXCEPTION 'Invalid report key' USING ERRCODE = '42501';
+  END IF;
+  RETURN public.site_analytics_internal(7) - 'recent';
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_weekly_visitor_report(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_weekly_visitor_report(text) TO anon, authenticated, service_role;
