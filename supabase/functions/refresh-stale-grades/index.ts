@@ -53,7 +53,7 @@ serve(async (req) => {
     }
 
     let refreshed = 0;
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     // Process in batches of 3 to avoid rate limits
     const batchSize = 3;

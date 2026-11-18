@@ -5,7 +5,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const items = [
+type NavItem = { href: string; label: string; icon: typeof Home; end?: boolean };
+
+const items: NavItem[] = [
   { href: "/", label: "Home", icon: Home, end: true },
   { href: "/schools", label: "Schools", icon: Search },
   { href: "/sports-rankings", label: "Sports", icon: Trophy },
@@ -41,7 +43,7 @@ export function MobileBottomNav() {
 
   const dashboardHref = isParent ? "/parent-dashboard" : "/dashboard";
 
-  const navItems = user
+  const navItems: NavItem[] = user
     ? [...items, { href: dashboardHref, label: "Me", icon: LayoutDashboard }]
     : items;
 
@@ -56,7 +58,7 @@ export function MobileBottomNav() {
           <NavLink
             key={item.href}
             to={item.href}
-            end={(item as any).end}
+            end={item.end}
             className={({ isActive }) =>
               cn(
                 "flex flex-col items-center justify-center gap-0.5 py-2 px-1 text-[10px] font-medium transition-colors min-h-[56px]",

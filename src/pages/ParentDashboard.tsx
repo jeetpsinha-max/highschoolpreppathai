@@ -16,16 +16,21 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useEssays } from "@/hooks/useEssays";
 import { useChecklist } from "@/hooks/useChecklist";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
+type SavedSchoolWithSchool = Tables<"saved_schools"> & {
+  schools: Pick<Tables<"schools">, "name" | "city" | "state" | "competitiveness"> | null;
+};
+
 interface StudentData {
-  savedSchools: any[];
-  matcherResults: any[];
-  interviewSessions: any[];
-  ssatPractice: any[];
-  profile: any;
+  savedSchools: SavedSchoolWithSchool[];
+  matcherResults: Tables<"matcher_results">[];
+  interviewSessions: Tables<"interview_sessions">[];
+  ssatPractice: Tables<"ssat_practice">[];
+  profile: Tables<"profiles"> | null;
 }
 
 const ParentDashboard = () => {
@@ -131,10 +136,10 @@ const ParentDashboard = () => {
     }
   };
 
-  const getAverageScore = (items: any[], key: string) => {
-    const withScores = items.filter(i => i[key] !== null);
-    if (withScores.length === 0) return null;
-    return Math.round(withScores.reduce((acc, i) => acc + (i[key] || 0), 0) / withScores.length);
+  const getAverageScore = (items: Array<{ score: number | null }>) => {
+    const scores = items.map((i) => i.score).filter((s): s is number => s !== null);
+    if (scores.length === 0) return null;
+    return Math.round(scores.reduce((acc, s) => acc + s, 0) / scores.length);
   };
 
   if (authLoading || roleLoading || loading) {
@@ -291,7 +296,7 @@ const ParentDashboard = () => {
                 <Mic className="h-8 w-8 text-purple-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {getAverageScore(studentData?.interviewSessions || [], 'score') ?? '-'}%
+                    {getAverageScore(studentData?.interviewSessions || []) ?? '-'}%
                   </p>
                   <p className="text-sm text-muted-foreground">Avg Interview</p>
                 </div>
@@ -304,7 +309,7 @@ const ParentDashboard = () => {
                 <BookOpen className="h-8 w-8 text-orange-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {getAverageScore(studentData?.ssatPractice || [], 'score') ?? '-'}%
+                    {getAverageScore(studentData?.ssatPractice || []) ?? '-'}%
                   </p>
                   <p className="text-sm text-muted-foreground">Avg SSAT</p>
                 </div>
@@ -474,7 +479,7 @@ const ParentDashboard = () => {
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {studentData?.savedSchools.map((saved: any) => (
+                {studentData?.savedSchools.map((saved) => (
                   <Card key={saved.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">{saved.schools?.name}</CardTitle>

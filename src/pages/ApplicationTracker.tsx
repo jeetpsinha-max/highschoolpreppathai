@@ -214,7 +214,7 @@ export default function ApplicationTracker() {
                       </div>
 
                       {/* Status Selector */}
-                      <Select value={app.status} onValueChange={(val: any) => updateStatus(app.id, val)}>
+                      <Select value={app.status} onValueChange={(val) => updateStatus(app.id, val as ApplicationEntry["status"])}>
                         <SelectTrigger className="w-[150px] text-xs">
                           <SelectValue />
                         </SelectTrigger>
@@ -261,7 +261,7 @@ export default function ApplicationTracker() {
 
                   <div>
                     <label className="font-semibold text-muted-foreground uppercase">Category</label>
-                    <Select value={newCategory} onValueChange={(val: any) => setNewCategory(val)}>
+                    <Select value={newCategory} onValueChange={(val) => setNewCategory(val as typeof newCategory)}>
                       <SelectTrigger className="mt-1">
                         <SelectValue />
                       </SelectTrigger>

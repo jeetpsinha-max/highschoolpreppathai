@@ -22,8 +22,8 @@ function isInIframe() {
 function isStandalone() {
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
-    // @ts-ignore iOS Safari
-    window.navigator.standalone === true
+    // iOS Safari exposes a non-standard `standalone` flag
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
   );
 }
 

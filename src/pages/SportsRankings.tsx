@@ -861,10 +861,10 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   );
 }
 
-function SummaryStats({ data, filtered }: { data: any; filtered: SchoolRow[] }) {
+function SummaryStats({ data, filtered }: { data: { overallRows: SchoolRow[]; sportEntries: SportEntry[]; availableSports: string[] } | undefined; filtered: SchoolRow[] }) {
   if (!data) return null;
 
-  const allRows = data.overallRows as SchoolRow[];
+  const allRows = data.overallRows;
   const aRated = allRows.filter(s => s.sports_grade?.startsWith('A')).length;
   const bRated = allRows.filter(s => s.sports_grade?.startsWith('B')).length;
   const withDetail = allRows.filter(s => s.has_detail).length;

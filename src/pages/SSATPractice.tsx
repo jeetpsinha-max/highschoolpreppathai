@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Calculator, FileText, CheckCircle, XCircle, RotateCcw, Award, Sparkles, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/layout/Navbar";
@@ -231,8 +232,8 @@ export default function SSATPractice() {
         await supabase.from("ssat_practice").insert({
           user_id: user.id,
           section: section!,
-          questions: practiceData.questions as any,
-          answers: answers as any,
+          questions: practiceData.questions as unknown as Json,
+          answers: answers as unknown as Json,
           score: Math.round(rawPct * 100),
         });
       } catch (error) {

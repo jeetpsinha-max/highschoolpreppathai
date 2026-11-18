@@ -87,7 +87,7 @@ const gradeCategories = [
   { label: "Diversity", key: "diversity_grade", icon: Globe },
   { label: "Facilities", key: "facilities_grade", icon: Wrench },
   { label: "Dorms", key: "dorms_grade", icon: BedDouble },
-] as const;
+] as const satisfies ReadonlyArray<{ label: string; key: keyof School; icon: unknown }>;
 
 interface SchoolCardProps {
   school: School;
@@ -101,7 +101,7 @@ export function SchoolCard({ school }: SchoolCardProps) {
 
   // Filter to only show grades that exist
   const visibleGrades = gradeCategories.filter(
-    (cat) => (school as any)[cat.key]
+    (cat) => school[cat.key]
   );
 
   return (
@@ -254,7 +254,7 @@ export function SchoolCard({ school }: SchoolCardProps) {
         {/* Grade Grid */}
         <div className="grid grid-cols-5 gap-1.5">
           {visibleGrades.slice(0, 10).map(({ label, key, icon: Icon }) => {
-            const grade = (school as any)[key] as string | null;
+            const grade = school[key];
             return (
               <Tooltip key={key}>
                 <TooltipTrigger asChild>

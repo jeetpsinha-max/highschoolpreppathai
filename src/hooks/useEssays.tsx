@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
 
@@ -11,7 +12,7 @@ interface Essay {
   prompt: string | null;
   content: string | null;
   status: string | null;
-  ai_feedback: any;
+  ai_feedback: Json | null;
   created_at: string;
   updated_at: string;
 }

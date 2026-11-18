@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/utils";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -145,10 +146,10 @@ const ApplicationAssistant = () => {
 
       const assistantMessage: ChatMessage = { role: "assistant", content: data.result };
       setChatMessages((prev) => [...prev, assistantMessage]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to get response. Please try again.",
+        description: getErrorMessage(error, "Failed to get response. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -182,10 +183,10 @@ const ApplicationAssistant = () => {
 
       if (error) throw error;
       setResult(data.result);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to get assistance",
+        description: getErrorMessage(error, "Failed to get assistance"),
         variant: "destructive"
       });
     } finally {

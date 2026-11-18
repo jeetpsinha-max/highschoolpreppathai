@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useUserPreferences, type UserPreferences } from "@/hooks/useUserPreferences";
 import { 
   Target, MessageSquare, FileText, TrendingUp, Brain, Wand2, ArrowRight,
   DollarSign, MapPin, Mail, Calendar, Trophy, Sparkles, Star
@@ -128,7 +128,7 @@ const categoryIcons: Record<string, React.ElementType> = {
   Planning: Calendar,
 };
 
-function getRecommendedToolIds(prefs: any): string[] {
+function getRecommendedToolIds(prefs: UserPreferences | null | undefined): string[] {
   if (!prefs?.onboarding_completed) return [];
   const recs: string[] = [];
   if (prefs.test_prep_status === "not_started" || prefs.test_prep_status === "studying") recs.push("ssat");
