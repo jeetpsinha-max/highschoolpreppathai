@@ -195,7 +195,7 @@ serve(async (req) => {
     console.log(`AI returned ${nicheSchools.length} schools for ${state}`);
 
     // Filter duplicates and prepare for insert
-    const newSchools: any[] = [];
+    const newSchools: Record<string, unknown>[] = [];
     const duplicates: string[] = [];
 
     for (const school of nicheSchools) {

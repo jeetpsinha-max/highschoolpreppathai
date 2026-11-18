@@ -20,10 +20,31 @@
 ## 🚀 Quick Start
 
 ```bash
-npm install
-npm run dev
-npm test
+npm ci            # install exact dependency versions
+npm run dev       # web app on http://localhost:8080
+npm run server    # Gemini API server on http://localhost:3002
 ```
+
+### Quality checks (all run in CI)
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+### API server configuration
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | — | Enables live Gemini answers (otherwise a fallback reply is returned) |
+| `PORT` | `3002` | Port for `npm run server` |
+| `ALLOWED_ORIGINS` | any | Comma-separated CORS allowlist, e.g. `https://app.example.com` |
+| `RATE_LIMIT_MAX` | `100` | Requests allowed per IP per window |
+| `RATE_LIMIT_WINDOW_MS` | `3600000` | Rate-limit window length (ms) |
+
+`POST /api/gemini/ask` accepts `{ prompt, context?, systemInstruction? }` (8,000 characters combined max).
 
 ---
 

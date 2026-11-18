@@ -92,7 +92,7 @@ export function useUserRole() {
 
     try {
       const { data: studentId, error } = await supabase.rpc(
-        'link_parent_to_student' as any,
+        'link_parent_to_student',
         { _student_email: studentEmail }
       );
 

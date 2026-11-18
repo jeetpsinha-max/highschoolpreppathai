@@ -20,6 +20,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEssays } from "@/hooks/useEssays";
 import { useChecklist } from "@/hooks/useChecklist";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
+import { getErrorMessage } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -46,19 +48,24 @@ interface SavedSchool {
   };
 }
 
+interface MatchedSchool {
+  name: string;
+  [key: string]: unknown;
+}
+
 interface MatcherResult {
   id: string;
   created_at: string;
-  reach_schools: any[] | null;
-  target_schools: any[] | null;
-  safety_schools: any[] | null;
+  reach_schools: MatchedSchool[] | null;
+  target_schools: MatchedSchool[] | null;
+  safety_schools: MatchedSchool[] | null;
 }
 
 interface InterviewSession {
   id: string;
   created_at: string;
   score: number | null;
-  feedback: any;
+  feedback: Json | null;
 }
 
 interface SSATPractice {
@@ -221,10 +228,10 @@ const Dashboard = () => {
 
       const assistantMessage: ChatMessage = { role: "assistant", content: data.result };
       setAiChatMessages((prev) => [...prev, assistantMessage]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to get response. Please try again.",
+        description: getErrorMessage(error, "Failed to get response. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -791,7 +798,7 @@ const Dashboard = () => {
                         <div>
                           <p className="font-semibold text-red-600 mb-2">Reach Schools ({result.reach_schools?.length || 0})</p>
                           <ul className="text-sm space-y-1">
-                            {result.reach_schools?.slice(0, 3).map((s: any, i: number) => (
+                            {result.reach_schools?.slice(0, 3).map((s, i) => (
                               <li key={i}>{s.name}</li>
                             ))}
                           </ul>
@@ -799,7 +806,7 @@ const Dashboard = () => {
                         <div>
                           <p className="font-semibold text-yellow-600 mb-2">Target Schools ({result.target_schools?.length || 0})</p>
                           <ul className="text-sm space-y-1">
-                            {result.target_schools?.slice(0, 3).map((s: any, i: number) => (
+                            {result.target_schools?.slice(0, 3).map((s, i) => (
                               <li key={i}>{s.name}</li>
                             ))}
                           </ul>
@@ -807,7 +814,7 @@ const Dashboard = () => {
                         <div>
                           <p className="font-semibold text-green-600 mb-2">Safety Schools ({result.safety_schools?.length || 0})</p>
                           <ul className="text-sm space-y-1">
-                            {result.safety_schools?.slice(0, 3).map((s: any, i: number) => (
+                            {result.safety_schools?.slice(0, 3).map((s, i) => (
                               <li key={i}>{s.name}</li>
                             ))}
                           </ul>

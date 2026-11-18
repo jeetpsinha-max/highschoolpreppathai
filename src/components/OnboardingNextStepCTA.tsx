@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, Sparkles, MapPin, Target, Heart, Wallet, GraduationCap, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useUserPreferences, type UserPreferences } from "@/hooks/useUserPreferences";
 
 type StepKey =
   | "grade_level"
@@ -22,7 +22,7 @@ interface StepDef {
   blurb: string;
   cta: string;
   Icon: typeof Sparkles;
-  isMissing: (p: any) => boolean;
+  isMissing: (p: UserPreferences | null | undefined) => boolean;
 }
 
 const STEPS: StepDef[] = [
