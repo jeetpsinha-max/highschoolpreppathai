@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      page_views: {
+        Row: {
+          browser: string | null
+          created_at: string
+          device_type: string | null
+          id: number
+          os: string | null
+          path: string
+          referrer: string | null
+          session_id: string
+          user_id: string | null
+          visitor_id: string
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: never
+          os?: string | null
+          path: string
+          referrer?: string | null
+          session_id: string
+          user_id?: string | null
+          visitor_id: string
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: never
+          os?: string | null
+          path?: string
+          referrer?: string | null
+          session_id?: string
+          user_id?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       application_checklists: {
         Row: {
           completed: boolean | null
@@ -660,6 +699,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_site_analytics: {
+        Args: { _days?: number }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
