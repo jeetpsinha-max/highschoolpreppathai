@@ -13,6 +13,7 @@ import { MobileBottomNav } from "./components/layout/MobileBottomNav";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { GlobalOnboarding } from "./components/GlobalOnboarding";
 import { PageLoader } from "./components/PageLoader";
+import { PageViewTracker } from "./components/PageViewTracker";
 
 // Eagerly loaded — first paint
 import Index from "./pages/Index";
@@ -129,6 +130,7 @@ function App() {
               1
             </div>
             <AdminSecretListener />
+            <PageViewTracker />
             <GlobalOnboarding />
             <Routes>
               {/* Public */}
